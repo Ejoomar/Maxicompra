@@ -1,0 +1,14 @@
+# Archivos de desarrollo — no van al repo
+fix_*.js
+_test_script.js
+*.ps1
+ml_products*.js
+aplicar_datos_cliente.js
+inyectar_productos.js
+procesar_csv.js
+update_tema_phone_iphone.js
+UsersdavidDownloadsmaxicompraedgar.html
+maxicompraedgar.html
+entrega-original/
+.claude/
+COMANDOS/

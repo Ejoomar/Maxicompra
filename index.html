@@ -2997,6 +2997,33 @@ function selPay(el,val){
   };
   btn.innerHTML = labels[val] || '<i class="fas fa-lock"></i> Confirmar pedido';
 }
+function _launchOrderWA(orderNum, waURL){
+  document.getElementById('ckOrderNum').textContent = '#'+orderNum;
+  document.getElementById('ckForm').style.display = 'none';
+  document.getElementById('ckSummary').style.display = 'none';
+  document.getElementById('ckSuccess').style.display = 'block';
+  var cdEl = document.getElementById('ck-wa-countdown');
+  if(!cdEl){
+    cdEl = document.createElement('div');
+    cdEl.id = 'ck-wa-countdown';
+    cdEl.style.cssText = 'margin-top:14px;font-size:13px;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:6px;';
+    document.getElementById('ckSuccess').appendChild(cdEl);
+  }
+  var secs = 4;
+  function tick(){
+    if(secs > 0){
+      cdEl.innerHTML = '<i class="fab fa-whatsapp" style="color:#25D366;font-size:16px"></i> Notificando a la tienda en <strong style="color:var(--text)">'+secs+'</strong>s...';
+      secs--;
+      setTimeout(tick, 1000);
+    } else {
+      cdEl.innerHTML = '<i class="fab fa-whatsapp" style="color:#25D366;font-size:16px"></i> <strong style="color:#25D366">¡Pedido enviado por WhatsApp!</strong>';
+      window.open(waURL, '_blank');
+    }
+  }
+  tick();
+  cart = []; saveC(); updCartBadge(); renderCart();
+}
+
 function confirmOrder(){
   const name   = document.getElementById('ck-fname').value.trim();
   const email  = document.getElementById('ck-email').value.trim();
@@ -3009,27 +3036,54 @@ function confirmOrder(){
   }
   if(!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/)){ showToast('Email inválido — revisa el formato','error'); return; }
 
-  // Método de pago seleccionado
   const payEl  = document.querySelector('.ck-pay-opt.sel input');
   const payVal = payEl ? payEl.id.replace('pay-','') : 'webpay';
   const payNames = {webpay:'Webpay Plus (Débito/Crédito)', mp:'Mercado Pago (30% OFF)', transfer:'Transferencia bancaria', cash:'Efectivo (pago en tienda)'};
   const payName = payNames[payVal] || payVal;
 
-  // Total del pedido
   const totalEl  = document.getElementById('ck-total');
   const shipEl   = document.getElementById('ck-ship');
   const totalTxt = totalEl ? totalEl.textContent : '$0';
   const shipTxt  = shipEl  ? shipEl.textContent  : 'GRATIS';
+  const totalNum = parseInt((totalTxt||'0').replace(/\D/g,'')) || 0;
 
-  // Número de orden
+  const storePhone = (gc('phone')||'+56958498763').replace(/\D/g,'');
+
+  // ── Si API está configurada: guardar pedido en servidor ──
+  if(API_BASE){
+    const orderPayload = {
+      items: cart.map(function(i){ return {id:i.id, name:i.name, qty:i.qty, price:i.price, img:i.img||''}; }),
+      customer: {name, email, phone, address: addr+', '+city+', '+region},
+      payment: payVal,
+      coupon: _couponApplied ? (document.getElementById('ckCouponInput').value||'').trim().toUpperCase() : null,
+      total: totalNum
+    };
+    fetch(API_BASE+'/api/order', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(orderPayload)
+    })
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.ok){
+        _launchOrderWA(d.orderId, d.waUrl);
+      } else {
+        _confirmOrderFallback(name,email,phone,addr,city,region,payName,shipTxt,totalTxt,storePhone);
+      }
+    })
+    .catch(function(){
+      _confirmOrderFallback(name,email,phone,addr,city,region,payName,shipTxt,totalTxt,storePhone);
+    });
+    return;
+  }
+  _confirmOrderFallback(name,email,phone,addr,city,region,payName,shipTxt,totalTxt,storePhone);
+}
+
+function _confirmOrderFallback(name,email,phone,addr,city,region,payName,shipTxt,totalTxt,storePhone){
   const orderNum = 'MX-' + Date.now().toString().slice(-6);
-
-  // ── Construir lista de productos ──
   const itemLines = cart.map(function(i){
     return '  • '+i.qty+'x '+i.name.substring(0,40)+(i.name.length>40?'...':'') + ' — ' + fp(i.price * i.qty);
   }).join('\n');
-
-  // ── Mensaje WhatsApp para Edgar ──
   const msg = [
     '🛒 *NUEVO PEDIDO #'+orderNum+'*',
     '━━━━━━━━━━━━━━━━━━━━',
@@ -3051,40 +3105,8 @@ function confirmOrder(){
     '━━━━━━━━━━━━━━━━━━━━',
     '⚡ Pedido enviado desde Maxicompra.cl'
   ].join('\n');
-
-  // ── Mostrar pantalla de éxito ──
-  document.getElementById('ckOrderNum').textContent = '#'+orderNum;
-  document.getElementById('ckForm').style.display = 'none';
-  document.getElementById('ckSummary').style.display = 'none';
-  document.getElementById('ckSuccess').style.display = 'block';
-
-  // ── Enviar a WhatsApp de Edgar con countdown ──
-  const storePhone = (gc('phone')||'+56958498763').replace(/\D/g,'');
   const waURL = 'https://wa.me/'+storePhone+'?text='+encodeURIComponent(msg);
-
-  // Mostrar countdown en la pantalla de éxito
-  var cdEl = document.getElementById('ck-wa-countdown');
-  if(!cdEl){
-    cdEl = document.createElement('div');
-    cdEl.id = 'ck-wa-countdown';
-    cdEl.style.cssText = 'margin-top:14px;font-size:13px;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:6px;';
-    document.getElementById('ckSuccess').appendChild(cdEl);
-  }
-  var secs = 4;
-  function tick(){
-    if(secs > 0){
-      cdEl.innerHTML = '<i class="fab fa-whatsapp" style="color:#25D366;font-size:16px"></i> Notificando a la tienda en <strong style="color:var(--text)">'+secs+'</strong>s...';
-      secs--;
-      setTimeout(tick, 1000);
-    } else {
-      cdEl.innerHTML = '<i class="fab fa-whatsapp" style="color:#25D366;font-size:16px"></i> <strong style="color:#25D366">¡Pedido enviado por WhatsApp!</strong>';
-      window.open(waURL, '_blank');
-    }
-  }
-  tick();
-
-  // Vaciar carrito
-  cart = []; saveC(); updCartBadge(); renderCart();
+  _launchOrderWA(orderNum, waURL);
 }
 
 /* ═══════════ WHATSAPP ═══════════ */
@@ -3820,6 +3842,10 @@ function togFAQ(el){
   el.classList.toggle('open');
 }
 
+/* ═══════════ API CONFIG ═══════════ */
+// Actualizar con URL real del worker después de: wrangler deploy
+var API_BASE = '';  // Ej: 'https://maxicompra-api.tusubdominio.workers.dev'
+
 /* ═══════════ COUPON CODE ═══════════ */
 var _couponApplied = false, _couponPct = 0;
 var VALID_COUPONS = {'BIENVENIDA10':10,'MAXIDESCUENTO':15,'PRIMERACOMPRA':10};
@@ -3831,16 +3857,39 @@ function applyCoupon(){
     msg.className='ck-coupon-msg err'; msg.textContent='Ingresa un código de descuento.'; msg.style.display='block';
     return;
   }
+  // Validación server-side si API está configurada
+  if(API_BASE){
+    msg.className='ck-coupon-msg'; msg.innerHTML='<i class="fas fa-spinner fa-spin"></i> Verificando...'; msg.style.display='block';
+    fetch(API_BASE+'/api/coupon/'+encodeURIComponent(code))
+      .then(function(r){return r.json();})
+      .then(function(d){
+        if(d.valid){
+          _couponApplied=true; _couponPct=d.pct;
+          msg.className='ck-coupon-msg ok'; msg.innerHTML='<i class="fas fa-check-circle"></i> ¡Cupón aplicado! '+d.pct+'% de descuento.'; msg.style.display='block';
+          row.style.display=''; updateCkSummary();
+        } else {
+          _couponApplied=false; _couponPct=0;
+          msg.className='ck-coupon-msg err'; msg.innerHTML='<i class="fas fa-times-circle"></i> Código no válido o expirado.'; msg.style.display='block';
+          row.style.display='none'; updateCkSummary();
+        }
+      })
+      .catch(function(){
+        // Si el API falla, fallback local
+        _applyCouponLocal(code, msg, row);
+      });
+    return;
+  }
+  _applyCouponLocal(code, msg, row);
+}
+function _applyCouponLocal(code, msg, row){
   if(VALID_COUPONS[code]){
     _couponApplied=true; _couponPct=VALID_COUPONS[code];
     msg.className='ck-coupon-msg ok'; msg.innerHTML='<i class="fas fa-check-circle"></i> ¡Cupón aplicado! '+_couponPct+'% de descuento.'; msg.style.display='block';
-    row.style.display='';
-    updateCkSummary();
+    row.style.display=''; updateCkSummary();
   } else {
     _couponApplied=false; _couponPct=0;
     msg.className='ck-coupon-msg err'; msg.innerHTML='<i class="fas fa-times-circle"></i> Código no válido. Intenta con BIENVENIDA10.'; msg.style.display='block';
-    row.style.display='none';
-    updateCkSummary();
+    row.style.display='none'; updateCkSummary();
   }
 }
 function updateCkSummary(){

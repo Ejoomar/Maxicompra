@@ -1,0 +1,28 @@
+name = "maxicompra-api"
+main = "src/index.js"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+# KV Namespaces — crear con: wrangler kv namespace create ORDERS
+# Luego reemplazar los IDs de abajo con los reales
+
+[[kv_namespaces]]
+binding = "ORDERS"
+id = "REEMPLAZAR_CON_ID_REAL"
+preview_id = "REEMPLAZAR_CON_ID_PREVIEW"
+
+[[kv_namespaces]]
+binding = "CONFIG"
+id = "REEMPLAZAR_CON_ID_REAL_2"
+preview_id = "REEMPLAZAR_CON_ID_PREVIEW_2"
+
+# Variables de entorno (sin secretos — los secretos van con wrangler secret)
+[vars]
+STORE_NAME = "Maxicompra"
+STORE_URL = "https://maxicompra.cl"
+WHATSAPP_NUMBER = "56958498763"
+
+# Secretos que debes configurar con:
+#   wrangler secret put ADMIN_PASSWORD_HASH
+#   wrangler secret put JWT_SECRET
+#   wrangler secret put MP_ACCESS_TOKEN  (Phase 2 - Mercado Pago)

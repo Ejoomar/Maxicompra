@@ -1,30 +1,41 @@
 /**
  * Maxicompra API — Cloudflare Worker
  * Phase 1: Orders + Coupons + Admin Auth
- * Phase 2: Mercado Pago integration (cuando Edgar tenga cuenta MP)
+ * Phase 2: Mercado Pago Checkout Pro
  *
  * KV Bindings: ORDERS, CONFIG
- * Secrets: ADMIN_PASSWORD_HASH, JWT_SECRET, MP_ACCESS_TOKEN (Phase 2)
+ * Secrets: ADMIN_PASSWORD_HASH, JWT_SECRET, MP_ACCESS_TOKEN
  */
 
-const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': 'https://maxicompra.cl',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-  'Access-Control-Max-Age': '86400',
-};
+const ALLOWED_ORIGINS = [
+  'https://maxicompra.cl',
+  'https://www.maxicompra.cl',
+  'https://maxicompra.pages.dev',
+];
+
+function corsHeaders(request) {
+  const origin = request?.headers?.get('Origin') || '';
+  const allowed = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    'Access-Control-Allow-Origin': allowed,
+    'Access-Control-Allow-Methods': 'GET, POST, PATCH, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Max-Age': '86400',
+    'Vary': 'Origin',
+  };
+}
 
 // ─── Utilidades ─────────────────────────────────────────────────────────────
 
-function json(data, status = 200) {
+function json(data, status = 200, req = null) {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { 'Content-Type': 'application/json', ...CORS_HEADERS },
+    headers: { 'Content-Type': 'application/json', ...corsHeaders(req) },
   });
 }
 
-function error(msg, status = 400) {
-  return json({ ok: false, error: msg }, status);
+function error(msg, status = 400, req = null) {
+  return json({ ok: false, error: msg }, status, req);
 }
 
 async function sha256(text) {
@@ -300,27 +311,109 @@ async function handleUpsertCoupon(request, env) {
   return json({ ok: true, code: code.toUpperCase(), coupon: coupons[code.toUpperCase()] });
 }
 
-// ─── PHASE 2 placeholder — Mercado Pago ──────────────────────────────────────
-// Se activa cuando Edgar tenga Access Token de MP
+// ─── PHASE 2 — Mercado Pago Checkout Pro ─────────────────────────────────────
+
+// POST /api/payment/preference
+// Body: { orderId, items: [{title, quantity, unit_price}], payer: {email} }
 async function handleMPPreference(request, env) {
   if (!env.MP_ACCESS_TOKEN) {
-    return error('Mercado Pago no configurado aún. Fase 2 pendiente.', 503);
+    return error('Mercado Pago no configurado. Pide a Edgar su Access Token.', 503, request);
   }
-  // TODO Phase 2:
-  // 1. Recibir orderId + items del frontend
-  // 2. POST a https://api.mercadopago.com/checkout/preferences con items
-  // 3. Devolver init_point (URL de pago MP) al frontend
-  return error('Implementación Fase 2 pendiente', 501);
+
+  let body;
+  try { body = await request.json(); } catch { return error('JSON inválido', 400, request); }
+
+  const { orderId, items, payer } = body;
+  if (!orderId || !items?.length) return error('orderId e items requeridos', 400, request);
+
+  const preference = {
+    items: items.map(i => ({
+      title: String(i.title || i.name).substring(0, 256),
+      quantity: Number(i.quantity || i.qty) || 1,
+      unit_price: Number(i.unit_price || i.price),
+      currency_id: 'CLP',
+    })),
+    payer: payer ? { email: payer.email } : undefined,
+    external_reference: orderId,
+    back_urls: {
+      success: `https://maxicompra.cl?payment=success&order=${orderId}`,
+      failure: `https://maxicompra.cl?payment=failure&order=${orderId}`,
+      pending: `https://maxicompra.cl?payment=pending&order=${orderId}`,
+    },
+    auto_return: 'approved',
+    notification_url: 'https://maxicompra-api.elflaco0800.workers.dev/api/payment/webhook',
+    statement_descriptor: 'MAXICOMPRA',
+  };
+
+  const mpRes = await fetch('https://api.mercadopago.com/checkout/preferences', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${env.MP_ACCESS_TOKEN}`,
+      'Content-Type': 'application/json',
+      'X-Idempotency-Key': orderId,
+    },
+    body: JSON.stringify(preference),
+  });
+
+  const mpData = await mpRes.json();
+
+  if (!mpRes.ok) {
+    return error(`Error MP: ${mpData.message || mpRes.status}`, 502, request);
+  }
+
+  // Guardar preference_id en la orden
+  const order = await env.ORDERS.get(orderId, 'json');
+  if (order) {
+    order.mp_preference_id = mpData.id;
+    order.status = 'payment_pending';
+    order.updatedAt = new Date().toISOString();
+    await env.ORDERS.put(orderId, JSON.stringify(order), { expirationTtl: 90 * 24 * 60 * 60 });
+  }
+
+  return json({
+    ok: true,
+    preference_id: mpData.id,
+    init_point: mpData.init_point,       // producción
+    sandbox_init_point: mpData.sandbox_init_point, // pruebas
+  }, 200, request);
 }
 
+// POST /api/payment/webhook — recibe notificaciones de Mercado Pago
 async function handleMPWebhook(request, env) {
-  if (!env.MP_ACCESS_TOKEN) return json({ ok: true }); // silently ignore
-  // TODO Phase 2:
-  // 1. Verificar x-signature de MP
-  // 2. GET /v1/payments/:id para verificar estado
-  // 3. Actualizar estado en KV
-  // 4. Enviar WhatsApp a Edgar
-  return json({ ok: true });
+  if (!env.MP_ACCESS_TOKEN) return new Response('OK', { status: 200 });
+
+  const url = new URL(request.url);
+  const type = url.searchParams.get('type') || url.searchParams.get('topic');
+  const dataId = url.searchParams.get('data.id') || url.searchParams.get('id');
+
+  // Solo procesar pagos
+  if (type !== 'payment' || !dataId) return new Response('OK', { status: 200 });
+
+  // Verificar el pago con MP
+  const payRes = await fetch(`https://api.mercadopago.com/v1/payments/${dataId}`, {
+    headers: { 'Authorization': `Bearer ${env.MP_ACCESS_TOKEN}` },
+  });
+
+  if (!payRes.ok) return new Response('OK', { status: 200 });
+  const payment = await payRes.json();
+
+  const orderId = payment.external_reference;
+  const status = payment.status; // 'approved' | 'pending' | 'rejected'
+
+  if (!orderId) return new Response('OK', { status: 200 });
+
+  // Actualizar orden en KV
+  const order = await env.ORDERS.get(orderId, 'json');
+  if (order) {
+    const statusMap = { approved: 'paid', pending: 'payment_pending', rejected: 'payment_failed' };
+    order.status = statusMap[status] || status;
+    order.mp_payment_id = payment.id;
+    order.mp_payment_status = status;
+    order.updatedAt = new Date().toISOString();
+    await env.ORDERS.put(orderId, JSON.stringify(order), { expirationTtl: 90 * 24 * 60 * 60 });
+  }
+
+  return new Response('OK', { status: 200 });
 }
 
 // ─── Router principal ────────────────────────────────────────────────────────
@@ -333,7 +426,7 @@ export default {
 
     // Preflight CORS
     if (method === 'OPTIONS') {
-      return new Response(null, { status: 204, headers: CORS_HEADERS });
+      return new Response(null, { status: 204, headers: corsHeaders(request) });
     }
 
     // Rutas

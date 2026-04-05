@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com https://http2.mlstatic.com https://*.mercadolibre.com https://wa.me; img-src 'self' data: blob: https:; frame-ancestors 'none';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com https://http2.mlstatic.com https://*.mercadolibre.com https://wa.me https://maxicompra-api.elflaco0800.workers.dev https://*.mercadopago.com https://*.mercadopago.cl https://sdk.mercadopago.com; img-src 'self' data: blob: https:; frame-ancestors 'none'; frame-src https://www.mercadopago.com https://www.mercadopago.cl;">
   <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#E8175D">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -3051,6 +3051,8 @@ function confirmOrder(){
 
   // ── Si API está configurada: guardar pedido en servidor ──
   if(API_BASE){
+    var btn = document.getElementById('ckConfirmBtn');
+    if(btn){btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Procesando...';}
     const orderPayload = {
       items: cart.map(function(i){ return {id:i.id, name:i.name, qty:i.qty, price:i.price, img:i.img||''}; }),
       customer: {name, email, phone, address: addr+', '+city+', '+region},
@@ -3065,18 +3067,49 @@ function confirmOrder(){
     })
     .then(function(r){return r.json();})
     .then(function(d){
-      if(d.ok){
-        _launchOrderWA(d.orderId, d.waUrl);
-      } else {
+      if(!d.ok){
+        if(btn){btn.disabled=false; btn.innerHTML='<i class="fas fa-lock"></i> Confirmar pedido';}
         _confirmOrderFallback(name,email,phone,addr,city,region,payName,shipTxt,totalTxt,storePhone);
+        return;
+      }
+      // Si el pago es Mercado Pago y el API está activo → Checkout Pro
+      if(payVal==='mp' && API_BASE){
+        _launchMPCheckout(d.orderId, email, totalNum, d.waUrl, name, phone, addr, city, region, payName, shipTxt, totalTxt, storePhone);
+      } else {
+        _launchOrderWA(d.orderId, d.waUrl);
       }
     })
     .catch(function(){
+      if(btn){btn.disabled=false; btn.innerHTML='<i class="fas fa-lock"></i> Confirmar pedido';}
       _confirmOrderFallback(name,email,phone,addr,city,region,payName,shipTxt,totalTxt,storePhone);
     });
     return;
   }
   _confirmOrderFallback(name,email,phone,addr,city,region,payName,shipTxt,totalTxt,storePhone);
+}
+
+function _launchMPCheckout(orderId, email, totalNum, waUrl, name, phone, addr, city, region, payName, shipTxt, totalTxt, storePhone){
+  // Crear preferencia en Mercado Pago
+  var mpItems = cart.map(function(i){ return {title:i.name.substring(0,60), quantity:i.qty, unit_price:i.price}; });
+  fetch(API_BASE+'/api/payment/preference', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({orderId: orderId, items: mpItems, payer:{email: email}})
+  })
+  .then(function(r){return r.json();})
+  .then(function(d){
+    if(d.ok && d.init_point){
+      // Redirigir al checkout de Mercado Pago
+      cart=[]; saveC(); updCartBadge(); renderCart();
+      window.location.href = d.init_point;
+    } else {
+      // MP no configurado aún → fallback WhatsApp normal
+      _launchOrderWA(orderId, waUrl);
+    }
+  })
+  .catch(function(){
+    _launchOrderWA(orderId, waUrl);
+  });
 }
 
 function _confirmOrderFallback(name,email,phone,addr,city,region,payName,shipTxt,totalTxt,storePhone){
@@ -3844,7 +3877,7 @@ function togFAQ(el){
 
 /* ═══════════ API CONFIG ═══════════ */
 // Actualizar con URL real del worker después de: wrangler deploy
-var API_BASE = '';  // Ej: 'https://maxicompra-api.tusubdominio.workers.dev'
+var API_BASE = 'https://maxicompra-api.elflaco0800.workers.dev';
 
 /* ═══════════ COUPON CODE ═══════════ */
 var _couponApplied = false, _couponPct = 0;
@@ -3930,6 +3963,41 @@ function updateCkSummary(){
       setTimeout(function(){splash.style.display='none';},650);
     }
   },4000);
+})();
+
+/* ═══════════ MERCADO PAGO — RETORNO DE PAGO ═══════════ */
+(function(){
+  var params = new URLSearchParams(window.location.search);
+  var payment = params.get('payment');
+  var orderId = params.get('order');
+  if(!payment || !orderId) return;
+  // Limpiar URL sin recargar
+  var cleanUrl = window.location.pathname;
+  history.replaceState(null,'',cleanUrl);
+  // Esperar a que el DOM esté listo
+  window.addEventListener('load', function(){
+    if(payment==='success'){
+      // Mostrar checkout success directamente
+      document.getElementById('ckOrderNum').textContent = '#'+orderId;
+      document.getElementById('ckForm').style.display='none';
+      document.getElementById('ckSummary').style.display='none';
+      document.getElementById('ckSuccess').style.display='block';
+      document.getElementById('ckOverlay').classList.add('open');
+      var cdEl=document.getElementById('ck-wa-countdown');
+      if(!cdEl){
+        cdEl=document.createElement('div');
+        cdEl.id='ck-wa-countdown';
+        cdEl.style.cssText='margin-top:14px;font-size:13px;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:6px;';
+        document.getElementById('ckSuccess').appendChild(cdEl);
+      }
+      cdEl.innerHTML='<i class="fas fa-check-circle" style="color:var(--green);font-size:16px"></i> <strong style="color:var(--green)">¡Pago confirmado con Mercado Pago!</strong>';
+      showToast('¡Pago exitoso! Tu pedido está confirmado.','ok');
+    } else if(payment==='failure'){
+      showToast('El pago fue rechazado. Intenta con otro método.','error');
+    } else if(payment==='pending'){
+      showToast('Pago pendiente de acreditación. Te notificaremos.','info');
+    }
+  });
 })();
 
 /* ═══════════ CART ABANDONMENT TOAST ═══════════ */

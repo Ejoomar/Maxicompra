@@ -8,13 +8,13 @@ compatibility_flags = ["nodejs_compat"]
 
 [[kv_namespaces]]
 binding = "ORDERS"
-id = "REEMPLAZAR_CON_ID_REAL"
-preview_id = "REEMPLAZAR_CON_ID_PREVIEW"
+id = "f6d45226653549da9eb2dd00b29bbf7b"
+preview_id = "837628585b3545539568e06ab141cc84"
 
 [[kv_namespaces]]
 binding = "CONFIG"
-id = "REEMPLAZAR_CON_ID_REAL_2"
-preview_id = "REEMPLAZAR_CON_ID_PREVIEW_2"
+id = "f4249fae064143dfa5b592b7d27259bb"
+preview_id = "feb978d733cb4475a6cc477c93a36b00"
 
 # Variables de entorno (sin secretos — los secretos van con wrangler secret)
 [vars]

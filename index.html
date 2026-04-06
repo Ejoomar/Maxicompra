@@ -2038,7 +2038,7 @@ html{scroll-behavior:smooth;}
         <div class="form-group"><label class="form-label">Email <em>*</em></label><input class="form-input" id="ck-email" type="email" placeholder="juan@correo.com"></div>
       </div>
       <div class="ck-row g1">
-        <div class="form-group"><label class="form-label">Teléfono <em>*</em></label><input class="form-input" id="ck-phone" type="tel" pattern="[0-9\s\+\-]{9,}" placeholder="+56 9 1234 5678"></div>
+        <div class="form-group"><label class="form-label">Teléfono <em>*</em></label><input class="form-input" id="ck-phone" type="tel" pattern="(\+?56\s?)?[29]\d{8}|(\+?56\s?)?9\d{8}" placeholder="+56 9 1234 5678" maxlength="20"></div>
       </div>
 
       <div class="ck-step-title"><i class="fas fa-truck"></i> Dirección de entrega</div>
@@ -3077,7 +3077,10 @@ function confirmOrder(){
   if(!name||!email||!phone||!addr||!city||!region){
     showToast('Completa todos los campos obligatorios','error'); return;
   }
+  if(name.length < 2 || name.length > 100){ showToast('Nombre debe tener entre 2 y 100 caracteres','error'); return; }
   if(!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/)){ showToast('Email inválido — revisa el formato','error'); return; }
+  if(!phone.match(/^(\+?56\s?)?[29]\d{8}$|^(\+?56\s?)?9\d{8}$/)){ showToast('Teléfono inválido — ej: +56 9 1234 5678','error'); return; }
+  if(addr.length < 5 || addr.length > 200){ showToast('Dirección debe tener entre 5 y 200 caracteres','error'); return; }
 
   const payEl  = document.querySelector('.ck-pay-opt.sel input');
   const payVal = payEl ? payEl.id.replace('pay-','') : 'webpay';
@@ -3103,11 +3106,11 @@ function confirmOrder(){
       coupon: _couponApplied ? (document.getElementById('ckCouponInput').value||'').trim().toUpperCase() : null,
       total: totalNum
     };
-    fetch(API_BASE+'/api/order', {
+    fetchWithTimeout(API_BASE+'/api/order', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify(orderPayload)
-    })
+    }, 15000)
     .then(function(r){return r.json();})
     .then(function(d){
       if(!d.ok){
@@ -3135,11 +3138,11 @@ function _launchMPCheckout(orderId, email, totalNum, waUrl, name, phone, addr, c
   var mpItems = cart.map(function(i){ return {title:i.name.substring(0,60), quantity:i.qty, unit_price:i.price}; });
   var btn = document.getElementById('ckConfirmBtn');
   if(btn){btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Conectando con Mercado Pago...';}
-  fetch(API_BASE+'/api/payment/preference', {
+  fetchWithTimeout(API_BASE+'/api/payment/preference', {
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body: JSON.stringify({orderId: orderId, items: mpItems, payer:{email: email}})
-  })
+  }, 15000)
   .then(function(r){return r.json();})
   .then(function(d){
     if(d.ok && d.init_point){
@@ -3325,6 +3328,13 @@ function removeFromWish(id){
 /* ═════════════════════════════════════
    SEARCH
 ═════════════════════════════════════ */
+function fetchWithTimeout(url, opts, ms){
+  ms = ms || 15000;
+  var ctrl = new AbortController();
+  var timer = setTimeout(function(){ ctrl.abort(); }, ms);
+  return fetch(url, Object.assign({}, opts, { signal: ctrl.signal }))
+    .finally(function(){ clearTimeout(timer); });
+}
 function liveSearch(v) { if(currentView==='home'){renderHomeProducts(v);} }
 function sortProducts(v) { sortMode=v; if(currentView==='home')renderHomeProducts(document.getElementById('searchInp').value); else if(currentView==='category')renderCatProducts(currentCat); }
 function showOffersFilter(){
@@ -3950,7 +3960,7 @@ function applyCoupon(){
   // Validación server-side si API está configurada
   if(API_BASE){
     msg.className='ck-coupon-msg'; msg.innerHTML='<i class="fas fa-spinner fa-spin"></i> Verificando...'; msg.style.display='block';
-    fetch(API_BASE+'/api/coupon/'+encodeURIComponent(code))
+    fetchWithTimeout(API_BASE+'/api/coupon/'+encodeURIComponent(code), {}, 10000)
       .then(function(r){return r.json();})
       .then(function(d){
         if(d.valid){

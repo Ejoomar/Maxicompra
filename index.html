@@ -3146,7 +3146,14 @@ function _launchMPCheckout(orderId, email, totalNum, waUrl, name, phone, addr, c
   .then(function(r){return r.json();})
   .then(function(d){
     if(d.ok && d.init_point){
-      cart=[]; saveC(); updCartBadge(); renderCart();
+      // Guardar datos del pedido para recuperar si el usuario cancela en MP
+      try {
+        sessionStorage.setItem('mx_mp_pending', JSON.stringify({
+          orderId:orderId, name:name, email:email, phone:phone,
+          addr:addr, city:city, region:region
+        }));
+      } catch(e){}
+      // NO vaciamos el carrito aquí — solo cuando el pago sea confirmado
       window.location.href = d.init_point;
     } else {
       if(btn){btn.disabled=false; btn.innerHTML='<i class="fas fa-wallet"></i> Pagar con Mercado Pago';}
@@ -4044,7 +4051,9 @@ function updateCkSummary(){
   // Esperar a que el DOM esté listo
   window.addEventListener('load', function(){
     if(payment==='success'){
-      // Mostrar checkout success directamente
+      // Vaciar carrito SOLO cuando el pago fue aprobado
+      cart=[]; saveC(); updCartBadge(); renderCart();
+      try { sessionStorage.removeItem('mx_mp_pending'); } catch(e){}
       document.getElementById('ckOrderNum').textContent = '#'+orderId;
       document.getElementById('ckForm').style.display='none';
       document.getElementById('ckSummary').style.display='none';
@@ -4059,10 +4068,45 @@ function updateCkSummary(){
       }
       cdEl.innerHTML='<i class="fas fa-check-circle" style="color:var(--green);font-size:16px"></i> <strong style="color:var(--green)">¡Pago confirmado con Mercado Pago!</strong>';
       showToast('¡Pago exitoso! Tu pedido está confirmado.','ok');
-    } else if(payment==='failure'){
-      showToast('El pago fue rechazado. Intenta con otro método.','error');
+
+    } else if(payment==='failure' || payment==='cancel'){
+      // Recuperar datos guardados y reabrir el checkout para reintentar
+      try {
+        var saved = JSON.parse(sessionStorage.getItem('mx_mp_pending')||'null');
+        if(saved){
+          // Repoblar formulario con datos guardados
+          var f = function(id,v){ var el=document.getElementById(id); if(el&&v) el.value=v; };
+          f('ck-fname', saved.name); f('ck-email', saved.email);
+          f('ck-phone', saved.phone); f('ck-addr',  saved.addr);
+          f('ck-city',  saved.city);
+          var reg=document.getElementById('ck-region');
+          if(reg && saved.region) reg.value=saved.region;
+        }
+      } catch(e){}
+      // Mostrar banner de error dentro del checkout
+      setTimeout(function(){
+        var existing = document.getElementById('mp-retry-banner');
+        if(!existing){
+          var banner = document.createElement('div');
+          banner.id = 'mp-retry-banner';
+          banner.style.cssText='background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#f87171;display:flex;align-items:center;gap:10px;';
+          banner.innerHTML='<i class="fas fa-exclamation-circle" style="font-size:16px;flex-shrink:0"></i><span><strong>Pago cancelado o rechazado.</strong> Puedes reintentar con Mercado Pago o elegir otro método de pago.</span>';
+          var form = document.getElementById('ckForm');
+          if(form) form.insertBefore(banner, form.firstChild);
+        }
+        // Reabrir checkout con carrito intacto
+        if(cart && cart.length > 0){
+          document.getElementById('ckForm').style.display='';
+          document.getElementById('ckSummary').style.display='';
+          document.getElementById('ckSuccess').style.display='none';
+          document.getElementById('ckOverlay').classList.add('open');
+        } else {
+          showToast('Pago cancelado. Agrega productos al carrito para reintentar.','error');
+        }
+      }, 400);
+
     } else if(payment==='pending'){
-      showToast('Pago pendiente de acreditación. Te notificaremos.','info');
+      showToast('Pago en proceso de acreditación. Te notificaremos por email.','info');
     }
   });
 })();

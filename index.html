@@ -3328,7 +3328,7 @@ function removeFromWish(id){
 function liveSearch(v) { if(currentView==='home'){renderHomeProducts(v);} }
 function sortProducts(v) { sortMode=v; if(currentView==='home')renderHomeProducts(document.getElementById('searchInp').value); else if(currentView==='category')renderCatProducts(currentCat); }
 function showOffersFilter(){
-  var hot=products.filter(function(p){return p.off&&p.off>=10;});
+  var hot=products.filter(function(p){return p.sale||(p.orig&&p.price&&p.orig>p.price);});
   if(!hot.length){document.getElementById('homeProdsSection').scrollIntoView({behavior:'smooth'});return;}
   currentCat='';
   document.getElementById('homeSecTitle').innerHTML='🏷️ Productos con <span class="acc">Descuento</span>';

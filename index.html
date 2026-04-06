@@ -1758,7 +1758,7 @@ html{scroll-behavior:smooth;}
     <h3>💳 30% OFF Mercado Pago</h3>
     <p>Descuento directo al pagar con Mercado Pago en miles de productos</p>
     <div id="mpCountdown" style="font-size:13px;font-weight:700;color:rgba(255,255,255,.9);margin:8px 0;display:flex;align-items:center;gap:6px;"><i class="fas fa-clock"></i><span id="mpTimer">Calculando...</span></div>
-    <button class="btnout" style="border:1.5px solid rgba(255,255,255,.4);color:#fff;padding:8px 18px;border-radius:7px;font-size:13px;font-weight:600;background:transparent;display:inline-flex;align-items:center;gap:8px">Ver oferta <i class="fas fa-arrow-right"></i></button>
+    <button class="btnout" onclick="showOffersFilter()" style="border:1.5px solid rgba(255,255,255,.4);color:#fff;padding:8px 18px;border-radius:7px;font-size:13px;font-weight:600;background:transparent;display:inline-flex;align-items:center;gap:8px;cursor:pointer">Ver oferta <i class="fas fa-arrow-right"></i></button>
   </div>
   <div class="banner-emoji-side">🛍️</div>
 </div>
@@ -2651,7 +2651,7 @@ function renderHeroSlider() {
         <p class="slide-sub">${s.sub||''}</p>
         <div class="slide-detail">${s.detail||''}</div>
         <div class="slide-price-txt">${s.price||''}</div>
-        <button class="slide-cta" style="background:${s.btnColor||'var(--grad)'};color:#fff" onclick="(function(){var t=s.btnText||'';if(t.toLowerCase().includes('ofert')){var hot=products.filter(function(p){return p.off&&p.off>=10;});if(hot.length){currentCat='';renderNavBar();document.getElementById('homeProds').innerHTML=hot.map(function(p){return renderCard(p);}).join('');document.getElementById('homeProdsSection').scrollIntoView({behavior:'smooth'});return;}}if(t.toLowerCase().includes('catálogo')||t.toLowerCase().includes('catalogo')){goHome();return;}document.getElementById('homeProdsSection').scrollIntoView({behavior:'smooth'});})()">${s.btnText||'Ver productos'}</button>
+        <button class="slide-cta" style="background:${s.btnColor||'var(--grad)'};color:#fff" onclick="(function(){var t=s.btnText||'';if(t.toLowerCase().includes('ofert')){showOffersFilter();return;}if(t.toLowerCase().includes('catálogo')||t.toLowerCase().includes('catalogo')){goHome();return;}document.getElementById('homeProdsSection').scrollIntoView({behavior:'smooth'});})()">${s.btnText||'Ver productos'}</button>
       </div>
     </div>`).join('');
   const dots = banners.map((_,i) => `<div class="dot ${i===0?'active':''}" onclick="goSlide(${i})"></div>`).join('');
@@ -3327,6 +3327,17 @@ function removeFromWish(id){
 ═════════════════════════════════════ */
 function liveSearch(v) { if(currentView==='home'){renderHomeProducts(v);} }
 function sortProducts(v) { sortMode=v; if(currentView==='home')renderHomeProducts(document.getElementById('searchInp').value); else if(currentView==='category')renderCatProducts(currentCat); }
+function showOffersFilter(){
+  var hot=products.filter(function(p){return p.off&&p.off>=10;});
+  if(!hot.length){document.getElementById('homeProdsSection').scrollIntoView({behavior:'smooth'});return;}
+  currentCat='';
+  document.getElementById('homeSecTitle').innerHTML='🏷️ Productos con <span class="acc">Descuento</span>';
+  var count=document.getElementById('homeProdCount');
+  if(count)count.textContent=hot.length+' producto'+(hot.length!==1?'s':'');
+  var grid=document.getElementById('homeProductsGrid');
+  if(grid)grid.innerHTML=hot.map(function(p){return productCardHTML(p);}).join('');
+  document.getElementById('homeProdsSection').scrollIntoView({behavior:'smooth'});
+}
 
 /* ═════════════════════════════════════
    CONFIG

@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Maxicompra — Panel Admin</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23E8175D'/%3E%3Ctext x='32' y='46' font-family='Arial Black' font-weight='900' font-size='38' fill='white' text-anchor='middle'%3EM%3C/text%3E%3C/svg%3E">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f0f17;color:#e8e8f0;min-height:100vh}
+:root{--pink:#E8175D;--green:#22c55e;--yellow:#eab308;--red:#ef4444;--blue:#3b82f6;--card:#1a1a2e;--card2:#22223a;--border:#2a2a44;--muted:#888}
+/* LOGIN */
+#loginScreen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+.login-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:40px;width:100%;max-width:380px;text-align:center}
+.login-logo{width:64px;height:64px;background:var(--pink);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:900;color:#fff;margin:0 auto 20px}
+.login-box h1{font-size:22px;font-weight:700;margin-bottom:6px}
+.login-box p{color:var(--muted);font-size:14px;margin-bottom:28px}
+.login-box input{width:100%;padding:12px 16px;border-radius:10px;border:1px solid var(--border);background:var(--card2);color:#e8e8f0;font-size:15px;margin-bottom:14px;outline:none}
+.login-box input:focus{border-color:var(--pink)}
+.btn-pink{width:100%;padding:13px;border-radius:10px;background:var(--pink);color:#fff;font-size:15px;font-weight:700;border:none;cursor:pointer}
+.btn-pink:hover{opacity:.9}
+.login-err{color:var(--red);font-size:13px;margin-top:10px;display:none}
+/* APP */
+#app{display:none}
+.topbar{background:var(--card);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.topbar-brand{display:flex;align-items:center;gap:12px}
+.topbar-logo{width:36px;height:36px;background:var(--pink);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#fff}
+.topbar-brand h1{font-size:17px;font-weight:700}
+.topbar-brand span{font-size:12px;color:var(--muted)}
+.topbar-actions{display:flex;align-items:center;gap:10px}
+.btn-sm{padding:7px 14px;border-radius:8px;border:1px solid var(--border);background:var(--card2);color:#e8e8f0;font-size:13px;cursor:pointer}
+.btn-sm:hover{border-color:var(--pink);color:var(--pink)}
+.main{padding:24px;max-width:1100px;margin:0 auto}
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:28px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px}
+.stat-label{font-size:12px;color:var(--muted);margin-bottom:6px}
+.stat-val{font-size:24px;font-weight:800}
+.stat-val.green{color:var(--green)}
+.stat-val.yellow{color:var(--yellow)}
+.stat-val.pink{color:var(--pink)}
+/* DATE FILTER */
+.toolbar{display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap}
+.toolbar input[type=date]{padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--card2);color:#e8e8f0;font-size:14px;outline:none}
+.toolbar input[type=date]:focus{border-color:var(--pink)}
+.btn-refresh{padding:8px 16px;border-radius:8px;background:var(--pink);color:#fff;border:none;font-size:14px;font-weight:600;cursor:pointer}
+/* ORDERS TABLE */
+.orders-wrap{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.orders-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.orders-head h2{font-size:16px;font-weight:700}
+#ordersCount{font-size:13px;color:var(--muted)}
+table{width:100%;border-collapse:collapse}
+th{background:var(--card2);padding:11px 16px;text-align:left;font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+td{padding:13px 16px;border-bottom:1px solid var(--border);font-size:14px;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.03)}
+.status-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600}
+.s-pending{background:rgba(234,179,8,.15);color:var(--yellow)}
+.s-paid{background:rgba(34,197,94,.15);color:var(--green)}
+.s-shipped{background:rgba(59,130,246,.15);color:var(--blue)}
+.s-delivered{background:rgba(34,197,94,.25);color:#4ade80}
+.s-cancelled{background:rgba(239,68,68,.15);color:var(--red)}
+.s-payment_pending{background:rgba(234,179,8,.1);color:#fbbf24}
+.s-payment_failed{background:rgba(239,68,68,.15);color:var(--red)}
+.pay-badge{font-size:11px;color:var(--muted);margin-top:3px}
+select.status-sel{padding:5px 8px;border-radius:7px;border:1px solid var(--border);background:var(--card2);color:#e8e8f0;font-size:12px;cursor:pointer;outline:none}
+select.status-sel:focus{border-color:var(--pink)}
+.empty-state{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty-state div{font-size:40px;margin-bottom:12px}
+/* ORDER DETAIL */
+#orderDetail{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;align-items:center;justify-content:center;padding:20px}
+#orderDetail.open{display:flex}
+.detail-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto}
+.detail-box h3{font-size:18px;font-weight:700;margin-bottom:20px}
+.detail-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:14px}
+.detail-row:last-child{border-bottom:none}
+.detail-row span:first-child{color:var(--muted)}
+.detail-items{margin:16px 0}
+.detail-item{display:flex;justify-content:space-between;padding:8px 0;font-size:13px;border-bottom:1px solid var(--border)}
+.detail-item:last-child{border-bottom:none}
+.wa-btn{display:flex;align-items:center;gap:8px;padding:11px 16px;border-radius:10px;background:#25D366;color:#fff;border:none;font-size:14px;font-weight:600;cursor:pointer;width:100%;margin-top:16px;justify-content:center}
+.close-btn{padding:10px 20px;border-radius:10px;border:1px solid var(--border);background:transparent;color:#e8e8f0;font-size:14px;cursor:pointer;margin-top:10px;width:100%}
+/* LOADING */
+.spinner{display:inline-block;width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--pink);border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-row td{text-align:center;padding:40px;color:var(--muted)}
+/* MOBILE */
+@media(max-width:700px){
+  th:nth-child(3),td:nth-child(3),th:nth-child(5),td:nth-child(5){display:none}
+  .main{padding:16px}
+  .stat-val{font-size:20px}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">M</div>
+    <h1>Panel Administrador</h1>
+    <p>Maxicompra — Acceso privado</p>
+    <input type="password" id="pwdInput" placeholder="Contraseña" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="btn-pink" onclick="doLogin()">Ingresar</button>
+    <div class="login-err" id="loginErr">Contraseña incorrecta</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-brand">
+      <div class="topbar-logo">M</div>
+      <div>
+        <h1>Panel Admin</h1>
+        <span>Maxicompra.cl</span>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn-sm" onclick="window.open('https://maxicompra.cl','_blank')">Ver tienda</button>
+      <button class="btn-sm" onclick="doLogout()">Salir</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <!-- Stats -->
+    <div class="stats" id="statsBar">
+      <div class="stat"><div class="stat-label">Pedidos hoy</div><div class="stat-val pink" id="statTotal">—</div></div>
+      <div class="stat"><div class="stat-label">Pagados</div><div class="stat-val green" id="statPaid">—</div></div>
+      <div class="stat"><div class="stat-label">Pendientes</div><div class="stat-val yellow" id="statPending">—</div></div>
+      <div class="stat"><div class="stat-label">Ingresos hoy</div><div class="stat-val pink" id="statRevenue">—</div></div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <input type="date" id="dateFilter">
+      <button class="btn-refresh" onclick="loadOrders()">Actualizar</button>
+    </div>
+
+    <!-- Orders table -->
+    <div class="orders-wrap">
+      <div class="orders-head">
+        <h2>Pedidos</h2>
+        <span id="ordersCount"></span>
+      </div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead>
+            <tr>
+              <th>Pedido</th>
+              <th>Cliente</th>
+              <th>Productos</th>
+              <th>Total</th>
+              <th>Pago</th>
+              <th>Estado</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody id="ordersBody">
+            <tr class="loading-row"><td colspan="7"><div class="spinner"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ORDER DETAIL MODAL -->
+<div id="orderDetail">
+  <div class="detail-box">
+    <h3 id="detailTitle">Detalle del pedido</h3>
+    <div id="detailContent"></div>
+    <button class="wa-btn" id="detailWA" onclick="openDetailWA()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      Contactar por WhatsApp
+    </button>
+    <button class="close-btn" onclick="closeDetail()">Cerrar</button>
+  </div>
+</div>
+
+<script>
+const API = 'https://maxicompra-api.elflaco0800.workers.dev';
+const WA  = '56958498763';
+let _token = sessionStorage.getItem('mx_admin_token') || '';
+let _currentOrder = null;
+
+function fp(n){ return '$'+Number(n).toLocaleString('es-CL'); }
+
+// ── AUTH ──
+async function doLogin(){
+  const pwd = document.getElementById('pwdInput').value;
+  if(!pwd) return;
+  const btn = document.querySelector('.btn-pink');
+  btn.textContent = 'Ingresando...'; btn.disabled = true;
+  try {
+    const r = await fetch(API+'/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pwd})});
+    const d = await r.json();
+    if(d.ok){
+      _token = d.token;
+      sessionStorage.setItem('mx_admin_token', _token);
+      showApp();
+    } else {
+      document.getElementById('loginErr').style.display='block';
+      btn.textContent='Ingresar'; btn.disabled=false;
+    }
+  } catch(e) {
+    document.getElementById('loginErr').textContent='Error de conexión con el servidor';
+    document.getElementById('loginErr').style.display='block';
+    btn.textContent='Ingresar'; btn.disabled=false;
+  }
+}
+
+function doLogout(){
+  sessionStorage.removeItem('mx_admin_token');
+  _token='';
+  document.getElementById('app').style.display='none';
+  document.getElementById('loginScreen').style.display='flex';
+}
+
+function showApp(){
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('app').style.display='block';
+  // Set today's date
+  const today = new Date().toISOString().slice(0,10);
+  document.getElementById('dateFilter').value = today;
+  loadOrders();
+}
+
+// ── ORDERS ──
+async function loadOrders(){
+  const date = document.getElementById('dateFilter').value;
+  document.getElementById('ordersBody').innerHTML = '<tr class="loading-row"><td colspan="7"><div class="spinner"></div></td></tr>';
+  try {
+    const r = await fetch(API+'/api/admin/orders?date='+date, {headers:{'Authorization':'Bearer '+_token}});
+    if(r.status===401){ doLogout(); return; }
+    const d = await r.json();
+    renderOrders(d.orders || []);
+  } catch(e) {
+    document.getElementById('ordersBody').innerHTML = '<tr class="loading-row"><td colspan="7">Error al cargar pedidos</td></tr>';
+  }
+}
+
+function renderOrders(orders){
+  // Stats
+  const paid = orders.filter(o=>o.status==='paid'||o.status==='delivered');
+  const pending = orders.filter(o=>o.status==='pending'||o.status==='payment_pending');
+  const revenue = paid.reduce((s,o)=>s+(o.total||0),0);
+  document.getElementById('statTotal').textContent = orders.length;
+  document.getElementById('statPaid').textContent = paid.length;
+  document.getElementById('statPending').textContent = pending.length;
+  document.getElementById('statRevenue').textContent = revenue ? fp(revenue) : '$0';
+  document.getElementById('ordersCount').textContent = orders.length + ' pedido'+(orders.length!==1?'s':'');
+
+  if(!orders.length){
+    document.getElementById('ordersBody').innerHTML = '<tr><td colspan="7"><div class="empty-state"><div>📭</div>No hay pedidos para esta fecha</div></td></tr>';
+    return;
+  }
+
+  const statusLabels = {pending:'Pendiente',paid:'Pagado',shipped:'Enviado',delivered:'Entregado',cancelled:'Cancelado',payment_pending:'Pago pend.',payment_failed:'Pago fallido'};
+  const payLabels = {webpay:'Webpay',mp:'Mercado Pago',transfer:'Transferencia',cash:'Efectivo'};
+
+  document.getElementById('ordersBody').innerHTML = orders.map(o => {
+    const sc = 's-'+(o.status||'pending');
+    const sl = statusLabels[o.status]||o.status;
+    const itemSummary = (o.items||[]).slice(0,2).map(i=>`${i.qty}× ${i.name.substring(0,25)}`).join(', ')+(o.items?.length>2?` +${o.items.length-2} más`:'');
+    return `<tr>
+      <td><strong>${o.id}</strong><div style="font-size:11px;color:var(--muted);margin-top:3px">${new Date(o.createdAt).toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'})}</div></td>
+      <td><div>${o.customer?.name||'—'}</div><div style="font-size:12px;color:var(--muted)">${o.customer?.phone||''}</div></td>
+      <td style="max-width:180px;font-size:12px;color:var(--muted)">${itemSummary||'—'}</td>
+      <td><strong>${fp(o.total||0)}</strong>${o.discount?`<div class="pay-badge">-${o.discount}% desc.</div>`:''}</td>
+      <td><div>${payLabels[o.payment]||o.payment||'—'}</div></td>
+      <td><span class="status-badge ${sc}">${sl}</span></td>
+      <td style="display:flex;gap:6px;flex-wrap:wrap">
+        <select class="status-sel" onchange="updateStatus('${o.id}',this.value)">
+          <option value="">Cambiar…</option>
+          <option value="pending">Pendiente</option>
+          <option value="paid">Pagado</option>
+          <option value="shipped">Enviado</option>
+          <option value="delivered">Entregado</option>
+          <option value="cancelled">Cancelado</option>
+        </select>
+        <button class="btn-sm" onclick="showDetail('${o.id}')" style="padding:5px 10px;font-size:12px">Ver</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function updateStatus(orderId, status){
+  if(!status) return;
+  try {
+    const r = await fetch(API+'/api/admin/order/'+orderId+'/status',{
+      method:'PATCH',
+      headers:{'Authorization':'Bearer '+_token,'Content-Type':'application/json'},
+      body:JSON.stringify({status})
+    });
+    const d = await r.json();
+    if(d.ok) loadOrders();
+  } catch(e){}
+}
+
+// ── ORDER DETAIL ──
+async function showDetail(orderId){
+  const date = document.getElementById('dateFilter').value;
+  try {
+    const r = await fetch(API+'/api/admin/orders?date='+date,{headers:{'Authorization':'Bearer '+_token}});
+    const d = await r.json();
+    _currentOrder = (d.orders||[]).find(o=>o.id===orderId);
+    if(!_currentOrder) return;
+    renderDetail(_currentOrder);
+    document.getElementById('orderDetail').classList.add('open');
+  } catch(e){}
+}
+
+function renderDetail(o){
+  document.getElementById('detailTitle').textContent = 'Pedido '+o.id;
+  const payLabels = {webpay:'Webpay',mp:'Mercado Pago',transfer:'Transferencia',cash:'Efectivo'};
+  document.getElementById('detailContent').innerHTML = `
+    <div class="detail-row"><span>Cliente</span><span>${o.customer?.name||'—'}</span></div>
+    <div class="detail-row"><span>Teléfono</span><span>${o.customer?.phone||'—'}</span></div>
+    <div class="detail-row"><span>Email</span><span>${o.customer?.email||'—'}</span></div>
+    <div class="detail-row"><span>Dirección</span><span style="text-align:right;max-width:60%">${o.customer?.address||'—'}</span></div>
+    <div class="detail-row"><span>Pago</span><span>${payLabels[o.payment]||o.payment||'—'}</span></div>
+    <div class="detail-row"><span>Estado</span><span>${o.status}</span></div>
+    <div class="detail-row"><span>Fecha</span><span>${new Date(o.createdAt).toLocaleString('es-CL')}</span></div>
+    ${o.coupon?`<div class="detail-row"><span>Cupón</span><span>${o.coupon} (-${o.discount}%)</span></div>`:''}
+    <div class="detail-items">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:600">PRODUCTOS</div>
+      ${(o.items||[]).map(i=>`<div class="detail-item"><span>${i.qty}× ${i.name}</span><span>${fp(i.price*i.qty)}</span></div>`).join('')}
+    </div>
+    <div class="detail-row"><span style="font-weight:700">TOTAL</span><span style="font-weight:700;color:var(--pink)">${fp(o.total)}</span></div>
+  `;
+}
+
+function closeDetail(){
+  document.getElementById('orderDetail').classList.remove('open');
+  _currentOrder = null;
+}
+
+function openDetailWA(){
+  if(!_currentOrder) return;
+  const o = _currentOrder;
+  const items = (o.items||[]).map(i=>`• ${i.qty}x ${i.name} — $${i.price.toLocaleString('es-CL')}`).join('\n');
+  const msg = encodeURIComponent(`Hola ${o.customer?.name}, soy Maxicompra 👋\n\nTu pedido *${o.id}* está siendo procesado.\n\n*Productos:*\n${items}\n\n*Total: $${(o.total||0).toLocaleString('es-CL')}*\n\n¿Tienes alguna consulta?`);
+  window.open(`https://wa.me/${o.customer?.phone?.replace(/\D/g,'')||WA}?text=${msg}`,'_blank');
+}
+
+// ── INIT ──
+if(_token){
+  showApp();
+} else {
+  document.getElementById('pwdInput').focus();
+}
+document.getElementById('orderDetail').addEventListener('click', function(e){ if(e.target===this) closeDetail(); });
+</script>
+</body>
+</html>

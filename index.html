@@ -3604,7 +3604,7 @@ function mobSearchQuery(q){
   }
   res.innerHTML=found.map(function(p){
     var imgSrc=p.imgs&&p.imgs[0]?p.imgs[0]:(p.img||'');
-    var img=imgSrc ? '<img src="'+imgSrc+'" alt="" style="width:44px;height:44px;object-fit:contain;border-radius:7px;background:var(--card2);flex-shrink:0">' : '<div style="width:44px;height:44px;background:var(--card2);border-radius:7px;flex-shrink:0"></div>';
+    var img=imgSrc ? '<img src="'+imgSrc+'" alt="" loading="lazy" style="width:44px;height:44px;object-fit:contain;border-radius:7px;background:var(--card2);flex-shrink:0">' : '<div style="width:44px;height:44px;background:var(--card2);border-radius:7px;flex-shrink:0"></div>';
     return '<div class="mob-search-item" data-pid="'+p.id+'" onclick="closeMobSearch();openPDP(this.dataset.pid)">'+img+'<div class="mob-search-item-info"><div class="mob-search-item-name">'+esc(p.name)+'</div><div class="mob-search-item-price">'+fp(p.price)+'</div></div></div>';
   }).join('');
 }
@@ -3855,7 +3855,7 @@ function renderRecent(){
     if(!p) return '';
     var img=p.imgs&&p.imgs[0]?p.imgs[0]:'';
     var pid=p.id;
-    var imgHtml=img?'<img class="recent-card-img" src="'+img+'" alt="">':'<div class="recent-card-img" style="display:flex;align-items:center;justify-content:center;font-size:28px">📦</div>';
+    var imgHtml=img?'<img class="recent-card-img" src="'+img+'" alt="" loading="lazy">':'<div class="recent-card-img" style="display:flex;align-items:center;justify-content:center;font-size:28px">📦</div>';
     return '<div class="recent-card" data-pid="'+pid+'" onclick="openPDP(this.dataset.pid)">'+imgHtml+'<div class="recent-card-info"><div class="recent-card-name">'+p.name+'</div><div class="recent-card-price">'+fp(p.price)+'</div></div></div>';
   }).filter(Boolean);
   if(!items.length){sec.style.display='none';return;}

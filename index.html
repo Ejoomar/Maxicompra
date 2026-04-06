@@ -2651,7 +2651,7 @@ function renderHeroSlider() {
         <p class="slide-sub">${s.sub||''}</p>
         <div class="slide-detail">${s.detail||''}</div>
         <div class="slide-price-txt">${s.price||''}</div>
-        <button class="slide-cta" style="background:${s.btnColor||'var(--grad)'};color:#fff" onclick="document.getElementById('homeProdsSection').scrollIntoView({behavior:'smooth'})">${s.btnText||'Ver productos'}</button>
+        <button class="slide-cta" style="background:${s.btnColor||'var(--grad)'};color:#fff" onclick="(function(){var t=s.btnText||'';if(t.toLowerCase().includes('ofert')){var hot=products.filter(function(p){return p.off&&p.off>=10;});if(hot.length){currentCat='';renderNavBar();document.getElementById('homeProds').innerHTML=hot.map(function(p){return renderCard(p);}).join('');document.getElementById('homeProdsSection').scrollIntoView({behavior:'smooth'});return;}}if(t.toLowerCase().includes('catálogo')||t.toLowerCase().includes('catalogo')){goHome();return;}document.getElementById('homeProdsSection').scrollIntoView({behavior:'smooth'});})()">${s.btnText||'Ver productos'}</button>
       </div>
     </div>`).join('');
   const dots = banners.map((_,i) => `<div class="dot ${i===0?'active':''}" onclick="goSlide(${i})"></div>`).join('');
@@ -2989,23 +2989,56 @@ function checkout(){
 function closeCheckout(){
   document.getElementById('ckOverlay').classList.remove('open');
 }
+var _mpDiscount = 30; // % descuento automático Mercado Pago
 function selPay(el,val){
   document.querySelectorAll('.ck-pay-opt').forEach(o=>o.classList.remove('sel'));
   el.classList.add('sel');
   el.querySelector('input').checked = true;
-  // Mostrar datos bancarios solo si es transferencia
+  // Datos bancarios solo si transferencia
   var bankInfo = document.getElementById('bankInfo');
   if(bankInfo) bankInfo.style.display = (val==='transfer') ? 'block' : 'none';
-  // Cambiar texto del botón confirmar
+  // Descuento 30% OFF automático si elige MP
+  var mpDiscRow = document.getElementById('ckMpDiscRow');
+  if(!mpDiscRow){
+    mpDiscRow = document.createElement('div');
+    mpDiscRow.id = 'ckMpDiscRow';
+    mpDiscRow.style.cssText = 'display:none;color:var(--green);font-size:13px;font-weight:700;padding:6px 0;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);margin-bottom:4px';
+    mpDiscRow.innerHTML = '<span><i class="fas fa-tag"></i> 30% OFF Mercado Pago</span><span id="ckMpDiscAmt"></span>';
+    var totalRow = document.getElementById('ck-total');
+    if(totalRow && totalRow.parentNode) totalRow.parentNode.insertBefore(mpDiscRow, totalRow.parentNode.firstChild);
+  }
+  if(val==='mp'){
+    var sub = cart.reduce(function(s,i){return s+i.price*i.qty;},0);
+    var disc = Math.round(sub*_mpDiscount/100);
+    var discEl = document.getElementById('ckMpDiscAmt');
+    if(discEl) discEl.textContent = '-'+fp(disc);
+    mpDiscRow.style.display='flex';
+    updateCkSummaryWithMP(true);
+  } else {
+    mpDiscRow.style.display='none';
+    updateCkSummaryWithMP(false);
+  }
+  // Texto botón
   var btn = document.querySelector('.ck-confirm-btn');
   if(!btn) return;
   var labels = {
     webpay:   '<i class="fas fa-credit-card"></i> Pagar con Webpay',
-    mp:       '<i class="fas fa-wallet"></i> Pagar con Mercado Pago',
+    mp:       '<i class="fas fa-tag"></i> Pagar con 30% OFF — Mercado Pago',
     transfer: '<i class="fas fa-paper-plane"></i> Confirmar y enviar datos',
     cash:     '<i class="fas fa-store"></i> Confirmar pedido (pago en tienda)'
   };
   btn.innerHTML = labels[val] || '<i class="fas fa-lock"></i> Confirmar pedido';
+}
+function updateCkSummaryWithMP(applyMP){
+  var sub = cart.reduce(function(s,i){return s+i.price*i.qty;},0);
+  var shipNum = sub>=40000?0:3990;
+  var couponDisc = _couponApplied ? Math.round(sub*_couponPct/100) : 0;
+  var mpDisc = applyMP ? Math.round(sub*_mpDiscount/100) : 0;
+  var total = sub - couponDisc - mpDisc + shipNum;
+  var subEl=document.getElementById('ck-sub'), shipEl=document.getElementById('ck-ship'), totEl=document.getElementById('ck-total');
+  if(subEl) subEl.textContent=fp(sub);
+  if(shipEl){shipEl.textContent=shipNum===0?'GRATIS':fp(shipNum);shipEl.style.color=shipNum===0?'var(--green)':'var(--text)';}
+  if(totEl) totEl.textContent=fp(total);
 }
 function _launchOrderWA(orderNum, waURL){
   document.getElementById('ckOrderNum').textContent = '#'+orderNum;
@@ -3099,8 +3132,9 @@ function confirmOrder(){
 }
 
 function _launchMPCheckout(orderId, email, totalNum, waUrl, name, phone, addr, city, region, payName, shipTxt, totalTxt, storePhone){
-  // Crear preferencia en Mercado Pago
   var mpItems = cart.map(function(i){ return {title:i.name.substring(0,60), quantity:i.qty, unit_price:i.price}; });
+  var btn = document.getElementById('ckConfirmBtn');
+  if(btn){btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Conectando con Mercado Pago...';}
   fetch(API_BASE+'/api/payment/preference', {
     method:'POST',
     headers:{'Content-Type':'application/json'},
@@ -3109,15 +3143,17 @@ function _launchMPCheckout(orderId, email, totalNum, waUrl, name, phone, addr, c
   .then(function(r){return r.json();})
   .then(function(d){
     if(d.ok && d.init_point){
-      // Redirigir al checkout de Mercado Pago
       cart=[]; saveC(); updCartBadge(); renderCart();
       window.location.href = d.init_point;
     } else {
-      // MP no configurado aún → fallback WhatsApp normal
+      if(btn){btn.disabled=false; btn.innerHTML='<i class="fas fa-wallet"></i> Pagar con Mercado Pago';}
+      showToast('Error conectando con Mercado Pago. Intenta con transferencia.','error');
       _launchOrderWA(orderId, waUrl);
     }
   })
-  .catch(function(){
+  .catch(function(e){
+    if(btn){btn.disabled=false; btn.innerHTML='<i class="fas fa-wallet"></i> Pagar con Mercado Pago';}
+    showToast('Error de conexión. Pedido guardado — usa otro método de pago.','error');
     _launchOrderWA(orderId, waUrl);
   });
 }

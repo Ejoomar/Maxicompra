@@ -2082,7 +2082,7 @@ html{scroll-behavior:smooth;}
           </div>
           <!-- Subir comprobante -->
           <div class="ck-comp-row" style="margin-top:14px">
-            <div class="ck-comp-label"><i class="fas fa-camera" style="color:var(--orange)"></i> Sube tu comprobante de pago <span style="color:var(--muted);font-size:11px">(opcional pero acelera el despacho)</span></div>
+            <div class="ck-comp-label"><i class="fas fa-camera" style="color:var(--orange)"></i> Adjunta tu comprobante de pago</div>
             <input type="file" class="ck-comp-input" id="ckComprobante" accept="image/*,.pdf" onchange="previewComprobante(this)">
             <div class="ck-comp-preview" id="ckComprobantePreview"><img id="ckComprobanteImg" src="" alt="Comprobante"></div>
           </div>
@@ -3015,26 +3015,42 @@ function updateCkSummary(){
   if(totEl) totEl.textContent=fp(total);
 }
 function updateCkSummaryWithMP(applyMP){ updateCkSummary(); } // backward compat
-function _launchOrderWA(orderNum, waURL){
+function _launchOrderWA(orderNum, waURL, isTransfer, hasComp){
   document.getElementById('ckOrderNum').textContent = '#'+orderNum;
   document.getElementById('ckForm').style.display = 'none';
   document.getElementById('ckSummary').style.display = 'none';
-  document.getElementById('ckSuccess').style.display = 'block';
+  var succEl = document.getElementById('ckSuccess');
+  succEl.style.display = 'block';
+
+  // Aviso especial para transferencia
+  var noticeId = 'ck-transfer-notice';
+  var existing = document.getElementById(noticeId);
+  if(existing) existing.remove();
+  if(isTransfer){
+    var notice = document.createElement('div');
+    notice.id = noticeId;
+    notice.style.cssText = 'background:rgba(255,152,0,.10);border:1.5px solid rgba(255,152,0,.35);border-radius:10px;padding:13px 15px;margin:14px 0 4px;font-size:13px;color:var(--text);line-height:1.6;text-align:left;';
+    notice.innerHTML = hasComp
+      ? '<i class="fas fa-check-circle" style="color:var(--green)"></i> <strong>Comprobante recibido.</strong> Serás redirigido a WhatsApp con los datos de tu pedido y la confirmación de tu comprobante. Ábrelo y envía el mensaje para que confirmemos tu despacho.'
+      : '<i class="fas fa-info-circle" style="color:var(--orange)"></i> Serás redirigido a WhatsApp con los datos de tu pedido ya cargados. Envía el mensaje y adjunta tu captura de transferencia en el chat para confirmar el pago.';
+    succEl.insertBefore(notice, succEl.firstChild);
+  }
+
   var cdEl = document.getElementById('ck-wa-countdown');
   if(!cdEl){
     cdEl = document.createElement('div');
     cdEl.id = 'ck-wa-countdown';
     cdEl.style.cssText = 'margin-top:14px;font-size:13px;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:6px;';
-    document.getElementById('ckSuccess').appendChild(cdEl);
+    succEl.appendChild(cdEl);
   }
-  var secs = 4;
+  var secs = 5;
   function tick(){
     if(secs > 0){
-      cdEl.innerHTML = '<i class="fab fa-whatsapp" style="color:#25D366;font-size:16px"></i> Notificando a la tienda en <strong style="color:var(--text)">'+secs+'</strong>s...';
+      cdEl.innerHTML = '<i class="fab fa-whatsapp" style="color:#25D366;font-size:16px"></i> Abriendo WhatsApp en <strong style="color:var(--text)">'+secs+'</strong>s...';
       secs--;
       setTimeout(tick, 1000);
     } else {
-      cdEl.innerHTML = '<i class="fab fa-whatsapp" style="color:#25D366;font-size:16px"></i> <strong style="color:#25D366">¡Pedido enviado por WhatsApp!</strong>';
+      cdEl.innerHTML = '<i class="fab fa-whatsapp" style="color:#25D366;font-size:16px"></i> <strong style="color:#25D366">¡Abriendo WhatsApp con tu pedido!</strong>';
       window.open(waURL, '_blank');
     }
   }
@@ -3097,11 +3113,18 @@ function confirmOrder(){
       if(payVal==='mp' && API_BASE){
         _launchMPCheckout(d.orderId, email, totalNum, d.waUrl, name, phone, addr, city, region, payName, shipTxt, totalTxt, storePhone);
       } else {
-        // Si hay comprobante de transferencia → subirlo antes de mostrar éxito
+        var hasComp = false;
         if(payVal==='transfer') {
-          _uploadComprobante(d.orderId);
+          var compFile = document.getElementById('ckComprobante');
+          hasComp = !!(compFile && compFile.files && compFile.files[0]);
+          if(hasComp) _uploadComprobante(d.orderId);
         }
-        _launchOrderWA(d.orderId, d.waUrl);
+        // Enriquecer mensaje WA con comprobante si fue subido
+        var finalWaUrl = d.waUrl;
+        if(payVal==='transfer' && hasComp){
+          finalWaUrl = d.waUrl + encodeURIComponent('\n\n📎 *Comprobante de transferencia subido al pedido #' + d.orderId + '*');
+        }
+        _launchOrderWA(d.orderId, finalWaUrl, payVal==='transfer', hasComp);
       }
     })
     .catch(function(){

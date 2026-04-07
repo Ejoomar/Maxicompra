@@ -2973,16 +2973,14 @@ function checkout(){
       <div class="ck-item-price">${fp(i.price*i.qty)}</div>
     </div>`;
   }).join('');
-  // Reset cupón
-  _couponApplied=false; _couponPct=0;
-  var cupInp=document.getElementById('ckCouponInput'); if(cupInp) cupInp.value='';
-  var cupMsg=document.getElementById('ckCouponMsg'); if(cupMsg){cupMsg.style.display='none';cupMsg.textContent='';}
-  var discRow=document.getElementById('ckDiscountRow'); if(discRow) discRow.style.display='none';
   // Reset form y mostrar
   document.getElementById('ckForm').style.display = '';
   document.getElementById('ckSummary').style.display = '';
   document.getElementById('ckSuccess').style.display = 'none';
   document.getElementById('ckOverlay').classList.add('open');
+  // Asegurar label del botón según pago por defecto (MP)
+  var ckBtn = document.getElementById('ckConfirmBtn');
+  if(ckBtn) ckBtn.innerHTML = '<i class="fas fa-wallet"></i> Pagar con Mercado Pago';
 }
 function closeCheckout(){
   document.getElementById('ckOverlay').classList.remove('open');

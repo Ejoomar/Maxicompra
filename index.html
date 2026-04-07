@@ -1628,12 +1628,12 @@ html{scroll-behavior:smooth;}
   <div class="ann"><div class="ann-track" id="annTrack">
     <span><i class="fas fa-truck"></i>Envío gratis desde $19.990</span>
     <span><i class="fas fa-credit-card"></i>Hasta 12 cuotas sin interés</span>
-    <span><i class="fas fa-percent"></i>30% OFF con Mercado Pago</span>
+    <span><i class="fas fa-wallet"></i>Paga seguro con Mercado Pago</span>
     <span><i class="fas fa-shield-alt"></i>Devolución gratis en 30 días</span>
     <span><i class="fas fa-store"></i>Retira el mismo día en tienda</span>
     <span><i class="fas fa-truck"></i>Envío gratis desde $19.990</span>
     <span><i class="fas fa-credit-card"></i>Hasta 12 cuotas sin interés</span>
-    <span><i class="fas fa-percent"></i>30% OFF con Mercado Pago</span>
+    <span><i class="fas fa-wallet"></i>Paga seguro con Mercado Pago</span>
     <span><i class="fas fa-shield-alt"></i>Devolución gratis en 30 días</span>
     <span><i class="fas fa-store"></i>Retira el mismo día en tienda</span>
   </div></div>
@@ -1681,7 +1681,7 @@ html{scroll-behavior:smooth;}
           <div class="hero-promos">
             <div class="promo-box"><div class="promo-icon" style="background:rgba(232,23,93,.12)">🚚</div><div class="promo-text"><h4>Envío gratis</h4><p id="promo-ship">En compras sobre $19.990 a todo Chile</p></div></div>
             <div class="promo-box"><div class="promo-icon" style="background:rgba(0,198,255,.12)">💳</div><div class="promo-text"><h4 id="promo-cuotas">12 cuotas sin interés</h4><p>Con todas las tarjetas bancarias</p></div></div>
-            <div class="promo-box"><div class="promo-icon" style="background:rgba(0,230,118,.12)">🎁</div><div class="promo-text"><h4>30% OFF Mercado Pago</h4><p>En productos seleccionados</p></div></div>
+            <div class="promo-box"><div class="promo-icon" style="background:rgba(0,230,118,.12)">💳</div><div class="promo-text"><h4>Pago 100% seguro</h4><p>Mercado Pago · Transferencia · Efectivo</p></div></div>
           </div>
         </div>
       </div>
@@ -1754,10 +1754,9 @@ html{scroll-behavior:smooth;}
 </div>
 <div class="banner-card ban2-default">
   <div class="banner-text">
-    <h3>💳 30% OFF Mercado Pago</h3>
-    <p>Descuento directo al pagar con Mercado Pago en miles de productos</p>
-    <div id="mpCountdown" style="font-size:13px;font-weight:700;color:rgba(255,255,255,.9);margin:8px 0;display:flex;align-items:center;gap:6px;"><i class="fas fa-clock"></i><span id="mpTimer">Calculando...</span></div>
-    <button class="btnout" onclick="showOffersFilter()" style="border:1.5px solid rgba(255,255,255,.4);color:#fff;padding:8px 18px;border-radius:7px;font-size:13px;font-weight:600;background:transparent;display:inline-flex;align-items:center;gap:8px;cursor:pointer">Ver oferta <i class="fas fa-arrow-right"></i></button>
+    <h3>💳 Paga con Mercado Pago</h3>
+    <p>Rápido, seguro y con hasta 12 cuotas sin interés en productos seleccionados</p>
+    <button class="btnout" onclick="showOffersFilter()" style="border:1.5px solid rgba(255,255,255,.4);color:#fff;padding:8px 18px;border-radius:7px;font-size:13px;font-weight:600;background:transparent;display:inline-flex;align-items:center;gap:8px;cursor:pointer">Ver ofertas <i class="fas fa-arrow-right"></i></button>
   </div>
   <div class="banner-emoji-side">🛍️</div>
 </div>
@@ -2282,7 +2281,7 @@ const DCFG = {
   cuotas:'12',
   hours:'Lunes a Domingo · 9:00 AM – 8:00 PM',
   ret:'30',
-  banner:'Envío gratis desde $19.990 | Hasta 12 cuotas sin interés | 30% OFF con Mercado Pago | Devolución gratis en 30 días | Retira el mismo día en tienda'
+  banner:'Envío gratis desde $19.990 | Hasta 12 cuotas sin interés | Paga seguro con Mercado Pago | Devolución gratis en 30 días | Retira el mismo día en tienda'
 };
 const gc = k => config[k] !== undefined ? config[k] : DCFG[k];
 
@@ -2307,11 +2306,11 @@ cats = DEFAULT_CATS; saveCats();
 /* ── DEFAULT BANNERS ── */
 const DEFAULT_BANNERS = [
   {badge:'🔥 Más Vendido', title:'Bienvenido a Maxicompra', sub:'Los mejores productos de electrónica al mejor precio. Calidad garantizada.',
-   detail:'Envío gratis · 12 cuotas sin interés · 30% OFF Mercado Pago',
+   detail:'Envío gratis · 12 cuotas sin interés · Pago 100% seguro',
    price:'Ver productos ↓', btnText:'Ver catálogo', btnColor:'var(--grad)', bg:'', overlay:'linear-gradient(135deg,rgba(10,13,24,.92) 50%,rgba(232,23,93,.25))'},
-  {badge:'💳 Oferta', title:'30% OFF con Mercado Pago', sub:'Descuento automático al pagar con Mercado Pago en productos seleccionados.',
-   detail:'Válido en compras online · Por tiempo limitado',
-   price:'¡Aprovecha ahora!', btnText:'Ver ofertas', btnColor:'linear-gradient(135deg,#00B4D8,#0096C7)', bg:'', overlay:'linear-gradient(135deg,rgba(10,13,24,.92) 50%,rgba(0,198,255,.2))'},
+  {badge:'💳 Pago seguro', title:'Paga con Mercado Pago', sub:'Rápido, seguro y con hasta 12 cuotas sin interés en miles de productos.',
+   detail:'Débito · Crédito · Transferencia · Efectivo',
+   price:'¡Elige tu método!', btnText:'Ver ofertas', btnColor:'linear-gradient(135deg,#00B4D8,#0096C7)', bg:'', overlay:'linear-gradient(135deg,rgba(10,13,24,.92) 50%,rgba(0,198,255,.2))'},
   {badge:'🚀 Envío gratis', title:'Envío gratis desde $19.990', sub:'Recibe cómodamente en tu hogar. RM y regiones con despacho rápido.',
    detail:'RM y Regiones · Entrega en 24-48 hrs',
    price:'¡A todo Chile!', btnText:'Comprar ahora', btnColor:'linear-gradient(135deg,#00C853,#00897B)', bg:'', overlay:'linear-gradient(135deg,rgba(10,13,24,.92) 50%,rgba(0,230,118,.15))'},

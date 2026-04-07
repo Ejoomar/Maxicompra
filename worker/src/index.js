@@ -552,11 +552,14 @@ async function handleStats(request, env) {
 
     for (const o of dayOrders) {
       if (['paid', 'shipped', 'delivered'].includes(o.status)) {
-        dayRevenue += Number(o.total); dayPaid++;
-      } else if (['pending', 'payment_pending', 'payment_failed'].includes(o.status)) {
-        dayPending++;
+        dayRevenue += Number(o.total);
+      }
+      if (['paid', 'delivered'].includes(o.status)) {
+        dayPaid++;
       } else if (o.status === 'shipped') {
         dayShipped++;
+      } else if (['pending', 'payment_pending', 'payment_failed'].includes(o.status)) {
+        dayPending++;
       } else if (o.status === 'cancelled') {
         dayCancelled++;
       }
@@ -572,6 +575,70 @@ async function handleStats(request, env) {
   }
 
   return json({ ok: true, days, stats }, 200, request);
+}
+
+// POST /api/order/:id/comprobante
+async function handleUploadComprobante(orderId, request, env) {
+  if (!orderId || orderId.length > 50) return err('ID inválido', 400, request);
+
+  let body;
+  try { body = await request.json(); } catch { return err('JSON inválido', 400, request); }
+
+  const { base64, mimeType } = body;
+  if (!base64 || typeof base64 !== 'string') return err('base64 requerido', 400, request);
+  if (base64.length > 8_000_000) return err('Imagen demasiado grande (máx 6 MB)', 400, request);
+
+  const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'application/pdf'];
+  const mime = ALLOWED_TYPES.includes(mimeType) ? mimeType : 'image/jpeg';
+
+  const order = await env.ORDERS.get(orderId, 'json');
+  if (!order) return err('Orden no encontrada', 404, request);
+
+  // Store comprobante
+  await env.CONFIG.put(`comprobante:${orderId}`, JSON.stringify({
+    base64, mimeType: mime, uploadedAt: new Date().toISOString(),
+  }), { expirationTtl: 60 * 60 * 24 * 90 }); // 90 días
+
+  // Mark order as having a comprobante
+  order.comprobante = true;
+  order.updatedAt = new Date().toISOString();
+  await env.ORDERS.put(orderId, JSON.stringify(order));
+
+  // Email notification to admin
+  const adminEmail = env.ADMIN_EMAIL || 'maxicompraoficial23@gmail.com';
+  sendEmail(env, {
+    to: adminEmail,
+    subject: `Maxicompra — Comprobante de transferencia: pedido #${orderId}`,
+    html: `<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;background:#f5f5f5;padding:20px">
+      <div style="max-width:520px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden">
+        <div style="background:#FF9800;padding:24px 28px">
+          <h1 style="color:#fff;margin:0;font-size:20px">📎 Comprobante recibido</h1>
+        </div>
+        <div style="padding:24px 28px">
+          <p style="color:#333">Se subió un comprobante de pago para el pedido <strong>#${orderId}</strong>.</p>
+          <p style="color:#555;font-size:14px">Cliente: <strong>${String(order.customer?.name||'—').substring(0,80)}</strong></p>
+          <p style="color:#555;font-size:14px">Total: <strong>$${Number(order.total).toLocaleString('es-CL')}</strong></p>
+          <p style="color:#555;font-size:14px">Teléfono: ${String(order.customer?.phone||'—').substring(0,20)}</p>
+          <div style="background:#fff3e0;border-radius:8px;padding:14px;margin-top:16px">
+            <p style="color:#e65100;margin:0;font-size:14px">📋 Ver el comprobante en el panel admin → Pedido #${orderId}</p>
+          </div>
+        </div>
+      </div></body></html>`,
+  }).catch(() => {});
+
+  return json({ ok: true, message: 'Comprobante subido correctamente' }, 200, request);
+}
+
+// GET /api/comprobante/:orderId  (admin only)
+async function handleGetComprobante(orderId, request, env) {
+  const auth = await requireAuth(request, env);
+  if (!auth) return err('No autorizado', 401, request);
+  if (!orderId || orderId.length > 50) return err('ID inválido', 400, request);
+
+  const data = await env.CONFIG.get(`comprobante:${orderId}`, 'json');
+  if (!data) return err('Comprobante no encontrado', 404, request);
+
+  return json({ ok: true, base64: data.base64, mimeType: data.mimeType, uploadedAt: data.uploadedAt }, 200, request);
 }
 
 // POST /api/payment/preference
@@ -763,6 +830,10 @@ export default {
     if (path === '/api/health'              && method === 'GET')    return handleHealth(request, env);
     if (path === '/api/order'               && method === 'POST')   return handleCreateOrder(request, env);
     if (path.startsWith('/api/order/')      && method === 'GET')    return handleGetOrder(path.split('/')[3], request, env);
+    if (path.match(/^\/api\/order\/[^/]+\/comprobante$/) && method === 'POST')
+      return handleUploadComprobante(path.split('/')[3], request, env);
+    if (path.match(/^\/api\/comprobante\/[^/]+$/) && method === 'GET')
+      return handleGetComprobante(path.split('/')[3], request, env);
     if (path.startsWith('/api/coupon/')     && method === 'GET')    return handleValidateCoupon(path.split('/')[3], request, env);
 
     // Auth

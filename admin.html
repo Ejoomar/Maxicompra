@@ -608,10 +608,33 @@ function renderDetail(o){
       <span style="font-weight:800;font-size:15px;color:var(--pink)">${fp(o.total)}</span>
     </div>
     ${history?`<div style="margin-top:16px"><div style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Historial</div><div class="history-list">${history}</div></div>`:''}
+    ${o.payment==='transfer'?`<div style="margin-top:16px">
+      ${o.comprobante
+        ? `<button class="btn-outline" style="width:100%;padding:10px;font-size:13px;gap:8px" onclick="viewComprobante('${esc(o.id)}')"><i class="fas fa-image"></i> Ver comprobante de pago</button>`
+        : `<div style="background:rgba(255,152,0,.08);border:1px solid rgba(255,152,0,.25);border-radius:8px;padding:10px 14px;font-size:12.5px;color:var(--orange)"><i class="fas fa-clock"></i> Comprobante pendiente de envío</div>`
+      }
+    </div>`:''}
   `;
 }
 
 function closeDetail(){ document.getElementById('orderDetail').classList.remove('open'); _currentOrder=null; }
+
+async function viewComprobante(orderId){
+  try {
+    const r = await fetch(API+'/api/comprobante/'+encodeURIComponent(orderId),
+      {headers:{'Authorization':'Bearer '+_token}});
+    const d = await r.json();
+    if(!d.ok){ alert('No se encontró el comprobante.'); return; }
+    // Open in new tab as data URI
+    const dataUrl = 'data:'+d.mimeType+';base64,'+d.base64;
+    const w = window.open();
+    if(d.mimeType==='application/pdf'){
+      w.document.write('<iframe src="'+dataUrl+'" style="width:100%;height:100vh;border:none"></iframe>');
+    } else {
+      w.document.write('<html><body style="margin:0;background:#111;display:flex;align-items:center;justify-content:center;min-height:100vh"><img src="'+dataUrl+'" style="max-width:100%;max-height:100vh;object-fit:contain"></body></html>');
+    }
+  } catch(e){ alert('Error al cargar el comprobante.'); }
+}
 
 function openDetailWA(){
   if(!_currentOrder) return;

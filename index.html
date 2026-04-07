@@ -1227,14 +1227,13 @@ html{scroll-behavior:smooth;}
 .faq-q.open i{transform:rotate(180deg);}
 .faq-a{display:none;padding:0 4px 14px;font-size:13px;color:var(--muted);line-height:1.7;}
 .faq-q.open+.faq-a{display:block;}
-/* — Coupon — */
-.ck-coupon-row{display:flex;gap:8px;margin:14px 0 8px;}
-.ck-coupon-inp{flex:1;background:var(--card2);border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;color:var(--text);font-family:inherit;outline:none;text-transform:uppercase;}
-.ck-coupon-inp:focus{border-color:var(--pink);}
-.ck-coupon-btn{padding:9px 14px;background:var(--grad);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;}
-.ck-coupon-msg{font-size:12.5px;padding:6px 10px;border-radius:7px;margin-bottom:8px;}
-.ck-coupon-msg.ok{background:rgba(0,200,83,.1);color:var(--green);}
-.ck-coupon-msg.err{background:rgba(244,67,54,.1);color:var(--red);}
+/* — Comprobante upload — */
+.ck-comp-row{margin:12px 0 4px;}
+.ck-comp-label{font-size:12.5px;color:var(--muted);margin-bottom:6px;display:flex;align-items:center;gap:5px;}
+.ck-comp-input{width:100%;background:var(--card2);border:1.5px dashed var(--border);border-radius:8px;padding:9px 12px;font-size:13px;color:var(--text);font-family:inherit;cursor:pointer;transition:border-color .2s;}
+.ck-comp-input:hover{border-color:var(--orange);}
+.ck-comp-preview{margin-top:8px;border-radius:8px;overflow:hidden;max-height:160px;display:none;border:1.5px solid var(--border);}
+.ck-comp-preview img{width:100%;height:160px;object-fit:cover;display:block;}
 /* — Social proof toast — */
 .sp-toast{
   position:fixed;bottom:72px;left:16px;z-index:450;
@@ -2064,19 +2063,15 @@ html{scroll-behavior:smooth;}
 
       <div class="ck-step-title"><i class="fas fa-credit-card"></i> Método de pago</div>
       <div class="ck-pay-opts" id="ckPayOpts">
-        <div class="ck-pay-opt sel" onclick="selPay(this,'webpay')">
-          <input type="radio" name="ck-pay" id="pay-webpay" checked>
-          <label for="pay-webpay"><i class="fas fa-credit-card" style="color:var(--cyan)"></i> Webpay Plus (Débito / Crédito)</label>
-        </div>
-        <div class="ck-pay-opt" onclick="selPay(this,'mp')">
-          <input type="radio" name="ck-pay" id="pay-mp">
+        <div class="ck-pay-opt sel" onclick="selPay(this,'mp')">
+          <input type="radio" name="ck-pay" id="pay-mp" checked>
           <label for="pay-mp"><i class="fas fa-wallet" style="color:#00BFFF"></i> Mercado Pago</label>
         </div>
         <div class="ck-pay-opt" onclick="selPay(this,'transfer')">
           <input type="radio" name="ck-pay" id="pay-transfer">
           <label for="pay-transfer"><i class="fas fa-university" style="color:var(--orange)"></i> Transferencia bancaria</label>
         </div>
-        <!-- Datos bancarios: visible solo al seleccionar transferencia -->
+        <!-- Datos bancarios + comprobante: visible solo al seleccionar transferencia -->
         <div id="bankInfo" style="display:none;background:rgba(255,152,0,.07);border:1.5px solid rgba(255,152,0,.3);border-radius:10px;padding:14px 16px;margin-top:4px;font-size:13px;">
           <p style="font-weight:700;color:var(--text);margin-bottom:8px;display:flex;align-items:center;gap:6px"><i class="fas fa-university" style="color:var(--orange)"></i> Datos para transferencia</p>
           <div style="display:flex;flex-direction:column;gap:5px;color:var(--muted)">
@@ -2086,11 +2081,21 @@ html{scroll-behavior:smooth;}
             <span><strong style="color:var(--text)">Cuenta Vista:</strong> 1086521092</span>
             <span><strong style="color:var(--text)">Email:</strong> maxicompraoficial23@gmail.com</span>
           </div>
-          <p style="margin-top:10px;font-size:11.5px;color:var(--muted);line-height:1.5"><i class="fas fa-info-circle" style="color:var(--orange)"></i> Envía el comprobante por WhatsApp al confirmar. Tu pedido se despacha al verificar el pago.</p>
+          <!-- Subir comprobante -->
+          <div class="ck-comp-row" style="margin-top:14px">
+            <div class="ck-comp-label"><i class="fas fa-camera" style="color:var(--orange)"></i> Sube tu comprobante de pago <span style="color:var(--muted);font-size:11px">(opcional pero acelera el despacho)</span></div>
+            <input type="file" class="ck-comp-input" id="ckComprobante" accept="image/*,.pdf" onchange="previewComprobante(this)">
+            <div class="ck-comp-preview" id="ckComprobantePreview"><img id="ckComprobanteImg" src="" alt="Comprobante"></div>
+          </div>
         </div>
         <div class="ck-pay-opt" onclick="selPay(this,'cash')">
           <input type="radio" name="ck-pay" id="pay-cash">
           <label for="pay-cash"><i class="fas fa-money-bill-wave" style="color:var(--green)"></i> Efectivo (pago en tienda)</label>
+        </div>
+        <!-- Webpay: próximamente -->
+        <div class="ck-pay-opt" style="opacity:.45;cursor:not-allowed;pointer-events:none">
+          <input type="radio" name="ck-pay" id="pay-webpay" disabled>
+          <label for="pay-webpay" style="cursor:not-allowed"><i class="fas fa-credit-card" style="color:var(--cyan)"></i> Webpay Plus (Débito / Crédito) <span style="font-size:10px;background:var(--card2);border:1px solid var(--border);padding:2px 7px;border-radius:10px;margin-left:4px;color:var(--muted);font-weight:700">PRÓXIMAMENTE</span></label>
         </div>
       </div>
     </div>
@@ -3076,7 +3081,7 @@ function confirmOrder(){
       items: cart.map(function(i){ return {id:i.id, name:i.name, qty:i.qty, price:i.price, img:i.img||''}; }),
       customer: {name, email, phone, address: addr+', '+city+', '+region},
       payment: payVal,
-      coupon: _couponApplied ? (document.getElementById('ckCouponInput').value||'').trim().toUpperCase() : null,
+      coupon: null,
       total: totalNum
     };
     fetchWithTimeout(API_BASE+'/api/order', {
@@ -3095,6 +3100,10 @@ function confirmOrder(){
       if(payVal==='mp' && API_BASE){
         _launchMPCheckout(d.orderId, email, totalNum, d.waUrl, name, phone, addr, city, region, payName, shipTxt, totalTxt, storePhone);
       } else {
+        // Si hay comprobante de transferencia → subirlo antes de mostrar éxito
+        if(payVal==='transfer') {
+          _uploadComprobante(d.orderId);
+        }
         _launchOrderWA(d.orderId, d.waUrl);
       }
     })
@@ -3140,6 +3149,43 @@ function _launchMPCheckout(orderId, email, totalNum, waUrl, name, phone, addr, c
   });
 }
 
+function previewComprobante(input){
+  var file = input.files[0];
+  var preview = document.getElementById('ckComprobantePreview');
+  var img = document.getElementById('ckComprobanteImg');
+  if(!file || !preview || !img) return;
+  if(file.type.startsWith('image/')){
+    var reader = new FileReader();
+    reader.onload = function(e){ img.src = e.target.result; preview.style.display='block'; };
+    reader.readAsDataURL(file);
+  } else {
+    img.src=''; preview.style.display='none';
+  }
+}
+
+function _uploadComprobante(orderId){
+  var input = document.getElementById('ckComprobante');
+  if(!input || !input.files || !input.files[0]) return;
+  var file = input.files[0];
+  if(file.size > 6*1024*1024){ showToast('Comprobante muy grande (máx 6 MB)','error'); return; }
+  var reader = new FileReader();
+  reader.onload = function(e){
+    var base64 = e.target.result.split(',')[1];
+    var mimeType = file.type || 'image/jpeg';
+    fetchWithTimeout(API_BASE+'/api/order/'+encodeURIComponent(orderId)+'/comprobante', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({base64:base64, mimeType:mimeType})
+    }, 20000)
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.ok) showToast('✅ Comprobante enviado a Maxicompra','success');
+    })
+    .catch(function(){ /* silencioso — el pedido ya se creó */ });
+  };
+  reader.readAsDataURL(file);
+}
+
 function _confirmOrderFallback(name,email,phone,addr,city,region,payName,shipTxt,totalTxt,storePhone){
   const orderNum = 'MX-' + Date.now().toString().slice(-6);
   const itemLines = cart.map(function(i){
@@ -3157,7 +3203,6 @@ function _confirmOrderFallback(name,email,phone,addr,city,region,payName,shipTxt
     itemLines,
     '',
     '💰 Subtotal: '+(document.getElementById('ck-sub')?document.getElementById('ck-sub').textContent:totalTxt),
-    (_couponApplied&&_couponPct?'🏷️ Descuento ('+_couponPct+'%): -'+(document.getElementById('ck-discount')?document.getElementById('ck-discount').textContent.replace('-',''):''):''),
     '🚚 Envío: '+shipTxt,
     '✅ *TOTAL: '+totalTxt+'*',
     '',
@@ -3924,66 +3969,6 @@ function togFAQ(el){
 /* ═══════════ API CONFIG ═══════════ */
 // Actualizar con URL real del worker después de: wrangler deploy
 var API_BASE = 'https://maxicompra-api.elflaco0800.workers.dev';
-
-/* ═══════════ COUPON CODE ═══════════ */
-var _couponApplied = false, _couponPct = 0;
-var VALID_COUPONS = {'BIENVENIDA10':10,'MAXIDESCUENTO':15,'PRIMERACOMPRA':10};
-function applyCoupon(){
-  var code = (document.getElementById('ckCouponInput').value||'').trim().toUpperCase();
-  var msg = document.getElementById('ckCouponMsg');
-  var row = document.getElementById('ckDiscountRow');
-  if(!code){
-    msg.className='ck-coupon-msg err'; msg.textContent='Ingresa un código de descuento.'; msg.style.display='block';
-    return;
-  }
-  // Validación server-side si API está configurada
-  if(API_BASE){
-    msg.className='ck-coupon-msg'; msg.innerHTML='<i class="fas fa-spinner fa-spin"></i> Verificando...'; msg.style.display='block';
-    fetchWithTimeout(API_BASE+'/api/coupon/'+encodeURIComponent(code), {}, 10000)
-      .then(function(r){return r.json();})
-      .then(function(d){
-        if(d.valid){
-          _couponApplied=true; _couponPct=d.pct;
-          msg.className='ck-coupon-msg ok'; msg.innerHTML='<i class="fas fa-check-circle"></i> ¡Cupón aplicado! '+d.pct+'% de descuento.'; msg.style.display='block';
-          row.style.display=''; updateCkSummary();
-        } else {
-          _couponApplied=false; _couponPct=0;
-          msg.className='ck-coupon-msg err'; msg.innerHTML='<i class="fas fa-times-circle"></i> Código no válido o expirado.'; msg.style.display='block';
-          row.style.display='none'; updateCkSummary();
-        }
-      })
-      .catch(function(){
-        // Si el API falla, fallback local
-        _applyCouponLocal(code, msg, row);
-      });
-    return;
-  }
-  _applyCouponLocal(code, msg, row);
-}
-function _applyCouponLocal(code, msg, row){
-  if(VALID_COUPONS[code]){
-    _couponApplied=true; _couponPct=VALID_COUPONS[code];
-    msg.className='ck-coupon-msg ok'; msg.innerHTML='<i class="fas fa-check-circle"></i> ¡Cupón aplicado! '+_couponPct+'% de descuento.'; msg.style.display='block';
-    row.style.display=''; updateCkSummary();
-  } else {
-    _couponApplied=false; _couponPct=0;
-    msg.className='ck-coupon-msg err'; msg.innerHTML='<i class="fas fa-times-circle"></i> Código no válido. Intenta con BIENVENIDA10.'; msg.style.display='block';
-    row.style.display='none'; updateCkSummary();
-  }
-}
-function updateCkSummary(){
-  var sub=cart.reduce(function(s,i){return s+i.price*i.qty;},0);
-  var ship=sub>=40000?0:3990;
-  var disc=_couponApplied?Math.round(sub*_couponPct/100):0;
-  var total=sub-disc+ship;
-  document.getElementById('ck-sub').textContent=fp(sub);
-  document.getElementById('ck-ship').textContent=ship===0?'GRATIS':fp(ship);
-  document.getElementById('ck-total').textContent=fp(total);
-  if(_couponApplied && disc>0){
-    document.getElementById('ck-discount').textContent='-'+fp(disc);
-    document.getElementById('ckDiscountRow').style.display='';
-  }
-}
 
 /* ═══════════ SPLASH SCREEN ═══════════ */
 (function(){

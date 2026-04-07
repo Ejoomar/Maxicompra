@@ -596,14 +596,16 @@ async function handleMPPreference(request, env) {
     if (!Number.isFinite(qty)   || qty < 1 || qty > 50) return err('Cantidad de item inválida', 400, request);
   }
 
-  // Cross-check total against stored order
+  // Verificar que la orden existe
   const order = await env.ORDERS.get(orderId, 'json');
   if (!order) return err('Orden no encontrada — crea la orden primero', 404, request);
 
+  // Sanity check: items total vs order total
+  // itemsTotal no incluye envío; order.total sí → items puede ser hasta 30% menor que order.total
   const itemsTotal = items.reduce((acc, i) =>
     acc + Number(i.unit_price || i.price) * Number(i.quantity || i.qty || 1), 0);
-  if (itemsTotal > order.total * 1.10 || itemsTotal < order.total * 0.40)
-    return err('Total no coincide con la orden registrada', 400, request);
+  if (itemsTotal <= 0 || itemsTotal > order.total * 1.15)
+    return err('Total de items inválido', 400, request);
 
   const preference = {
     items: items.map(i => ({

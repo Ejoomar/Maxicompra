@@ -2070,7 +2070,7 @@ html{scroll-behavior:smooth;}
         </div>
         <div class="ck-pay-opt" onclick="selPay(this,'mp')">
           <input type="radio" name="ck-pay" id="pay-mp">
-          <label for="pay-mp"><i class="fas fa-wallet" style="color:#00BFFF"></i> Mercado Pago <span style="font-size:11px;color:var(--green);margin-left:6px">30% OFF</span></label>
+          <label for="pay-mp"><i class="fas fa-wallet" style="color:#00BFFF"></i> Mercado Pago</label>
         </div>
         <div class="ck-pay-opt" onclick="selPay(this,'transfer')">
           <input type="radio" name="ck-pay" id="pay-transfer">
@@ -2099,13 +2099,7 @@ html{scroll-behavior:smooth;}
       <h3><i class="fas fa-receipt" style="color:var(--pink)"></i> Tu pedido</h3>
       <div class="ck-items" id="ckItems"></div>
       <hr class="ck-divider">
-      <div class="ck-coupon-row">
-        <input type="text" id="ckCouponInput" class="ck-coupon-inp" placeholder="Código de descuento" maxlength="20">
-        <button class="ck-coupon-btn" onclick="applyCoupon()"><i class="fas fa-tag"></i> Aplicar</button>
-      </div>
-      <div class="ck-coupon-msg" id="ckCouponMsg" style="display:none"></div>
       <div class="ck-total-row"><span>Subtotal</span><span id="ck-sub">$0</span></div>
-      <div class="ck-total-row" id="ckDiscountRow" style="display:none"><span style="color:var(--green)"><i class="fas fa-tag" style="font-size:11px"></i> Descuento</span><span id="ck-discount" style="color:var(--green)"></span></div>
       <div class="ck-total-row"><span>Envío</span><span id="ck-ship" style="color:var(--green)">GRATIS</span></div>
       <div class="ck-total-row big"><span>Total</span><span id="ck-total">$0</span></div>
       <button class="btn-grad ck-confirm-btn" id="ckConfirmBtn" onclick="confirmOrder()"><i class="fas fa-lock"></i> Confirmar pedido</button>
@@ -2989,7 +2983,6 @@ function checkout(){
 function closeCheckout(){
   document.getElementById('ckOverlay').classList.remove('open');
 }
-var _mpDiscount = 30; // % descuento automático Mercado Pago
 function selPay(el,val){
   document.querySelectorAll('.ck-pay-opt').forEach(o=>o.classList.remove('sel'));
   el.classList.add('sel');
@@ -2997,49 +2990,29 @@ function selPay(el,val){
   // Datos bancarios solo si transferencia
   var bankInfo = document.getElementById('bankInfo');
   if(bankInfo) bankInfo.style.display = (val==='transfer') ? 'block' : 'none';
-  // Descuento 30% OFF automático si elige MP
-  var mpDiscRow = document.getElementById('ckMpDiscRow');
-  if(!mpDiscRow){
-    mpDiscRow = document.createElement('div');
-    mpDiscRow.id = 'ckMpDiscRow';
-    mpDiscRow.style.cssText = 'display:none;color:var(--green);font-size:13px;font-weight:700;padding:6px 0;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);margin-bottom:4px';
-    mpDiscRow.innerHTML = '<span><i class="fas fa-tag"></i> 30% OFF Mercado Pago</span><span id="ckMpDiscAmt"></span>';
-    var totalRow = document.getElementById('ck-total');
-    if(totalRow && totalRow.parentNode) totalRow.parentNode.insertBefore(mpDiscRow, totalRow.parentNode.firstChild);
-  }
-  if(val==='mp'){
-    var sub = cart.reduce(function(s,i){return s+i.price*i.qty;},0);
-    var disc = Math.round(sub*_mpDiscount/100);
-    var discEl = document.getElementById('ckMpDiscAmt');
-    if(discEl) discEl.textContent = '-'+fp(disc);
-    mpDiscRow.style.display='flex';
-    updateCkSummaryWithMP(true);
-  } else {
-    mpDiscRow.style.display='none';
-    updateCkSummaryWithMP(false);
-  }
+  // Actualizar resumen sin descuento MP
+  updateCkSummary();
   // Texto botón
   var btn = document.querySelector('.ck-confirm-btn');
   if(!btn) return;
   var labels = {
     webpay:   '<i class="fas fa-credit-card"></i> Pagar con Webpay',
-    mp:       '<i class="fas fa-tag"></i> Pagar con 30% OFF — Mercado Pago',
+    mp:       '<i class="fas fa-wallet"></i> Pagar con Mercado Pago',
     transfer: '<i class="fas fa-paper-plane"></i> Confirmar y enviar datos',
     cash:     '<i class="fas fa-store"></i> Confirmar pedido (pago en tienda)'
   };
   btn.innerHTML = labels[val] || '<i class="fas fa-lock"></i> Confirmar pedido';
 }
-function updateCkSummaryWithMP(applyMP){
+function updateCkSummary(){
   var sub = cart.reduce(function(s,i){return s+i.price*i.qty;},0);
   var shipNum = sub>=40000?0:3990;
-  var couponDisc = _couponApplied ? Math.round(sub*_couponPct/100) : 0;
-  var mpDisc = applyMP ? Math.round(sub*_mpDiscount/100) : 0;
-  var total = sub - couponDisc - mpDisc + shipNum;
+  var total = sub + shipNum;
   var subEl=document.getElementById('ck-sub'), shipEl=document.getElementById('ck-ship'), totEl=document.getElementById('ck-total');
   if(subEl) subEl.textContent=fp(sub);
   if(shipEl){shipEl.textContent=shipNum===0?'GRATIS':fp(shipNum);shipEl.style.color=shipNum===0?'var(--green)':'var(--text)';}
   if(totEl) totEl.textContent=fp(total);
 }
+function updateCkSummaryWithMP(applyMP){ updateCkSummary(); } // backward compat
 function _launchOrderWA(orderNum, waURL){
   document.getElementById('ckOrderNum').textContent = '#'+orderNum;
   document.getElementById('ckForm').style.display = 'none';
@@ -3084,7 +3057,7 @@ function confirmOrder(){
 
   const payEl  = document.querySelector('.ck-pay-opt.sel input');
   const payVal = payEl ? payEl.id.replace('pay-','') : 'webpay';
-  const payNames = {webpay:'Webpay Plus (Débito/Crédito)', mp:'Mercado Pago (30% OFF)', transfer:'Transferencia bancaria', cash:'Efectivo (pago en tienda)'};
+  const payNames = {webpay:'Webpay Plus (Débito/Crédito)', mp:'Mercado Pago', transfer:'Transferencia bancaria', cash:'Efectivo (pago en tienda)'};
   const payName = payNames[payVal] || payVal;
 
   const totalEl  = document.getElementById('ck-total');
@@ -3156,15 +3129,14 @@ function _launchMPCheckout(orderId, email, totalNum, waUrl, name, phone, addr, c
       // NO vaciamos el carrito aquí — solo cuando el pago sea confirmado
       window.location.href = d.init_point;
     } else {
+      // Error al crear preferencia — mantener checkout abierto, NO mostrar success
       if(btn){btn.disabled=false; btn.innerHTML='<i class="fas fa-wallet"></i> Pagar con Mercado Pago';}
-      showToast('Error conectando con Mercado Pago. Intenta con transferencia.','error');
-      _launchOrderWA(orderId, waUrl);
+      showToast('Error al conectar con Mercado Pago. Elige otro método de pago.','error');
     }
   })
   .catch(function(e){
     if(btn){btn.disabled=false; btn.innerHTML='<i class="fas fa-wallet"></i> Pagar con Mercado Pago';}
-    showToast('Error de conexión. Pedido guardado — usa otro método de pago.','error');
-    _launchOrderWA(orderId, waUrl);
+    showToast('Error de conexión. Pedido guardado — elige transferencia o efectivo.','error');
   });
 }
 

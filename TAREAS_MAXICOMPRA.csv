@@ -1,4 +1,7 @@
 ID,Área,Tarea,Prioridad,Responsable,Estado,Notas
+D-03,Deploy,.wrangler/ en el repo causaba fallo de build en Cloudflare Workers,ALTA,Nosotros,✅ Corregido,Agregado a .gitignore y removido del tracking con git rm --cached
+F-10,Frontend,Botón WhatsApp no redirigía (window.open bloqueado por browser),ALTA,Nosotros,✅ Corregido,Reemplazado por botón <a href> con gesto de usuario — no puede ser bloqueado
+F-11,Frontend,Toast Agregado al carro aparecía dentro del checkout al usar Comprar ahora,ALTA,Nosotros,✅ Corregido,addToCartN acepta parámetro silent=true en buyNowPDP y botón Comprar ya
 S-01,Seguridad,Configurar MP_WEBHOOK_SECRET en MP Dashboard → Notificaciones → Webhooks,ALTA,Edgar,⬜ Pendiente,Ir a mercadopago.com.ar/developers → Tu app → Notificaciones → copiar secret → wrangler secret put MP_WEBHOOK_SECRET --name maxicompra-api
 S-02,Seguridad,Verificar dominio maxicompra.cl en Resend (DNS: DKIM + SPF + DMARC),ALTA,Edgar,⬜ Pendiente,Ir a resend.com → Domains → Add Domain → maxicompra.cl → copiar registros DNS → pegarlo en Cloudflare
 S-03,Seguridad,Confirmar que RESEND_API_KEY está seteado en wrangler secrets,ALTA,Edgar,⬜ Pendiente,wrangler secret list --name maxicompra-api para verificar

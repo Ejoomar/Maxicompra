@@ -12,3 +12,8 @@ maxicompraedgar.html
 entrega-original/
 .claude/
 COMANDOS/
+
+# Cache wrangler y temp
+.wrangler/
+worker/.wrangler/
+index.min.tmp.html

@@ -2603,7 +2603,7 @@ function productCardHTML(p) {
       </div>
       ${p.cuotas ? `<div class="pc-cuotas"><span>${p.cuotas}</span></div>` : `<div class="pc-spacer"></div>`}
       ${p.envio  ? `<div class="pc-ship"><i class="fas fa-truck"></i>Envío gratis</div>` : `<div class="pc-spacer"></div>`}
-      <div class="pc-btns"><button class="pc-add" id="pcbtn-${p.id}" onclick="event.stopPropagation();addToCart('${p.id}')"><i class="fas fa-shopping-cart"></i>Al carro</button><button class="pc-buy-card" onclick="event.stopPropagation();addToCartN('${p.id}',1);checkout()">⚡ Comprar ya</button></div>
+      <div class="pc-btns"><button class="pc-add" id="pcbtn-${p.id}" onclick="event.stopPropagation();addToCart('${p.id}')"><i class="fas fa-shopping-cart"></i>Al carro</button><button class="pc-buy-card" onclick="event.stopPropagation();addToCartN('${p.id}',1,true);checkout()">⚡ Comprar ya</button></div>
     </div>
   </div>`;
 }
@@ -2869,7 +2869,7 @@ function chgPdpQty(d) {
 
 function buyNowPDP(){
   if(!currentProd) return;
-  addToCartN(currentProd.id, pdpQty);
+  addToCartN(currentProd.id, pdpQty, true); // silent=true: no toast, va directo a checkout
   setTimeout(()=>{ checkout(); }, 120);
 }
 function addFromPDP() {
@@ -2911,12 +2911,12 @@ function addToCart(id){
     setTimeout(function(){ btn.innerHTML=orig; btn.style.background=''; btn.style.color=''; },1800);
   }
 }
-function addToCartN(id, qty=1) {
+function addToCartN(id, qty=1, silent=false) {
   const p = products.find(x=>x.id===id); if(!p) return;
   const ex = cart.find(x=>x.id===id);
   if (ex) ex.qty += qty; else cart.push({id:p.id, name:p.name, price:p.price, img:p.imgs&&p.imgs[0]||null, brand:p.brand, qty});
   saveC(); updCartBadge(); renderCart();
-  showToast('¡Agregado al carro!');
+  if(!silent) showToast('¡Agregado al carro!');
   const btn = document.getElementById('pcbtn-'+id);
   if (btn) { btn.classList.add('added'); btn.innerHTML='<i class="fas fa-check"></i> ¡Agregado!'; setTimeout(()=>{btn.classList.remove('added');btn.innerHTML='<i class="fas fa-shopping-cart"></i> Agregar al carro';},2000); }
 }
@@ -3043,18 +3043,8 @@ function _launchOrderWA(orderNum, waURL, isTransfer, hasComp){
     cdEl.style.cssText = 'margin-top:14px;font-size:13px;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:6px;';
     succEl.appendChild(cdEl);
   }
-  var secs = 5;
-  function tick(){
-    if(secs > 0){
-      cdEl.innerHTML = '<i class="fab fa-whatsapp" style="color:#25D366;font-size:16px"></i> Abriendo WhatsApp en <strong style="color:var(--text)">'+secs+'</strong>s...';
-      secs--;
-      setTimeout(tick, 1000);
-    } else {
-      cdEl.innerHTML = '<i class="fab fa-whatsapp" style="color:#25D366;font-size:16px"></i> <strong style="color:#25D366">¡Abriendo WhatsApp con tu pedido!</strong>';
-      window.open(waURL, '_blank');
-    }
-  }
-  tick();
+  // Botón directo (gesto de usuario = no bloqueado por el browser)
+  cdEl.innerHTML = '<a href="'+waURL+'" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:9px;background:#25D366;color:#fff;font-weight:700;font-size:15px;padding:13px 26px;border-radius:10px;text-decoration:none;margin-top:4px;box-shadow:0 4px 16px rgba(37,211,102,.35)"><i class="fab fa-whatsapp" style="font-size:20px"></i> Enviar pedido por WhatsApp</a>';
   cart = []; saveC(); updCartBadge(); renderCart();
 }
 

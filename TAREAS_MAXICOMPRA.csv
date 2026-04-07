@@ -23,14 +23,14 @@ B-05,Backend,Endpoint de comprobante (POST + GET),ALTA,Nosotros,✅ Corregido,PO
 F-01,Frontend,Bug: updateCkSummary duplicada — JS usa versión vieja con lógica de cupones,ALTA,Nosotros,✅ Corregido,Eliminada la segunda definición en línea ~3974
 F-02,Frontend,JS de cupones dead code: VALID_COUPONS + applyCoupon + _applyCouponLocal,ALTA,Nosotros,✅ Corregido,Bloque completo eliminado
 F-03,Frontend,CSS de cupones dead code: .ck-coupon-row etc,BAJA,Nosotros,✅ Corregido,Estilos eliminados
-F-04,Frontend,Mobile <380px: hero title se corta,MEDIA,Nosotros,⬜ Pendiente,Reducir font-size en breakpoint muy pequeño
-F-05,Frontend,Sin lazy loading en imágenes de productos (656 productos),MEDIA,Nosotros,⬜ Pendiente,Agregar loading="lazy" en img tags de productCardHTML
-F-06,Frontend,Wishlist no persiste al recargar página,BAJA,Nosotros,⬜ Pendiente,Guardar wishlist en localStorage
+F-04,Frontend,Mobile <380px: hero title se corta,MEDIA,Nosotros,✅ Corregido,@media(max-width:380px) slide-title baja a 22px
+F-05,Frontend,Sin lazy loading en imágenes de productos (656 productos),MEDIA,Nosotros,✅ Corregido,loading="lazy" ya estaba aplicado en productCardHTML y todas las imágenes
+F-06,Frontend,Wishlist no persiste al recargar página,BAJA,Nosotros,✅ Corregido,Wishlist ya persistía en localStorage con lsGet/lsSet(KW)
 F-07,Frontend,Sin página de Política de Privacidad,MEDIA,Edgar+Nosotros,⬜ Pendiente,Requerimiento legal ley 19.628 Chile. Edgar provee el texto.
 F-08,Frontend,Sin página de Términos y Condiciones,MEDIA,Edgar+Nosotros,⬜ Pendiente,Edgar provee el texto base.
 F-09,Frontend,Sin página de Devoluciones/Garantías,MEDIA,Edgar+Nosotros,⬜ Pendiente,Texto base que Edgar defina
 A-01,Admin,Bug: shipped siempre aparece en 0 en estadísticas,ALTA,Nosotros,✅ Corregido,Ver B-01
-A-02,Admin,Sin gestión de productos desde admin (656 hardcodeados en HTML),ALTA,Nosotros,⬜ Pendiente,Feature grande — sesión futura dedicada
+A-02,Admin,Sin gestión de productos desde admin (656 hardcodeados en HTML),ALTA,Nosotros,✅ Corregido,Tab Productos en admin: agregar/editar/eliminar/foto URL. Almacenados en KV y mergeados en la tienda al cargar.
 A-03,Admin,Búsqueda solo dentro de la fecha activa — no cross-histórico,MEDIA,Nosotros,⬜ Pendiente,Sesión futura
 A-04,Admin,Sin notificación de nuevos pedidos en tiempo real,MEDIA,Nosotros,⬜ Pendiente,Requiere WebSocket o polling. Sesión futura.
 A-05,Admin,Ver comprobante de transferencia en detalle de pedido,ALTA,Nosotros,✅ Corregido,Botón Ver comprobante en detail modal si existe

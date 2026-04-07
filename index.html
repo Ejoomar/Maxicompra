@@ -147,6 +147,7 @@ img{display:block;}
 .slide-content{position:relative;z-index:2;}
 .slide-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(232,23,93,.18);border:1px solid rgba(232,23,93,.4);color:var(--pink);padding:5px 13px;border-radius:20px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;width:fit-content;}
 .slide-title{font-family:'Syne',sans-serif;font-size:34px;font-weight:800;color:#fff;line-height:1.15;margin-bottom:10px;max-width:420px;}
+@media(max-width:380px){.slide-title{font-size:22px;}.slide-price-txt{font-size:22px;}}
 .slide-sub{color:rgba(255,255,255,.65);font-size:14px;margin-bottom:8px;max-width:380px;}
 .slide-detail{font-size:12px;color:var(--cyan);margin-bottom:18px;}
 .slide-price-txt{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:var(--pink);margin-bottom:18px;}
@@ -3979,6 +3980,33 @@ function togFAQ(el){
 /* ═══════════ API CONFIG ═══════════ */
 // Actualizar con URL real del worker después de: wrangler deploy
 var API_BASE = 'https://maxicompra-api.elflaco0800.workers.dev';
+
+/* ═══════════ KV PRODUCTS MERGE ═══════════ */
+(function(){
+  fetch(API_BASE + '/api/products')
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if(!d.ok || !d.products || !d.products.length) return;
+      var kvById = {};
+      d.products.forEach(function(p){ kvById[p.id] = p; });
+      var existingIds = new Set(products.map(function(p){ return p.id; }));
+      // Override existing products with KV versions
+      products = products.map(function(p){ return kvById[p.id] || p; });
+      // Append new KV products not in DEFAULT_PRODUCTS
+      d.products.forEach(function(p){
+        if(!existingIds.has(p.id)) products.push(p);
+      });
+      saveP();
+      // Re-render visible view
+      try {
+        var sv = document.getElementById('searchInp');
+        var q = sv ? sv.value : '';
+        if(currentView === 'home') renderHomeProducts(q);
+        else if(currentView === 'category') renderCatProducts(currentCat);
+      } catch(e){}
+    })
+    .catch(function(){});
+})();
 
 /* ═══════════ SPLASH SCREEN ═══════════ */
 (function(){

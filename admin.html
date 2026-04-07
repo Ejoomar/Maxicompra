@@ -167,6 +167,26 @@ select.status-sel:focus{border-color:var(--pink)}
 .chart-label{font-size:10px;color:var(--muted);text-align:center;white-space:nowrap}
 .chart-val{font-size:10px;color:var(--text);font-weight:600;text-align:center}
 
+/* ── PRODUCTS TAB ── */
+.prod-form{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px}
+.prod-form h3{font-size:15px;font-weight:700;margin-bottom:16px}
+.prod-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.prod-grid.wide{grid-template-columns:1fr}
+.prod-list{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.prod-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border)}
+.prod-item:last-child{border-bottom:none}
+.prod-thumb{width:46px;height:46px;border-radius:8px;object-fit:contain;background:var(--card2);flex-shrink:0}
+.prod-thumb-ph{width:46px;height:46px;border-radius:8px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.prod-info{flex:1;min-width:0}
+.prod-name{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prod-meta{font-size:11px;color:var(--muted);margin-top:2px}
+.prod-price{font-size:14px;font-weight:800;color:var(--pink);white-space:nowrap;margin-right:8px}
+.prod-actions{display:flex;gap:6px;flex-shrink:0}
+.prod-search-bar{padding:12px 16px;border-bottom:1px solid var(--border)}
+.prod-search-bar input{width:100%;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);font-size:13px;outline:none}
+.prod-search-bar input:focus{border-color:var(--pink)}
+.prod-pag{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-top:1px solid var(--border);font-size:13px;color:var(--muted)}
+
 /* ── MOBILE ── */
 @media(max-width:720px){
   .topbar-search{display:none}
@@ -216,6 +236,7 @@ select.status-sel:focus{border-color:var(--pink)}
     <div class="tabs">
       <button class="tab active" onclick="showTab('orders')">📦 Pedidos</button>
       <button class="tab" onclick="showTab('coupons')">🏷️ Cupones</button>
+      <button class="tab" onclick="showTab('products')">🛍️ Productos</button>
       <button class="tab" onclick="showTab('stats')">📊 Estadísticas</button>
     </div>
 
@@ -301,6 +322,76 @@ select.status-sel:focus{border-color:var(--pink)}
       </div>
     </div>
 
+    <!-- ── TAB: PRODUCTOS ── -->
+    <div class="tab-pane" id="tab-products">
+      <!-- Form add/edit -->
+      <div class="prod-form">
+        <h3 id="prodFormTitle">➕ Nuevo producto</h3>
+        <input type="hidden" id="prodEditId">
+        <div class="prod-grid">
+          <div class="form-group-sm">
+            <label class="form-label-sm">Nombre *</label>
+            <input class="form-input-sm" id="prodName" placeholder="Ej: Auriculares Bluetooth" maxlength="200">
+          </div>
+          <div class="form-group-sm">
+            <label class="form-label-sm">Precio * (CLP)</label>
+            <input class="form-input-sm" id="prodPrice" type="number" min="0" placeholder="19990">
+          </div>
+          <div class="form-group-sm">
+            <label class="form-label-sm">Precio original (tachado)</label>
+            <input class="form-input-sm" id="prodOrigPrice" type="number" min="0" placeholder="29990">
+          </div>
+          <div class="form-group-sm">
+            <label class="form-label-sm">Marca</label>
+            <input class="form-input-sm" id="prodBrand" placeholder="Samsung, Apple…" maxlength="100">
+          </div>
+          <div class="form-group-sm">
+            <label class="form-label-sm">Categoría</label>
+            <input class="form-input-sm" id="prodCategory" placeholder="Electrónica, Hogar…" maxlength="100">
+          </div>
+          <div class="form-group-sm">
+            <label class="form-label-sm">Stock (-1 = ilimitado)</label>
+            <input class="form-input-sm" id="prodStock" type="number" min="-1" value="-1">
+          </div>
+        </div>
+        <div class="prod-grid wide" style="margin-top:10px">
+          <div class="form-group-sm">
+            <label class="form-label-sm">URL de imagen</label>
+            <input class="form-input-sm" id="prodImage" placeholder="https://…" maxlength="500" oninput="previewProdImg(this.value)">
+          </div>
+          <div class="form-group-sm" style="margin-top:10px">
+            <label class="form-label-sm">Descripción</label>
+            <textarea class="form-input-sm" id="prodDesc" rows="2" maxlength="1000" placeholder="Descripción breve del producto…" style="resize:vertical"></textarea>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;margin-top:14px;flex-wrap:wrap">
+          <button class="btn-action btn-refresh" style="width:auto;padding:9px 22px" onclick="saveProd()">
+            💾 Guardar producto
+          </button>
+          <button class="btn-sm" onclick="resetProdForm()" id="prodCancelBtn" style="display:none">Cancelar edición</button>
+          <span id="prodMsg" style="font-size:13px;color:var(--green);display:none"></span>
+          <img id="prodImgPreview" src="" alt="" style="width:56px;height:56px;object-fit:contain;border-radius:8px;background:var(--card2);display:none">
+        </div>
+      </div>
+
+      <!-- List -->
+      <div class="prod-list" id="prodList">
+        <div class="prod-search-bar">
+          <input type="search" placeholder="🔍 Buscar productos…" oninput="filterProdList(this.value)">
+        </div>
+        <div id="prodListBody">
+          <div style="text-align:center;padding:30px;color:var(--muted)">Cargando…</div>
+        </div>
+        <div class="prod-pag" id="prodPag" style="display:none">
+          <span id="prodPagInfo"></span>
+          <div style="display:flex;gap:8px">
+            <button class="page-btn" id="prodPrevBtn" onclick="prodGoPage(-1)">← Ant</button>
+            <button class="page-btn" id="prodNextBtn" onclick="prodGoPage(1)">Sig →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- ── TAB: ESTADÍSTICAS ── -->
     <div class="tab-pane" id="tab-stats">
       <div class="stats7-grid" id="stats7Cards">
@@ -380,11 +471,12 @@ function toggleTheme(){
 
 // ── TABS ─────────────────────────────────────────────────────────────────────
 function showTab(name){
-  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', ['orders','coupons','stats'][i]===name));
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', ['orders','coupons','products','stats'][i]===name));
   document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
   document.getElementById('tab-'+name).classList.add('active');
-  if(name==='coupons') loadCoupons();
-  if(name==='stats')   loadStats();
+  if(name==='coupons')  loadCoupons();
+  if(name==='stats')    loadStats();
+  if(name==='products') loadProducts();
 }
 
 // ── AUTH ─────────────────────────────────────────────────────────────────────
@@ -792,6 +884,174 @@ async function loadStats(){
       </div>`;
     }).join('');
   } catch(e){}
+}
+
+// ── PRODUCTS ────────────────────────────────────────────────────────────────
+let _allProds = [];
+let _filteredProds = [];
+let _prodPage = 0;
+const PROD_PAGE_SIZE = 20;
+
+async function loadProducts(){
+  document.getElementById('prodListBody').innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)"><div class="spinner"></div></div>';
+  try {
+    const r = await fetch(API+'/api/admin/products',{headers:{'Authorization':'Bearer '+_token}});
+    const d = await r.json();
+    if(!d.ok){ document.getElementById('prodListBody').innerHTML='<p style="padding:20px;color:var(--red)">'+esc(d.error||'Error')+'</p>'; return; }
+    _allProds = d.products || [];
+    _filteredProds = [..._allProds];
+    _prodPage = 0;
+    renderProdList();
+  } catch(e){
+    document.getElementById('prodListBody').innerHTML='<p style="padding:20px;color:var(--red)">Error al cargar</p>';
+  }
+}
+
+function filterProdList(q){
+  const ql = q.toLowerCase().trim();
+  _filteredProds = ql ? _allProds.filter(p =>
+    (p.name||'').toLowerCase().includes(ql) ||
+    (p.brand||'').toLowerCase().includes(ql) ||
+    (p.category||'').toLowerCase().includes(ql)
+  ) : [..._allProds];
+  _prodPage = 0;
+  renderProdList();
+}
+
+function renderProdList(){
+  const total = _filteredProds.length;
+  const pages = Math.max(1, Math.ceil(total/PROD_PAGE_SIZE));
+  if(_prodPage >= pages) _prodPage = pages-1;
+  const slice = _filteredProds.slice(_prodPage*PROD_PAGE_SIZE, (_prodPage+1)*PROD_PAGE_SIZE);
+
+  if(!total){
+    document.getElementById('prodListBody').innerHTML = '<div class="empty-state"><div>📦</div>No hay productos personalizados aún</div>';
+    document.getElementById('prodPag').style.display='none';
+    return;
+  }
+
+  document.getElementById('prodListBody').innerHTML = slice.map(p => `
+    <div class="prod-item">
+      ${p.image ? `<img class="prod-thumb" src="${esc(p.image)}" alt="" onerror="this.style.display='none'">` : `<div class="prod-thumb-ph">📦</div>`}
+      <div class="prod-info">
+        <div class="prod-name">${esc(p.name)}</div>
+        <div class="prod-meta">${p.brand?esc(p.brand)+' · ':''}${p.category?esc(p.category)+' · ':''}ID: ${esc(p.id)}</div>
+      </div>
+      <div class="prod-price">${fp(p.price)}</div>
+      <div class="prod-actions">
+        <button class="btn-sm" style="font-size:12px;padding:4px 10px" onclick="editProd(${JSON.stringify(p).split('"').join('&quot;')})">Editar</button>
+        <button class="btn-del" onclick="deleteProd('${esc(p.id)}','${esc(p.name)}')">Eliminar</button>
+      </div>
+    </div>`).join('');
+
+  const pagEl = document.getElementById('prodPag');
+  const infoEl = document.getElementById('prodPagInfo');
+  if(pages > 1){
+    pagEl.style.display='flex';
+    infoEl.textContent = `${_prodPage*PROD_PAGE_SIZE+1}–${Math.min((_prodPage+1)*PROD_PAGE_SIZE,total)} de ${total}`;
+    document.getElementById('prodPrevBtn').disabled = _prodPage===0;
+    document.getElementById('prodNextBtn').disabled = _prodPage>=pages-1;
+  } else {
+    pagEl.style.display = total > 0 ? 'flex' : 'none';
+    infoEl.textContent = total + ' producto'+(total!==1?'s':'');
+    document.getElementById('prodPrevBtn').disabled = true;
+    document.getElementById('prodNextBtn').disabled = true;
+  }
+}
+
+function prodGoPage(dir){
+  const pages = Math.max(1, Math.ceil(_filteredProds.length/PROD_PAGE_SIZE));
+  _prodPage = Math.max(0, Math.min(pages-1, _prodPage+dir));
+  renderProdList();
+}
+
+function editProd(p){
+  document.getElementById('prodEditId').value    = p.id;
+  document.getElementById('prodName').value      = p.name||'';
+  document.getElementById('prodPrice').value     = p.price||'';
+  document.getElementById('prodOrigPrice').value = p.originalPrice||'';
+  document.getElementById('prodBrand').value     = p.brand||'';
+  document.getElementById('prodCategory').value  = p.category||'';
+  document.getElementById('prodStock').value     = p.stock!=null?p.stock:-1;
+  document.getElementById('prodImage').value     = p.image||'';
+  document.getElementById('prodDesc').value      = p.description||'';
+  previewProdImg(p.image||'');
+  document.getElementById('prodFormTitle').textContent = '✏️ Editando: '+p.name.substring(0,40);
+  document.getElementById('prodCancelBtn').style.display='inline-flex';
+  document.querySelector('.prod-form').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function resetProdForm(){
+  document.getElementById('prodEditId').value='';
+  document.getElementById('prodName').value='';
+  document.getElementById('prodPrice').value='';
+  document.getElementById('prodOrigPrice').value='';
+  document.getElementById('prodBrand').value='';
+  document.getElementById('prodCategory').value='';
+  document.getElementById('prodStock').value='-1';
+  document.getElementById('prodImage').value='';
+  document.getElementById('prodDesc').value='';
+  previewProdImg('');
+  document.getElementById('prodFormTitle').textContent='➕ Nuevo producto';
+  document.getElementById('prodCancelBtn').style.display='none';
+}
+
+function previewProdImg(url){
+  const img = document.getElementById('prodImgPreview');
+  if(url && url.startsWith('http')){
+    img.src=url; img.style.display='block';
+    img.onerror=()=>{ img.style.display='none'; };
+  } else {
+    img.style.display='none';
+  }
+}
+
+async function saveProd(){
+  const name  = document.getElementById('prodName').value.trim();
+  const price = parseFloat(document.getElementById('prodPrice').value);
+  const msgEl = document.getElementById('prodMsg');
+  if(!name || isNaN(price) || price<0){ msgEl.textContent='Nombre y precio son obligatorios'; msgEl.style.color='var(--red)'; msgEl.style.display='inline'; setTimeout(()=>msgEl.style.display='none',3000); return; }
+
+  const body = {
+    id:            document.getElementById('prodEditId').value || undefined,
+    name,
+    price,
+    originalPrice: parseFloat(document.getElementById('prodOrigPrice').value)||undefined,
+    brand:         document.getElementById('prodBrand').value.trim(),
+    category:      document.getElementById('prodCategory').value.trim(),
+    stock:         parseInt(document.getElementById('prodStock').value,10),
+    image:         document.getElementById('prodImage').value.trim(),
+    description:   document.getElementById('prodDesc').value.trim(),
+  };
+
+  try {
+    const r = await fetch(API+'/api/admin/product',{
+      method:'POST', headers:{'Authorization':'Bearer '+_token,'Content-Type':'application/json'},
+      body:JSON.stringify(body)
+    });
+    const d = await r.json();
+    if(d.ok){
+      msgEl.textContent='✓ Guardado'; msgEl.style.color='var(--green)'; msgEl.style.display='inline';
+      setTimeout(()=>msgEl.style.display='none',2500);
+      resetProdForm();
+      loadProducts();
+    } else {
+      msgEl.textContent=esc(d.error||'Error'); msgEl.style.color='var(--red)'; msgEl.style.display='inline';
+      setTimeout(()=>msgEl.style.display='none',3000);
+    }
+  } catch(e){ alert('Error de conexión'); }
+}
+
+async function deleteProd(id, name){
+  if(!confirm(`¿Eliminar "${name}"?`)) return;
+  try {
+    const r = await fetch(API+'/api/admin/product/'+encodeURIComponent(id),{
+      method:'DELETE', headers:{'Authorization':'Bearer '+_token}
+    });
+    const d = await r.json();
+    if(d.ok) loadProducts();
+    else alert(d.error||'Error');
+  } catch(e){ alert('Error de conexión'); }
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────

@@ -814,6 +814,58 @@ async function handleMPWebhook(request, env) {
   return new Response('OK', { status: 200 });
 }
 
+// ─── Products ─────────────────────────────────────────────────────────────────
+
+async function handleGetProducts(request, env) {
+  const products = await env.CONFIG.get('products:all', 'json') || [];
+  return json({ ok: true, products }, 200, request);
+}
+
+async function handleAdminListProducts(request, env) {
+  const auth = await requireAuth(request, env);
+  if (!auth) return err('No autorizado', 401, request);
+  const products = await env.CONFIG.get('products:all', 'json') || [];
+  return json({ ok: true, products }, 200, request);
+}
+
+async function handleUpsertProduct(request, env) {
+  const auth = await requireAuth(request, env);
+  if (!auth) return err('No autorizado', 401, request);
+  let body;
+  try { body = await request.json(); } catch { return err('JSON inválido', 400, request); }
+  if (!body?.name || !body?.price) return err('name y price son obligatorios', 400, request);
+
+  const products = await env.CONFIG.get('products:all', 'json') || [];
+  const product = {
+    id: body.id || `PROD-${Date.now()}`,
+    name:          String(body.name          || '').trim().slice(0, 200),
+    brand:         String(body.brand         || '').trim().slice(0, 100),
+    category:      String(body.category      || '').trim().slice(0, 100),
+    price:         Math.max(0, Number(body.price)),
+    originalPrice: body.originalPrice ? Math.max(0, Number(body.originalPrice)) : undefined,
+    image:         String(body.image         || '').trim().slice(0, 500),
+    description:   String(body.description   || '').trim().slice(0, 1000),
+    stock:         body.stock !== undefined ? Number(body.stock) : -1,
+    updatedAt:     new Date().toISOString(),
+  };
+
+  const idx = products.findIndex(p => p.id === product.id);
+  if (idx >= 0) products[idx] = product;
+  else products.unshift(product);
+
+  await env.CONFIG.put('products:all', JSON.stringify(products));
+  return json({ ok: true, product }, 200, request);
+}
+
+async function handleDeleteProduct(request, id, env) {
+  const auth = await requireAuth(request, env);
+  if (!auth) return err('No autorizado', 401, request);
+  if (!id) return err('ID requerido', 400, request);
+  const products = await env.CONFIG.get('products:all', 'json') || [];
+  await env.CONFIG.put('products:all', JSON.stringify(products.filter(p => p.id !== id)));
+  return json({ ok: true }, 200, request);
+}
+
 // ─── Router ───────────────────────────────────────────────────────────────────
 
 export default {
@@ -828,6 +880,7 @@ export default {
 
     // Public routes
     if (path === '/api/health'              && method === 'GET')    return handleHealth(request, env);
+    if (path === '/api/products'            && method === 'GET')    return handleGetProducts(request, env);
     if (path === '/api/order'               && method === 'POST')   return handleCreateOrder(request, env);
     if (path.startsWith('/api/order/')      && method === 'GET')    return handleGetOrder(path.split('/')[3], request, env);
     if (path.match(/^\/api\/order\/[^/]+\/comprobante$/) && method === 'POST')
@@ -851,6 +904,10 @@ export default {
       return handleUpdateOrderStatus(request, path.split('/')[4], env);
     if (path.match(/^\/api\/admin\/order\/[^/]+$/) && method === 'GET')
       return handleGetOrderAdmin(path.split('/')[4], request, env);
+    if (path === '/api/admin/products'      && method === 'GET')    return handleAdminListProducts(request, env);
+    if (path === '/api/admin/product'       && method === 'POST')   return handleUpsertProduct(request, env);
+    if (path.match(/^\/api\/admin\/product\/[^/]+$/) && method === 'DELETE')
+      return handleDeleteProduct(request, path.split('/')[4], env);
 
     // Payments
     if (path === '/api/payment/preference'  && method === 'POST')   return handleMPPreference(request, env);

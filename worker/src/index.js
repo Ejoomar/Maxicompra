@@ -301,8 +301,9 @@ async function handleCreateOrder(request, env) {
   }
 
   // Validate total is in a reasonable range relative to items sum
+  // total puede ser hasta 60% mayor que items por envío ($3.990) en órdenes pequeñas
   const itemsSum = items.reduce((acc, i) => acc + Number(i.price) * Number(i.qty || i.quantity || 1), 0);
-  if (Number(total) > itemsSum * 1.10 || Number(total) < itemsSum * 0.40)
+  if (Number(total) > itemsSum * 1.60 || Number(total) < itemsSum * 0.40)
     return err('Total no coincide con los productos del carrito', 400, request);
 
   let discount = 0;

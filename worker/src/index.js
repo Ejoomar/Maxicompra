@@ -146,23 +146,28 @@ async function getCoupons(env) {
 // ─── Email Templates (Resend) ─────────────────────────────────────────────────
 
 async function sendEmail(env, { to, subject, html }) {
-  if (!env.RESEND_API_KEY || !to) return false;
+  if (!env.RESEND_API_KEY || !to) return { ok: false, error: 'No API key or recipient' };
   try {
-    const res = await fetch('https://api.resend.com/emails', {
+    const res  = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${env.RESEND_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Maxicompra <pedidos@maxicompra.cl>',
+        from: env.RESEND_FROM || 'Maxicompra <pedidos@maxicompra.cl>',
         to,
         subject,
         html,
       }),
     });
-    return res.ok;
-  } catch { return false; }
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) console.error('[Resend] Error', res.status, JSON.stringify(body));
+    return { ok: res.ok, status: res.status, body };
+  } catch(e) {
+    console.error('[Resend] Fetch failed:', e.message);
+    return { ok: false, error: e.message };
+  }
 }
 
 function emailBase(title, color, content) {
@@ -489,6 +494,30 @@ async function handleSearchOrders(request, env) {
   return json({ ok: true, orders: results, total: results.length, crossDate: true }, 200, request);
 }
 
+// GET /api/admin/test-email?to=email@example.com
+async function handleTestEmail(request, env) {
+  const auth = await requireAuth(request, env);
+  if (!auth) return err('No autorizado', 401, request);
+  const url = new URL(request.url);
+  const to  = url.searchParams.get('to');
+  if (!to || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) return err('Email destino inválido', 400, request);
+  const result = await sendEmail(env, {
+    to,
+    subject: 'Maxicompra — Email de prueba ✅',
+    html: `<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;background:#f5f5f5;padding:20px">
+      <div style="max-width:480px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden">
+        <div style="background:#E8175D;padding:24px;text-align:center">
+          <h1 style="color:#fff;margin:0;font-size:22px">✅ Email de prueba</h1>
+        </div>
+        <div style="padding:24px">
+          <p style="color:#333">Si recibes este email, <strong>Resend está funcionando correctamente</strong> con el dominio maxicompra.cl.</p>
+          <p style="color:#888;font-size:13px">From: ${env.RESEND_FROM || 'Maxicompra <pedidos@maxicompra.cl>'}</p>
+        </div>
+      </div></body></html>`,
+  });
+  return json({ ok: result.ok, resend_response: result, from: env.RESEND_FROM || 'pedidos@maxicompra.cl' }, 200, request);
+}
+
 // GET /api/admin/order/:id  (direct lookup by ID)
 async function handleGetOrderAdmin(orderId, request, env) {
   const auth = await requireAuth(request, env);
@@ -742,7 +771,7 @@ async function handleMPPreference(request, env) {
       failure: `${env.STORE_URL||'https://maxicompra.cl'}?payment=failure&order=${orderId}`,
       pending: `${env.STORE_URL||'https://maxicompra.cl'}?payment=pending&order=${orderId}`,
     },
-    auto_return: 'approved',
+    auto_return: 'all',
     notification_url: 'https://maxicompra-api.elflaco0800.workers.dev/api/payment/webhook',
     statement_descriptor: 'MAXICOMPRA',
   };
@@ -955,6 +984,7 @@ export default {
     // Admin routes
     if (path === '/api/admin/orders'        && method === 'GET')    return handleListOrders(request, env);
     if (path === '/api/admin/orders/search' && method === 'GET')    return handleSearchOrders(request, env);
+    if (path === '/api/admin/test-email'    && method === 'GET')    return handleTestEmail(request, env);
     if (path === '/api/admin/stats'         && method === 'GET')    return handleStats(request, env);
     if (path === '/api/admin/coupons'       && method === 'GET')    return handleListCoupons(request, env);
     if (path === '/api/admin/coupon'        && method === 'POST')   return handleUpsertCoupon(request, env);

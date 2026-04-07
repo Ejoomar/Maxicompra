@@ -4045,8 +4045,8 @@ var API_BASE = 'https://maxicompra-api.elflaco0800.workers.dev';
   history.replaceState(null,'',cleanUrl);
   // Esperar a que el DOM esté listo
   window.addEventListener('load', function(){
-    if(payment==='success'){
-      // Vaciar carrito SOLO cuando el pago fue aprobado
+    if(payment==='success' || payment==='pending'){
+      // Vaciar carrito
       cart=[]; saveC(); updCartBadge(); renderCart();
       try { sessionStorage.removeItem('mx_mp_pending'); } catch(e){}
       document.getElementById('ckOrderNum').textContent = '#'+orderId;
@@ -4061,8 +4061,29 @@ var API_BASE = 'https://maxicompra-api.elflaco0800.workers.dev';
         cdEl.style.cssText='margin-top:14px;font-size:13px;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:6px;';
         document.getElementById('ckSuccess').appendChild(cdEl);
       }
-      cdEl.innerHTML='<i class="fas fa-check-circle" style="color:var(--green);font-size:16px"></i> <strong style="color:var(--green)">¡Pago confirmado con Mercado Pago!</strong>';
-      showToast('¡Pago exitoso! Tu pedido está confirmado.','ok');
+      // Mensaje inicial y luego polling para confirmar estado real
+      cdEl.innerHTML='<i class="fas fa-spinner fa-spin" style="color:var(--pink);font-size:16px"></i> <span>Verificando pago con Mercado Pago…</span>';
+      // Polling del estado real del pedido (hasta 30 seg, cada 4 seg)
+      var _mpPolls=0;
+      var _mpPoller=setInterval(function(){
+        _mpPolls++;
+        fetch(API_BASE+'/api/order/'+encodeURIComponent(orderId))
+          .then(function(r){return r.json();})
+          .then(function(d){
+            var st = d.order && d.order.status;
+            if(st==='paid'||st==='shipped'||st==='delivered'){
+              clearInterval(_mpPoller);
+              cdEl.innerHTML='<i class="fas fa-check-circle" style="color:var(--green);font-size:16px"></i> <strong style="color:var(--green)">¡Pago confirmado con Mercado Pago!</strong>';
+              showToast('¡Pago exitoso! Tu pedido está confirmado.','ok');
+            } else if(st==='payment_failed'||st==='cancelled'){
+              clearInterval(_mpPoller);
+              cdEl.innerHTML='<i class="fas fa-exclamation-circle" style="color:var(--red);font-size:16px"></i> <span style="color:var(--red)">Pago no procesado. Contacta a soporte.</span>';
+            } else if(_mpPolls>=8){
+              clearInterval(_mpPoller);
+              cdEl.innerHTML='<i class="fas fa-clock" style="color:var(--yellow);font-size:16px"></i> <span style="color:var(--yellow)">Tu pago está siendo procesado. Te notificaremos por email.</span>';
+            }
+          }).catch(function(){if(_mpPolls>=8) clearInterval(_mpPoller);});
+      }, 4000);
 
     } else if(payment==='failure' || payment==='cancel'){
       // Recuperar datos guardados y reabrir el checkout para reintentar

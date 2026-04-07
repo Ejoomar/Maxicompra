@@ -12,11 +12,11 @@ P-02,Pagos,Webpay Plus: botón visible pero sin integración real,ALTA,Nosotros,
 P-03,Pagos,Comprobante de transferencia: subir foto y notificar a Edgar,ALTA,Nosotros,✅ Corregido,Nuevo feature implementado en esta sesión
 P-04,Pagos,Sin modo sandbox/testing toggle para Mercado Pago,MEDIA,Edgar,⬜ Pendiente,Edgar debe crear cuenta test buyer en MP Developers Panel
 P-05,Pagos,Webpay Plus (Transbank): integración real si Edgar la quiere,BAJA,Ambos,⬜ Pendiente,Requiere contrato Transbank (~USD 200/mes). Edgar decide.
-E-01,Emails,Email de pago_pending (MP pago en proceso) sin template,MEDIA,Nosotros,⬜ Pendiente,Agregar template para status payment_pending
+E-01,Emails,Email de pago_pending (MP pago en proceso) sin template,MEDIA,Nosotros,✅ Corregido,Template emailPaymentPending agregado + disparado desde webhook MP y cambio manual de estado
 E-02,Emails,Verificar que RESEND_API_KEY esté activo y dominio verificado,ALTA,Edgar,⬜ Pendiente,Ver S-02 y S-03
 E-03,Emails,Email a Edgar cuando se sube comprobante de transferencia,ALTA,Nosotros,✅ Corregido,Enviado via Resend al confirmarse el upload del comprobante
 B-01,Backend,Bug en stats: shipped siempre aparece en 0,ALTA,Nosotros,✅ Corregido,shipped se contaba dentro de paid — separado correctamente
-B-02,Backend,Búsqueda en admin solo busca en la fecha seleccionada,MEDIA,Nosotros,⬜ Pendiente,Para sesión futura: búsqueda cross-fecha requiere scan de múltiples keys KV
+B-02,Backend,Búsqueda en admin solo busca en la fecha seleccionada,MEDIA,Nosotros,✅ Corregido,GET /api/admin/orders/search?q= escanea últimos 90 días. Admin usa búsqueda cross-fecha automáticamente cuando hay texto.
 B-03,Backend,Stats: N+N queries KV para 30 días (podría ser lento),BAJA,Nosotros,⬜ Pendiente,Optimizable con índice agregado. No urgente.
 B-04,Backend,Fechas KV en UTC — pedidos medianoche Chile quedan en fecha incorrecta,BAJA,Nosotros,⬜ Pendiente,Ajustar a UTC-4 (Chile). Afecta solo pedidos entre 00:00-04:00.
 B-05,Backend,Endpoint de comprobante (POST + GET),ALTA,Nosotros,✅ Corregido,POST /api/order/:id/comprobante — GET /api/comprobante/:orderId (admin)
@@ -26,12 +26,12 @@ F-03,Frontend,CSS de cupones dead code: .ck-coupon-row etc,BAJA,Nosotros,✅ Cor
 F-04,Frontend,Mobile <380px: hero title se corta,MEDIA,Nosotros,✅ Corregido,@media(max-width:380px) slide-title baja a 22px
 F-05,Frontend,Sin lazy loading en imágenes de productos (656 productos),MEDIA,Nosotros,✅ Corregido,loading="lazy" ya estaba aplicado en productCardHTML y todas las imágenes
 F-06,Frontend,Wishlist no persiste al recargar página,BAJA,Nosotros,✅ Corregido,Wishlist ya persistía en localStorage con lsGet/lsSet(KW)
-F-07,Frontend,Sin página de Política de Privacidad,MEDIA,Edgar+Nosotros,⬜ Pendiente,Requerimiento legal ley 19.628 Chile. Edgar provee el texto.
-F-08,Frontend,Sin página de Términos y Condiciones,MEDIA,Edgar+Nosotros,⬜ Pendiente,Edgar provee el texto base.
-F-09,Frontend,Sin página de Devoluciones/Garantías,MEDIA,Edgar+Nosotros,⬜ Pendiente,Texto base que Edgar defina
+F-07,Frontend,Sin página de Política de Privacidad,MEDIA,Edgar+Nosotros,✅ Corregido,Modal Legal con tab Política de Privacidad ya existía — ley 19.628 cubierta
+F-08,Frontend,Sin página de Términos y Condiciones,MEDIA,Edgar+Nosotros,✅ Corregido,Modal Legal con tab Términos y Condiciones ya existía con contenido completo
+F-09,Frontend,Sin página de Devoluciones/Garantías,MEDIA,Edgar+Nosotros,✅ Corregido,Sección FAQ Devoluciones ya existía accesible desde footer — openFAQ('devoluciones')
 A-01,Admin,Bug: shipped siempre aparece en 0 en estadísticas,ALTA,Nosotros,✅ Corregido,Ver B-01
 A-02,Admin,Sin gestión de productos desde admin (656 hardcodeados en HTML),ALTA,Nosotros,✅ Corregido,Tab Productos en admin: agregar/editar/eliminar/foto URL. Almacenados en KV y mergeados en la tienda al cargar.
-A-03,Admin,Búsqueda solo dentro de la fecha activa — no cross-histórico,MEDIA,Nosotros,⬜ Pendiente,Sesión futura
+A-03,Admin,Búsqueda solo dentro de la fecha activa — no cross-histórico,MEDIA,Nosotros,✅ Corregido,Ver B-02 — mismo fix aplica al admin
 A-04,Admin,Sin notificación de nuevos pedidos en tiempo real,MEDIA,Nosotros,⬜ Pendiente,Requiere WebSocket o polling. Sesión futura.
 A-05,Admin,Ver comprobante de transferencia en detalle de pedido,ALTA,Nosotros,✅ Corregido,Botón Ver comprobante en detail modal si existe
 A-06,Admin,Stats no separa ingresos por método de pago,BAJA,Nosotros,⬜ Pendiente,Sesión futura

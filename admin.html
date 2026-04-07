@@ -530,22 +530,29 @@ function showApp(){
 async function loadOrders(search){
   const date = document.getElementById('dateFilter').value;
   const q    = search !== undefined ? search : (document.getElementById('globalSearch')?.value||'');
-  const url  = API+'/api/admin/orders?date='+encodeURIComponent(date)+(q?'&search='+encodeURIComponent(q):'');
+  // If there's a search term use cross-date search; otherwise use date filter
+  const url  = q
+    ? API+'/api/admin/orders/search?q='+encodeURIComponent(q)
+    : API+'/api/admin/orders?date='+encodeURIComponent(date);
   document.getElementById('ordersBody').innerHTML = '<tr><td colspan="7" class="loading-cell"><div class="spinner"></div></td></tr>';
   document.getElementById('pagination').innerHTML = '';
   try {
     const r = await fetch(url, {headers:{'Authorization':'Bearer '+_token}});
     if(r.status===401){ doLogout(); return; }
     const d = await r.json();
+    if(!d.ok){ document.getElementById('ordersBody').innerHTML='<tr><td colspan="7" class="loading-cell" style="color:var(--red)">'+esc(d.error||'Error')+'</td></tr>'; return; }
     _allOrders = (d.orders||[]).sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
     _page = 0;
+    // Show cross-date search banner
+    const head = document.getElementById('ordersCount');
+    if(d.crossDate && q) head.textContent = _allOrders.length+' resultado'+(+_allOrders.length!==1?'s':'')+' en todo el historial';
     renderOrderPage();
   } catch(e){
     document.getElementById('ordersBody').innerHTML = '<tr><td colspan="7" class="loading-cell" style="color:var(--red)">Error al cargar pedidos</td></tr>';
   }
 }
 
-function onGlobalSearch(v){ clearTimeout(window._searchTimer); window._searchTimer=setTimeout(()=>loadOrders(v),350); }
+function onGlobalSearch(v){ clearTimeout(window._searchTimer); window._searchTimer=setTimeout(()=>loadOrders(v),400); }
 
 function renderOrderPage(){
   const orders  = _allOrders;

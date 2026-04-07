@@ -251,6 +251,18 @@ function emailCancelled(order) {
   `);
 }
 
+function emailPaymentPending(order) {
+  const payNames = { webpay:'Webpay Plus', mp:'Mercado Pago', transfer:'Transferencia', cash:'Efectivo' };
+  return emailBase('Pago en proceso ⏳', '#eab308', `
+    <p style="color:#333">Hola <strong>${order.customer.name}</strong>, recibimos tu pedido <strong>#${order.id}</strong>.</p>
+    <p style="color:#555;font-size:14px">Tu pago está siendo procesado por ${payNames[order.payment]||order.payment}. Esto puede tardar algunos minutos.</p>
+    <p style="color:#555;font-size:14px">Total: <strong>$${Number(order.total).toLocaleString('es-CL')}</strong></p>
+    <div style="background:#fefce8;border:1px solid #fde047;border-radius:8px;padding:14px;margin-top:16px">
+      <p style="color:#854d0e;margin:0;font-size:14px">⏳ Te notificaremos por email una vez que se confirme el pago. Si tienes dudas, escríbenos: <a href="https://wa.me/56958498763" style="color:#854d0e">+56 9 5849 8763</a></p>
+    </div>
+  `);
+}
+
 function emailPaymentFailed(order) {
   return emailBase('Pago no procesado ⚠️', '#f59e0b', `
     <p style="color:#333">Hola <strong>${order.customer.name}</strong>, tu pago para el pedido <strong>#${order.id}</strong> no fue aprobado.</p>
@@ -437,6 +449,46 @@ async function handleListOrders(request, env) {
   return json({ ok: true, date, orders, total: orders.length }, 200, request);
 }
 
+// GET /api/admin/orders/search?q=term  (cross-date search, scans last 90 days)
+async function handleSearchOrders(request, env) {
+  const auth = await requireAuth(request, env);
+  if (!auth) return err('No autorizado', 401, request);
+
+  const url    = new URL(request.url);
+  const search = (url.searchParams.get('q') || '').toLowerCase().trim();
+  if (!search || search.length < 2) return err('Término de búsqueda muy corto (mín 2 chars)', 400, request);
+
+  // Build list of last 90 days
+  const dates = [];
+  const now   = new Date();
+  for (let i = 0; i < 90; i++) {
+    const d = new Date(now);
+    d.setDate(d.getDate() - i);
+    dates.push(d.toISOString().slice(0, 10));
+  }
+
+  // Fetch all date indices in parallel batches of 10
+  const results = [];
+  for (let i = 0; i < dates.length; i += 10) {
+    const batch    = dates.slice(i, i + 10);
+    const idArrays = await Promise.all(batch.map(d => env.ORDERS.get(`date:${d}`, 'json')));
+    const ids      = idArrays.flat().filter(Boolean);
+    if (!ids.length) continue;
+    const orders   = (await Promise.all(ids.map(id => env.ORDERS.get(id, 'json')))).filter(Boolean);
+    const matched  = orders.filter(o =>
+      (o.id || '').toLowerCase().includes(search) ||
+      (o.customer?.name  || '').toLowerCase().includes(search) ||
+      (o.customer?.email || '').toLowerCase().includes(search) ||
+      (o.customer?.phone || '').includes(search)
+    );
+    results.push(...matched);
+    if (results.length >= 100) break; // cap at 100 results
+  }
+
+  results.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  return json({ ok: true, orders: results, total: results.length, crossDate: true }, 200, request);
+}
+
 // GET /api/admin/order/:id  (direct lookup by ID)
 async function handleGetOrderAdmin(orderId, request, env) {
   const auth = await requireAuth(request, env);
@@ -479,10 +531,11 @@ async function handleUpdateOrderStatus(request, orderId, env) {
   // Transactional emails
   if (order.customer?.email) {
     const emailFns = {
-      shipped:        () => sendEmail(env, { to: order.customer.email, subject: `Maxicompra — Tu pedido #${orderId} fue enviado 🚚`, html: emailShipped(order) }),
-      delivered:      () => sendEmail(env, { to: order.customer.email, subject: `Maxicompra — ¡Pedido entregado! #${orderId}`, html: emailDelivered(order) }),
-      cancelled:      () => sendEmail(env, { to: order.customer.email, subject: `Maxicompra — Tu pedido #${orderId} fue cancelado`, html: emailCancelled(order) }),
-      payment_failed: () => sendEmail(env, { to: order.customer.email, subject: `Maxicompra — Pago rechazado #${orderId}`, html: emailPaymentFailed(order) }),
+      payment_pending: () => sendEmail(env, { to: order.customer.email, subject: `Maxicompra — Tu pago está en proceso ⏳ #${orderId}`, html: emailPaymentPending(order) }),
+      shipped:         () => sendEmail(env, { to: order.customer.email, subject: `Maxicompra — Tu pedido #${orderId} fue enviado 🚚`, html: emailShipped(order) }),
+      delivered:       () => sendEmail(env, { to: order.customer.email, subject: `Maxicompra — ¡Pedido entregado! #${orderId}`, html: emailDelivered(order) }),
+      cancelled:       () => sendEmail(env, { to: order.customer.email, subject: `Maxicompra — Tu pedido #${orderId} fue cancelado`, html: emailCancelled(order) }),
+      payment_failed:  () => sendEmail(env, { to: order.customer.email, subject: `Maxicompra — Pago rechazado #${orderId}`, html: emailPaymentFailed(order) }),
     };
     if (emailFns[body.status]) emailFns[body.status]().catch(() => {});
   }
@@ -802,6 +855,12 @@ async function handleMPWebhook(request, env) {
         subject: `Maxicompra — ¡Pago confirmado! Pedido #${orderId}`,
         html:    emailPaymentConfirmed(order),
       }).catch(() => {});
+    } else if (['pending', 'in_process', 'in_mediation'].includes(payment.status)) {
+      sendEmail(env, {
+        to:      order.customer.email,
+        subject: `Maxicompra — Tu pago está en proceso ⏳ #${orderId}`,
+        html:    emailPaymentPending(order),
+      }).catch(() => {});
     } else if (payment.status === 'rejected') {
       sendEmail(env, {
         to:      order.customer.email,
@@ -895,6 +954,7 @@ export default {
 
     // Admin routes
     if (path === '/api/admin/orders'        && method === 'GET')    return handleListOrders(request, env);
+    if (path === '/api/admin/orders/search' && method === 'GET')    return handleSearchOrders(request, env);
     if (path === '/api/admin/stats'         && method === 'GET')    return handleStats(request, env);
     if (path === '/api/admin/coupons'       && method === 'GET')    return handleListCoupons(request, env);
     if (path === '/api/admin/coupon'        && method === 'POST')   return handleUpsertCoupon(request, env);

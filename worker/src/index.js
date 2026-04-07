@@ -518,6 +518,36 @@ async function handleTestEmail(request, env) {
   return json({ ok: result.ok, resend_response: result, from: env.RESEND_FROM || 'pedidos@maxicompra.cl' }, 200, request);
 }
 
+// POST /api/newsletter  — store subscriber and notify admin
+async function handleNewsletter(request, env) {
+  let body;
+  try { body = await request.json(); } catch { return err('JSON inválido', 400, request); }
+  const email = (body.email || '').trim().toLowerCase();
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return err('Email inválido', 400, request);
+
+  // Save to KV (list stored as JSON array under key "newsletter_subscribers")
+  const existing = JSON.parse(await env.CONFIG.get('newsletter_subscribers') || '[]');
+  if (!existing.includes(email)) {
+    existing.push(email);
+    await env.CONFIG.put('newsletter_subscribers', JSON.stringify(existing));
+  }
+
+  // Notify admin
+  const adminEmail = env.ADMIN_EMAIL || 'maxicompraoficial23@gmail.com';
+  sendEmail(env, {
+    to: adminEmail,
+    subject: `Maxicompra — Nueva suscripción al newsletter: ${email}`,
+    html: `<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;background:#f5f5f5;padding:20px">
+      <div style="max-width:480px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden">
+        <div style="background:#E8175D;padding:20px;text-align:center"><h2 style="color:#fff;margin:0">📧 Nuevo suscriptor</h2></div>
+        <div style="padding:20px"><p style="color:#333">Email: <strong>${email}</strong></p>
+        <p style="color:#888;font-size:12px">Total suscriptores: ${existing.length}</p></div>
+      </div></body></html>`,
+  });
+
+  return json({ ok: true, total: existing.length }, 200, request);
+}
+
 // GET /api/admin/order/:id  (direct lookup by ID)
 async function handleGetOrderAdmin(orderId, request, env) {
   const auth = await requireAuth(request, env);
@@ -976,6 +1006,7 @@ export default {
     if (path.match(/^\/api\/comprobante\/[^/]+$/) && method === 'GET')
       return handleGetComprobante(path.split('/')[3], request, env);
     if (path.startsWith('/api/coupon/')     && method === 'GET')    return handleValidateCoupon(path.split('/')[3], request, env);
+    if (path === '/api/newsletter'          && method === 'POST')   return handleNewsletter(request, env);
 
     // Auth
     if (path === '/api/admin/login'         && method === 'POST')   return handleAdminLogin(request, env);

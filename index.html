@@ -1375,7 +1375,24 @@ html{scroll-behavior:smooth;}
 <!-- Para activar: crear en business.facebook.com → Administrador de eventos -->
 <!-- <script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','XXXXXXXXXXXXXXX');fbq('track','PageView');</script> -->
 
+<style>
+#cookieBanner{position:fixed;bottom:0;left:0;right:0;z-index:99990;background:#1a1d2e;border-top:1px solid rgba(255,255,255,.12);padding:14px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;font-size:13px;color:rgba(255,255,255,.8);box-shadow:0 -4px 24px rgba(0,0,0,.4);transition:transform .4s ease;}
+#cookieBanner.hidden{transform:translateY(110%);}
+#cookieBanner p{flex:1;min-width:200px;margin:0;line-height:1.5;}
+#cookieBanner a{color:var(--pink,#e8175d);text-decoration:underline;cursor:pointer;}
+#cookieBanner .ck-btns{display:flex;gap:8px;flex-shrink:0;}
+#cookieBanner .ck-acc{background:var(--grad,linear-gradient(135deg,#e8175d,#9a1080));color:#fff;border:none;padding:8px 20px;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;}
+#cookieBanner .ck-dec{background:transparent;color:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.2);padding:8px 16px;border-radius:7px;font-size:13px;cursor:pointer;}
+</style>
 </head><body>
+<!-- ════════════════════════ COOKIE BANNER ════════════════════════ -->
+<div id="cookieBanner">
+  <p>Usamos cookies para mejorar tu experiencia y recordar tu carrito. Al continuar navegando aceptas nuestra <a onclick="openLegal('privacy')">Política de Privacidad</a> conforme a la Ley 19.628.</p>
+  <div class="ck-btns">
+    <button class="ck-acc" onclick="acceptCookies()">Aceptar</button>
+    <button class="ck-dec" onclick="declineCookies()">Solo esenciales</button>
+  </div>
+</div>
 <!-- ════════════════════════ SPLASH SCREEN ════════════════════════ -->
 <div id="splashScreen" style="position:fixed;inset:0;background:linear-gradient(135deg,#0e0e1a 0%,#1a0a2e 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;transition:opacity .6s ease,visibility .6s ease">
   <div style="font-family:'Syne',Arial,sans-serif;font-size:36px;font-weight:900;color:#fff;letter-spacing:-1px;margin-bottom:6px">MAXICOMPRA</div>
@@ -1641,9 +1658,9 @@ html{scroll-behavior:smooth;}
   <!-- Topbar -->
   <div class="topbar"><div class="container">
     <div class="tlinks">
-      <a href="#"><i class="fas fa-map-marker-alt"></i>Nuestras tiendas</a>
-      <a href="#"><i class="fas fa-box"></i>Seguimiento de pedido</a>
-      <a href="#"><i class="fas fa-building"></i>Venta empresa</a>
+      <a href="#" onclick="event.preventDefault();openWA(event)"><i class="fas fa-map-marker-alt"></i>Nuestras tiendas</a>
+      <a href="#" onclick="event.preventDefault();openFAQ('envios')"><i class="fas fa-box"></i>Seguimiento de pedido</a>
+      <a href="#" onclick="event.preventDefault();openWA(event)"><i class="fas fa-building"></i>Venta empresa</a>
       <a href="#" id="t-phone"><i class="fas fa-phone"></i>+56 2 2345 6789</a>
     </div>
     <div class="tlinks">
@@ -1991,7 +2008,7 @@ html{scroll-behavior:smooth;}
       <div class="faq-section" id="faq-pago">
         <div class="faq-item"><div class="faq-q" onclick="togFAQ(this)"><span>¿Qué medios de pago aceptan?</span><i class="fas fa-chevron-down"></i></div><div class="faq-a">Aceptamos Webpay Plus (tarjetas débito/crédito), Mercado Pago, transferencia bancaria y pago en efectivo contra entrega.</div></div>
         <div class="faq-item"><div class="faq-q" onclick="togFAQ(this)"><span>¿Es seguro pagar en Maxicompra?</span><i class="fas fa-chevron-down"></i></div><div class="faq-a">Sí. Trabajamos con plataformas de pago certificadas (Webpay, Mercado Pago) con cifrado SSL. Tus datos están completamente protegidos.</div></div>
-        <div class="faq-item"><div class="faq-q" onclick="togFAQ(this)"><span>¿Cómo funciona el descuento de Mercado Pago?</span><i class="fas fa-chevron-down"></i></div><div class="faq-a">Al pagar con Mercado Pago recibes un 30% de descuento adicional. El descuento se aplica automáticamente al seleccionar este método de pago.</div></div>
+        <div class="faq-item"><div class="faq-q" onclick="togFAQ(this)"><span>¿Por qué pagar con Mercado Pago?</span><i class="fas fa-chevron-down"></i></div><div class="faq-a">Mercado Pago es una plataforma de pago 100% segura. Podés pagar con tarjeta de débito, crédito, transferencia o efectivo, y en productos seleccionados hasta 12 cuotas sin interés según el banco emisor.</div></div>
         <div class="faq-item"><div class="faq-q" onclick="togFAQ(this)"><span>¿Puedo pagar en cuotas sin interés?</span><i class="fas fa-chevron-down"></i></div><div class="faq-a">Sí. Productos seleccionados tienen opción de cuotas sin interés según el banco emisor de tu tarjeta. Lo verás indicado en cada producto.</div></div>
       </div>
     </div>
@@ -3641,8 +3658,34 @@ function clearProds(){if(!confirm('¿Eliminar TODOS los productos?'))return;prod
 /* ═════════════════════════════════════
    NEWSLETTER / MISC
 ═════════════════════════════════════ */
-function subNl(){const v=document.getElementById('nlEmail').value.trim();if(!v||!v.includes('@')){showToast('Correo inválido','error');return;}showToast('¡Suscrito con éxito! 🎉');document.getElementById('nlEmail').value='';}
+function subNl(){
+  const v=document.getElementById('nlEmail').value.trim();
+  if(!v||!v.includes('@')){showToast('Correo inválido','error');return;}
+  fetch(API_BASE+'/api/newsletter',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:v})})
+    .then(r=>r.json()).catch(()=>({ok:false}))
+    .then(()=>{showToast('¡Suscrito con éxito! Te avisaremos de las mejores ofertas 🎉');document.getElementById('nlEmail').value='';});
+}
 window.addEventListener('scroll',()=>document.getElementById('bTop').classList.toggle('visible',window.scrollY>400));
+
+/* ═════════════════════════════════════
+   COOKIE CONSENT
+═════════════════════════════════════ */
+(function(){
+  var b=document.getElementById('cookieBanner');
+  if(!b) return;
+  if(localStorage.getItem('cookieConsent')){b.classList.add('hidden');return;}
+  setTimeout(function(){b.style.display='flex';},800);
+})();
+function acceptCookies(){
+  localStorage.setItem('cookieConsent','all');
+  var b=document.getElementById('cookieBanner');
+  if(b) b.classList.add('hidden');
+}
+function declineCookies(){
+  localStorage.setItem('cookieConsent','essential');
+  var b=document.getElementById('cookieBanner');
+  if(b) b.classList.add('hidden');
+}
 
 /* ═════════════════════════════════════
    TOAST

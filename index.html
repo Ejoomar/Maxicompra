@@ -3669,10 +3669,8 @@ function updStats(){
    ADMIN AUTH & TABS
 ═════════════════════════════════════ */
 function openAdmin(){
-  var ns=!lsGet(KPW);
-  window._adminSetup=ns;
-  document.getElementById('pwMsg').textContent=ns?'Crea tu contraseña de administrador':'Ingresa la contraseña para acceder';
-  document.getElementById('pwSubmitBtn').innerHTML=ns?'<i class="fas fa-key"></i> Crear contraseña':'<i class="fas fa-unlock-alt"></i> Acceder al Panel';
+  document.getElementById('pwMsg').textContent='Ingresa la contraseña para acceder';
+  document.getElementById('pwSubmitBtn').innerHTML='<i class="fas fa-unlock-alt"></i> Acceder al Panel';
   document.getElementById('pwScreen').classList.add('open');
   document.getElementById('pwInput').value='';
   document.getElementById('pwError').classList.remove('show');
@@ -3684,10 +3682,18 @@ function _openAdminPanel(){closePw();document.getElementById('adminPanel').class
 function chkPw(){
   var v=document.getElementById('pwInput').value;
   if(!v){document.getElementById('pwError').textContent='Ingresa una contraseña';document.getElementById('pwError').classList.add('show');return;}
-  if(window._adminSetup){lsSet(KPW,v);window._adminSetup=false;_openAdminPanel();return;}
-  var pw=lsGet(KPW);
-  if(v===pw){_openAdminPanel();}
-  else{document.getElementById('pwError').textContent='Contraseña incorrecta';document.getElementById('pwError').classList.add('show');document.getElementById('pwInput').value='';}}
+  var btn=document.getElementById('pwSubmitBtn');
+  btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Verificando...';
+  fetch(API_BASE+'/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:v})})
+  .then(function(r){return r.json();})
+  .then(function(d){
+    btn.disabled=false;btn.innerHTML='<i class="fas fa-unlock-alt"></i> Acceder al Panel';
+    if(d.ok){try{sessionStorage.setItem('mx_admin_token',d.token);}catch(e){}  _openAdminPanel();}
+    else{document.getElementById('pwError').textContent='Contraseña incorrecta';document.getElementById('pwError').classList.add('show');document.getElementById('pwInput').value='';}
+  })
+  .catch(function(){
+    btn.disabled=false;btn.innerHTML='<i class="fas fa-unlock-alt"></i> Acceder al Panel';
+    document.getElementById('pwError').textContent='Error de conexión — intenta de nuevo';document.getElementById('pwError').classList.add('show');}
 function closeAdmin(){document.getElementById('adminPanel').classList.remove('open');}
 function swTab(t){
   document.querySelectorAll('.adm-tab').forEach(x=>x.classList.remove('active'));

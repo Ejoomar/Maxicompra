@@ -36,7 +36,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-Avb2QiuDEEvB4bZJYdft2mNjVShBftLdPG8FJ0V7irTLQ8Uo0qcPxh4Plq7G5tGm0rU+1SPhVotteLpBERwTkw==" crossorigin="anonymous" referrerpolicy="no-referrer"/>
+<link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-Avb2QiuDEEvB4bZJYdft2mNjVShBftLdPG8FJ0V7irTLQ8Uo0qcPxh4Plq7G5tGm0rU+1SPhVotteLpBERwTkw==" crossorigin="anonymous" referrerpolicy="no-referrer" onload="this.onload=null;this.rel='stylesheet'"/>
+<noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-Avb2QiuDEEvB4bZJYdft2mNjVShBftLdPG8FJ0V7irTLQ8Uo0qcPxh4Plq7G5tGm0rU+1SPhVotteLpBERwTkw==" crossorigin="anonymous" referrerpolicy="no-referrer"/></noscript>
 <style>
 /* ═══════════════════════════════════════════════════
    MAXICOMPRA — VARIABLES & RESET
@@ -82,6 +83,7 @@
   --glow-pink: none;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
 html{scroll-behavior:smooth;}
 body{background:var(--bg);color:var(--ink);font-family:'Inter','Helvetica Neue',sans-serif;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;font-feature-settings:'cv11','ss01','ss03';overflow-x:hidden;}
 ::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--surface);}::-webkit-scrollbar-thumb{background:var(--pink);border-radius:3px;}
@@ -238,10 +240,10 @@ img{display:block;}
 .cat-card-ed{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);padding:22px 20px 22px 20px;cursor:pointer;transition:all .18s;display:flex;flex-direction:column;justify-content:flex-end;gap:0;min-height:175px;position:relative;overflow:hidden;}
 .cat-card-ed:hover{border-color:var(--ink);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.07);}
 /* gradient shield: text zone always readable */
-.cat-card-ed::after{content:'';position:absolute;inset:0;background:linear-gradient(to right,var(--surface) 42%,rgba(255,255,255,0.55) 62%,transparent 85%);pointer-events:none;border-radius:inherit;z-index:1;}
+.cat-card-ed::after{content:'';position:absolute;inset:0;background:linear-gradient(to right,var(--surface) 32%,rgba(255,255,255,0.28) 50%,transparent 68%);pointer-events:none;border-radius:inherit;z-index:1;}
 /* product image: right-center, prominent */
-.cat-prod-img{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:105px;height:105px;object-fit:contain;opacity:0.68;pointer-events:none;transition:opacity .22s,transform .22s;filter:drop-shadow(0 4px 16px rgba(0,0,0,0.09));}
-.cat-card-ed:hover .cat-prod-img{opacity:0.90;transform:translateY(-52%) scale(1.06);}
+.cat-prod-img{position:absolute;right:-4px;top:50%;transform:translateY(-50%);width:120px;height:120px;object-fit:contain;opacity:0.85;pointer-events:none;transition:opacity .22s,transform .22s;filter:drop-shadow(0 4px 18px rgba(0,0,0,0.13));}
+.cat-card-ed:hover .cat-prod-img{opacity:1;transform:translateY(-52%) scale(1.07);}
 /* text always above gradient shield */
 .cat-card-ed > div:last-of-type{position:relative;z-index:2;}
 .cat-card-ed > div[style*="absolute"]{z-index:2;}
@@ -1340,11 +1342,11 @@ html{scroll-behavior:smooth;}
   </div>
 </div>
 <!-- ════════════════════════ SPLASH SCREEN ════════════════════════ -->
-<div id="splashScreen" style="position:fixed;inset:0;background:linear-gradient(135deg,#0e0e1a 0%,#1a0a2e 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;transition:opacity .6s ease,visibility .6s ease">
-  <div style="font-family:'Instrument Serif',Georgia,serif;font-size:36px;font-weight:900;color:#fff;letter-spacing:-1px;margin-bottom:6px">MAXICOMPRA</div>
-  <div style="color:rgba(255,255,255,.45);font-size:13px;letter-spacing:2px;text-transform:uppercase;margin-bottom:28px">Cargando tienda...</div>
-  <div style="width:140px;height:3px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden">
-    <div id="splashBar" style="width:10%;height:100%;background:linear-gradient(90deg,#E8175D,#ff6b35);border-radius:3px;transition:width .4s ease"></div>
+<div id="splashScreen" style="position:fixed;inset:0;background:#FAFAF7;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;transition:opacity .6s ease,visibility .6s ease">
+  <div style="font-family:'Instrument Serif',Georgia,serif;font-size:36px;font-weight:900;color:#0F0F10;letter-spacing:-1px;margin-bottom:6px">MAXICOMPRA</div>
+  <div style="color:rgba(15,15,16,.45);font-size:13px;letter-spacing:2px;text-transform:uppercase;margin-bottom:28px">Cargando tienda...</div>
+  <div style="width:140px;height:3px;background:rgba(15,15,16,.08);border-radius:3px;overflow:hidden">
+    <div id="splashBar" style="width:10%;height:100%;background:linear-gradient(90deg,oklch(0.55 0.14 235),oklch(0.65 0.12 235));border-radius:3px;transition:width .4s ease"></div>
   </div>
 </div>
 <!-- ════════════════════════ PASSWORD SCREEN ════════════════════════ -->
@@ -1593,12 +1595,10 @@ html{scroll-behavior:smooth;}
     <span><span class="ann-dot"></span>Envío gratis desde $19.990</span>
     <span><span class="ann-dot"></span>Hasta 12 cuotas sin interés</span>
     <span><span class="ann-dot"></span>Paga seguro con Mercado Pago</span>
-    <span><span class="ann-dot"></span>Devolución gratis en 30 días</span>
     <span><span class="ann-dot"></span>Retira el mismo día en tienda</span>
     <span><span class="ann-dot"></span>Envío gratis desde $19.990</span>
     <span><span class="ann-dot"></span>Hasta 12 cuotas sin interés</span>
     <span><span class="ann-dot"></span>Paga seguro con Mercado Pago</span>
-    <span><span class="ann-dot"></span>Devolución gratis en 30 días</span>
     <span><span class="ann-dot"></span>Retira el mismo día en tienda</span>
   </div></div>
   <!-- Topbar -->
@@ -1819,7 +1819,7 @@ html{scroll-behavior:smooth;}
     <div class="newsletter-section"><div class="container"><div class="nl-inner"><p class="nl-trust" style="font-size:11px;color:var(--muted);margin-bottom:8px;letter-spacing:.3px">🔒 Sin spam · Solo ofertas exclusivas · Cancela cuando quieras</p>
       <h2>Suscríbete y recibe <span style="color:var(--pink)">ofertas exclusivas</span></h2>
       <p>Sé el primero en enterarte de descuentos y novedades de Maxicompra</p>
-      <div class="nl-form"><input type="email" id="nlEmail" placeholder="tu@correo.com"><button onclick="subNl()"><i class="fas fa-paper-plane"></i> Suscribirse</button></div>
+      <div class="nl-form"><label for="nlEmail" class="sr-only">Tu correo electrónico</label><input type="email" id="nlEmail" placeholder="tu@correo.com"><button onclick="subNl()"><i class="fas fa-paper-plane"></i> Suscribirse</button></div>
     </div></div></div>
   </div>
 
@@ -1885,7 +1885,7 @@ html{scroll-behavior:smooth;}
         <div class="pdp-info-panel">
           <div class="pdp-top-badges" id="pdpBadges"></div>
           <div class="pdp-sku" id="pdpSku"></div>
-          <h1 class="pdp-title" id="pdpTitle">Producto</h1>
+          <h2 class="pdp-title" id="pdpTitle">Producto</h2>
           <div class="pdp-meta-row">Marca: <strong id="pdpBrand"></strong>&nbsp;·&nbsp;Vendido por: <strong id="pdpSeller" style="color:var(--green)"></strong></div>
           <div class="pdp-stars-row">
             <span class="stars-big" id="pdpStars"></span>
@@ -1916,7 +1916,7 @@ html{scroll-behavior:smooth;}
           <div class="pc-stock-warn" id="pdpStockWarn" style="display:none"><i class="fas fa-fire"></i><span id="pdpStockTxt"></span></div>
           <!-- Qty + Add -->
           <div class="pdp-actions-row">
-            <div class="qty-box"><button onclick="chgPdpQty(-1)"><i class="fas fa-minus"></i></button><div class="qty-num" id="pdpQtyNum">1</div><button onclick="chgPdpQty(1)"><i class="fas fa-plus"></i></button></div>
+            <div class="qty-box"><button aria-label="Disminuir cantidad" onclick="chgPdpQty(-1)"><i class="fas fa-minus"></i></button><div class="qty-num" id="pdpQtyNum">1</div><button aria-label="Aumentar cantidad" onclick="chgPdpQty(1)"><i class="fas fa-plus"></i></button></div>
             <button class="pdp-wish-btn" id="pdpWishBtn" onclick="togWishPDP()" style="display:none"></button>
       <button class="pdp-buy-now" style="flex:1.2" onclick="buyNowPDP()"><i class="fas fa-bolt"></i>Comprar ahora</button>
       <button class="btn-grad pdp-add-main" id="pdpAddBtn" onclick="addFromPDP()"><i class="fas fa-shopping-cart"></i>Agregar al carro</button>
@@ -2062,7 +2062,7 @@ html{scroll-behavior:smooth;}
 <!-- ════════════════════════ CHECKOUT MODAL ════════════════════════ -->
 <div class="ck-overlay" id="ckOverlay" onclick="if(event.target===this)closeCheckout()">
   <div class="ck-box" id="ckBox" style="position:relative">
-    <button class="ck-close-x" onclick="closeCheckout()"><i class="fas fa-times"></i></button>
+    <button class="ck-close-x" aria-label="Cerrar checkout" onclick="closeCheckout()"><i class="fas fa-times"></i></button>
     <!-- Formulario -->
     <div class="ck-form" id="ckForm">
       <h2><i class="fas fa-lock" style="color:var(--pink)"></i> Finalizar Compra</h2>
@@ -2070,20 +2070,20 @@ html{scroll-behavior:smooth;}
 
       <div class="ck-step-title"><i class="fas fa-user"></i> Datos personales</div>
       <div class="ck-row">
-        <div class="form-group"><label class="form-label">Nombre <em>*</em></label><input class="form-input" id="ck-fname" placeholder="Juan Pérez"></div>
-        <div class="form-group"><label class="form-label">Email <em>*</em></label><input class="form-input" id="ck-email" type="email" placeholder="juan@correo.com"></div>
+        <div class="form-group"><label class="form-label" for="ck-fname">Nombre <em>*</em></label><input class="form-input" id="ck-fname" placeholder="Juan Pérez"></div>
+        <div class="form-group"><label class="form-label" for="ck-email">Email <em>*</em></label><input class="form-input" id="ck-email" type="email" placeholder="juan@correo.com"></div>
       </div>
       <div class="ck-row g1">
-        <div class="form-group"><label class="form-label">Teléfono <em>*</em></label><input class="form-input" id="ck-phone" type="tel" pattern="(\+?56\s?)?[29]\d{8}|(\+?56\s?)?9\d{8}" placeholder="+56 9 1234 5678" maxlength="20"></div>
+        <div class="form-group"><label class="form-label" for="ck-phone">Teléfono <em>*</em></label><input class="form-input" id="ck-phone" type="tel" pattern="(\+?56\s?)?[29]\d{8}|(\+?56\s?)?9\d{8}" placeholder="+56 9 1234 5678" maxlength="20"></div>
       </div>
 
       <div class="ck-step-title"><i class="fas fa-truck"></i> Dirección de entrega</div>
       <div class="ck-row g1">
-        <div class="form-group"><label class="form-label">Dirección <em>*</em></label><input class="form-input" id="ck-addr" placeholder="Av. Providencia 1234, Depto 5B"></div>
+        <div class="form-group"><label class="form-label" for="ck-addr">Dirección <em>*</em></label><input class="form-input" id="ck-addr" placeholder="Av. Providencia 1234, Depto 5B"></div>
       </div>
       <div class="ck-row">
-        <div class="form-group"><label class="form-label">Ciudad / Comuna <em>*</em></label><input class="form-input" id="ck-city" placeholder="Santiago"></div>
-        <div class="form-group"><label class="form-label">Región <em>*</em></label>
+        <div class="form-group"><label class="form-label" for="ck-city">Ciudad / Comuna <em>*</em></label><input class="form-input" id="ck-city" placeholder="Santiago"></div>
+        <div class="form-group"><label class="form-label" for="ck-region">Región <em>*</em></label>
           <select class="form-select" id="ck-region">
             <option value="">Selecciona región</option>
             <option>Región Metropolitana</option><option>Valparaíso</option><option>Biobío</option>
@@ -2095,7 +2095,7 @@ html{scroll-behavior:smooth;}
         </div>
       </div>
       <div class="ck-row g1">
-        <div class="form-group"><label class="form-label">Notas adicionales</label><textarea class="form-textarea" id="ck-notes" rows="2" placeholder="Instrucciones de entrega, referencias, etc."></textarea></div>
+        <div class="form-group"><label class="form-label" for="ck-notes">Notas adicionales</label><textarea class="form-textarea" id="ck-notes" rows="2" placeholder="Instrucciones de entrega, referencias, etc."></textarea></div>
       </div>
 
       <div class="ck-step-title"><i class="fas fa-credit-card"></i> Método de pago</div>
@@ -2319,7 +2319,7 @@ const DCFG = {
   cuotas:'12',
   hours:'Lunes a Domingo · 9:00 AM – 8:00 PM',
   ret:'30',
-  banner:'Envío gratis desde $19.990 | Hasta 12 cuotas sin interés | Paga seguro con Mercado Pago | Devolución gratis en 30 días | Retira el mismo día en tienda'
+  banner:'Envío gratis desde $19.990 | Hasta 12 cuotas sin interés | Paga seguro con Mercado Pago | Retira el mismo día en tienda'
 };
 const gc = k => config[k] !== undefined ? config[k] : DCFG[k];
 
@@ -2616,7 +2616,7 @@ function productCardHTML(p) {
   <article class="prod" onclick="openPDP('${p.id}')">
     <div class="prod-img" style="aspect-ratio:1;background:var(--bg-2);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;">
       <div class="pc-badges" style="flex-direction:row;">${badgeOff}${badgeHot}</div>
-      <button class="prod-wish ${inW?'on':''}" onclick="event.stopPropagation();togWishId('${p.id}')">${inW?'♥':'♡'}</button>
+      <button class="prod-wish ${inW?'on':''}" aria-label="${inW?'Quitar de favoritos':'Agregar a favoritos'}" onclick="event.stopPropagation();togWishId('${p.id}')">${inW?'♥':'♡'}</button>
       ${img ? `<img src="${img}" alt="${esc(p.name)}" loading="lazy" style="width:82%;height:82%;object-fit:contain;mix-blend-mode:multiply;transition:transform .3s;" onerror="this.style.display='none'" class="prod-img-el">` : '<span style="font-size:48px;opacity:0.2;">📦</span>'}
     </div>
     <div class="prod-body" style="padding:16px;display:flex;flex-direction:column;gap:6px;flex:1;">
@@ -2631,7 +2631,7 @@ function productCardHTML(p) {
       ${shipHtml}
     </div>
     <div class="prod-foot" style="display:flex;align-items:center;padding:0 16px 16px;gap:8px;">
-      <button class="prod-add" id="pcbtn-${p.id}" onclick="event.stopPropagation();addToCart('${p.id}')">Al carro</button>
+      <button class="prod-add" id="pcbtn-${p.id}" aria-label="Agregar al carro" onclick="event.stopPropagation();addToCart('${p.id}')">Al carro</button>
       <button onclick="event.stopPropagation();addToCartN('${p.id}',1,true);checkout()" style="height:38px;padding:0 14px;background:var(--ink);color:var(--bg);font-size:12px;font-weight:500;border-radius:var(--radius);display:flex;align-items:center;gap:6px;transition:all .15s;cursor:pointer;font-family:inherit;white-space:nowrap;border:none;">⚡ Comprar</button>
     </div>
   </article>`;
@@ -2985,10 +2985,10 @@ function renderCart() {
         <h5>${esc(i.name)}</h5>
         <div class="ci-price" style="display:flex;align-items:center;gap:6px">${fp(i.price)}<span style="font-size:11px;color:var(--muted);font-weight:400">c/u</span></div>
         <div class="ci-qty-row">
-          <button class="ci-qty-btn" onclick="chgQty('${i.id}',-1)"><i class="fas fa-minus"></i></button>
+          <button class="ci-qty-btn" aria-label="Disminuir cantidad" onclick="chgQty('${i.id}',-1)"><i class="fas fa-minus"></i></button>
           <span class="ci-qty-val">${i.qty}</span>
-          <button class="ci-qty-btn" onclick="chgQty('${i.id}',1)"><i class="fas fa-plus"></i></button>
-          <button class="ci-del" onclick="remFromCart('${i.id}')"><i class="fas fa-trash"></i></button>
+          <button class="ci-qty-btn" aria-label="Aumentar cantidad" onclick="chgQty('${i.id}',1)"><i class="fas fa-plus"></i></button>
+          <button class="ci-del" aria-label="Eliminar producto" onclick="remFromCart('${i.id}')"><i class="fas fa-trash"></i></button>
         </div>
         ${i.qty > 1 ? `<div style="font-size:12px;color:var(--pink);font-weight:700;margin-top:3px">Subtotal: ${fp(i.price*i.qty)}</div>` : ''}
       </div>
@@ -3033,6 +3033,7 @@ function checkout(){
 }
 function closeCheckout(){
   document.getElementById('ckOverlay').classList.remove('open');
+  if(window._mpTimerInterval){clearInterval(window._mpTimerInterval);window._mpTimerInterval=null;}
 }
 function selPay(el,val){
   document.querySelectorAll('.ck-pay-opt').forEach(o=>o.classList.remove('sel'));
@@ -3964,14 +3965,7 @@ document.addEventListener('load', function(e){
     setTimeout(function(){ toastEl.classList.remove('show'); }, 4500);
     setTimeout(function(){ spShown=false; }, 30000);
   }
-  // Mostrar después de 12s si el usuario está navegando
-  setTimeout(function(){
-    if(document.visibilityState==='visible') showSpToast();
-  }, 12000);
-  // Repetir cada 35s
-  setInterval(function(){
-    if(document.visibilityState==='visible') showSpToast();
-  }, 35000);
+  // Social proof toast disabled (datos simulados — dark pattern)
 
   // ── 4. Stock warning en tarjeta de producto ──
   window.getPcStockWarn = function(p){
@@ -4031,7 +4025,7 @@ function legalTab(name){
     el.textContent='Oferta termina en: '+String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
   }
   updateTimer();
-  setInterval(updateTimer,1000);
+  window._mpTimerInterval=setInterval(updateTimer,1000);
 })();
 
 
@@ -4280,7 +4274,7 @@ var API_BASE = 'https://maxicompra-api.elflaco0800.workers.dev';
   document.addEventListener('touchstart',resetAbTimer,{passive:true});
   document.addEventListener('scroll',resetAbTimer,{passive:true});
   // Re-arm when cart changes
-  setInterval(function(){
+  window._cartAbanInterval=setInterval(function(){
     if(cart&&cart.length>0&&!abShown) resetAbTimer();
     if(!cart||cart.length===0){abShown=false;clearTimeout(abTimer);}
   },5000);

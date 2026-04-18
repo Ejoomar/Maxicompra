@@ -36,7 +36,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-Avb2QiuDEEvB4bZJYdft2mNjVShBftLdPG8FJ0V7irTLQ8Uo0qcPxh4Plq7G5tGm0rU+1SPhVotteLpBERwTkw==" crossorigin="anonymous" referrerpolicy="no-referrer"/>
 <style>
 /* ═══════════════════════════════════════════════════
    MAXICOMPRA — VARIABLES & RESET
@@ -1352,10 +1352,10 @@ html{scroll-behavior:smooth;}
   <div class="pw-box">
     <svg width="54" height="54" viewBox="0 0 40 40" fill="none"><defs><linearGradient id="lg0" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#F05060"/><stop offset="55%" stop-color="#C81870"/><stop offset="100%" stop-color="#9A1080"/></linearGradient></defs><path d="M6 12 L20 24 L34 12" stroke="url(#lg0)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M6 22 L20 34 L34 22" stroke="url(#lg0)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.7"/></svg>
     <h2>Panel de Administración</h2>
-    <p>Ingresa la contraseña para acceder</p>
+    <p id="pwMsg">Ingresa la contraseña para acceder</p>
     <input class="pw-input" id="pwInput" type="password" placeholder="••••••" onkeydown="if(event.key==='Enter')chkPw()">
     <p class="pw-error" id="pwError">Contraseña incorrecta</p>
-    <button class="btn-grad pw-submit" onclick="chkPw()" style="padding:14px 24px;font-size:15px;font-weight:700;width:100%;justify-content:center;margin-bottom:12px;border-radius:9px"><i class="fas fa-unlock-alt"></i> Acceder al Panel</button>
+    <button class="btn-grad pw-submit" id="pwSubmitBtn" onclick="chkPw()" style="padding:14px 24px;font-size:15px;font-weight:700;width:100%;justify-content:center;margin-bottom:12px;border-radius:9px"><i class="fas fa-unlock-alt"></i> Acceder al Panel</button>
     <button class="pw-cancel" onclick="closePw()">← Volver a la tienda</button>
     <p class="pw-hint">Ingresa tu contraseña de administrador.</p>
   </div>
@@ -2693,11 +2693,11 @@ function renderHeroSlider() {
       <div class="slide-bg" style="${s.bg ? `background-image:url(${s.bg})` : `background:var(--card2)`}"></div>
       <div class="slide-overlay" style="background:${s.overlay||'linear-gradient(135deg,rgba(10,13,24,.92) 50%,rgba(232,23,93,.2))'}"></div>
       <div class="slide-content">
-        <div class="slide-badge">${s.badge||''}</div>
-        <h2 class="slide-title">${s.title||'Bienvenido'}</h2>
-        <p class="slide-sub">${s.sub||''}</p>
-        <div class="slide-detail">${s.detail||''}</div>
-        <div class="slide-price-txt">${s.price||''}</div>
+        <div class="slide-badge">${esc(s.badge||'')}</div>
+        <h2 class="slide-title">${esc(s.title||'Bienvenido')}</h2>
+        <p class="slide-sub">${esc(s.sub||'')}</p>
+        <div class="slide-detail">${esc(s.detail||'')}</div>
+        <div class="slide-price-txt">${esc(s.price||'')}</div>
         <button class="slide-cta" style="background:${s.btnColor||'var(--grad)'};color:#fff" onclick="(function(){var t=s.btnText||'';if(t.toLowerCase().includes('ofert')){showOffersFilter();return;}if(t.toLowerCase().includes('catálogo')||t.toLowerCase().includes('catalogo')){goHome();return;}document.getElementById('homeProdsSection').scrollIntoView({behavior:'smooth'});})()">${s.btnText||'Ver productos'}</button>
       </div>
     </div>`).join('');
@@ -3666,11 +3666,26 @@ function updStats(){
 /* ═════════════════════════════════════
    ADMIN AUTH & TABS
 ═════════════════════════════════════ */
-function openAdmin(){document.getElementById('pwScreen').classList.add('open');document.getElementById('pwInput').value='';document.getElementById('pwError').classList.remove('show');setTimeout(()=>document.getElementById('pwInput').focus(),100);}
+function openAdmin(){
+  var ns=!lsGet(KPW);
+  window._adminSetup=ns;
+  document.getElementById('pwMsg').textContent=ns?'Crea tu contraseña de administrador':'Ingresa la contraseña para acceder';
+  document.getElementById('pwSubmitBtn').innerHTML=ns?'<i class="fas fa-key"></i> Crear contraseña':'<i class="fas fa-unlock-alt"></i> Acceder al Panel';
+  document.getElementById('pwScreen').classList.add('open');
+  document.getElementById('pwInput').value='';
+  document.getElementById('pwError').classList.remove('show');
+  setTimeout(()=>document.getElementById('pwInput').focus(),100);
+}
 function closePw(){document.getElementById('pwScreen').classList.remove('open');}
-/* Acceso admin oculto: navegar a /#__admin */
 (function(){function _chkHash(){if(location.hash==='#__admin'){history.replaceState(null,'',location.pathname+location.search);openAdmin();}}window.addEventListener('hashchange',_chkHash);if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',_chkHash);}else{_chkHash();}})();
-function chkPw(){const v=document.getElementById('pwInput').value,pw=lsGet(KPW,'maxi2026')||'maxi2026';if(v===pw){closePw();document.getElementById('adminPanel').classList.add('open');swTab('dashboard');updStats();renderProdTable();updCatFilter();loadConfig();loadBannerEditor();loadCatEditor();}else{document.getElementById('pwError').classList.add('show');document.getElementById('pwInput').value='';}}
+function _openAdminPanel(){closePw();document.getElementById('adminPanel').classList.add('open');swTab('dashboard');updStats();renderProdTable();updCatFilter();loadConfig();loadBannerEditor();loadCatEditor();}
+function chkPw(){
+  var v=document.getElementById('pwInput').value;
+  if(!v){document.getElementById('pwError').textContent='Ingresa una contraseña';document.getElementById('pwError').classList.add('show');return;}
+  if(window._adminSetup){lsSet(KPW,v);window._adminSetup=false;_openAdminPanel();return;}
+  var pw=lsGet(KPW);
+  if(v===pw){_openAdminPanel();}
+  else{document.getElementById('pwError').textContent='Contraseña incorrecta';document.getElementById('pwError').classList.add('show');document.getElementById('pwInput').value='';}}
 function closeAdmin(){document.getElementById('adminPanel').classList.remove('open');}
 function swTab(t){
   document.querySelectorAll('.adm-tab').forEach(x=>x.classList.remove('active'));
@@ -4068,7 +4083,7 @@ function renderRecent(){
     var img=p.imgs&&p.imgs[0]?p.imgs[0]:'';
     var pid=p.id;
     var imgHtml=img?'<img class="recent-card-img" src="'+img+'" alt="" loading="lazy">':'<div class="recent-card-img" style="display:flex;align-items:center;justify-content:center;font-size:28px">📦</div>';
-    return '<div class="recent-card" data-pid="'+pid+'" onclick="openPDP(this.dataset.pid)">'+imgHtml+'<div class="recent-card-info"><div class="recent-card-name">'+p.name+'</div><div class="recent-card-price">'+fp(p.price)+'</div></div></div>';
+    return '<div class="recent-card" data-pid="'+pid+'" onclick="openPDP(this.dataset.pid)">'+imgHtml+'<div class="recent-card-info"><div class="recent-card-name">'+esc(p.name)+'</div><div class="recent-card-price">'+fp(p.price)+'</div></div></div>';
   }).filter(Boolean);
   if(!items.length){sec.style.display='none';return;}
   grid.innerHTML=items.join('');

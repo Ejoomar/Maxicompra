@@ -3110,7 +3110,8 @@ function confirmOrder(){
   }
   if(name.length < 2 || name.length > 100){ showToast('Nombre debe tener entre 2 y 100 caracteres','error'); return; }
   if(!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/)){ showToast('Email inválido — revisa el formato','error'); return; }
-  if(!phone.match(/^(\+?56\s?)?[29]\d{8}$|^(\+?56\s?)?9\d{8}$/)){ showToast('Teléfono inválido — ej: +56 9 1234 5678','error'); return; }
+  const phoneClean = phone.replace(/[\s\-\(\)\.]/g,'');
+  if(!phoneClean.match(/^(\+?56)?[29]\d{8}$/)){ showToast('Teléfono inválido — ej: +56912345678 o 912345678','error'); return; }
   if(addr.length < 5 || addr.length > 200){ showToast('Dirección debe tener entre 5 y 200 caracteres','error'); return; }
 
   const payEl  = document.querySelector('.ck-pay-opt.sel input');
@@ -3188,24 +3189,24 @@ function _launchMPCheckout(orderId, email, totalNum, waUrl, name, phone, addr, c
   .then(function(r){return r.json();})
   .then(function(d){
     if(d.ok && d.init_point){
-      // Guardar datos del pedido para recuperar si el usuario cancela en MP
       try {
         sessionStorage.setItem('mx_mp_pending', JSON.stringify({
           orderId:orderId, name:name, email:email, phone:phone,
           addr:addr, city:city, region:region
         }));
       } catch(e){}
-      // NO vaciamos el carrito aquí — solo cuando el pago sea confirmado
       window.location.href = d.init_point;
     } else {
-      // Error al crear preferencia — mantener checkout abierto, NO mostrar success
+      // MP no disponible → completar pedido por WhatsApp igual
       if(btn){btn.disabled=false; btn.innerHTML='<i class="fas fa-wallet"></i> Pagar con Mercado Pago';}
-      showToast('Error al conectar con Mercado Pago. Elige otro método de pago.','error');
+      showToast('Mercado Pago no disponible ahora. Tu pedido fue registrado — coordinaremos el pago.','warning');
+      _launchOrderWA(orderId, waUrl, false, false);
     }
   })
-  .catch(function(e){
+  .catch(function(){
     if(btn){btn.disabled=false; btn.innerHTML='<i class="fas fa-wallet"></i> Pagar con Mercado Pago';}
-    showToast('Error de conexión. Pedido guardado — elige transferencia o efectivo.','error');
+    showToast('Sin conexión con MP. Tu pedido fue registrado — lo coordinamos por WhatsApp.','warning');
+    _launchOrderWA(orderId, waUrl, false, false);
   });
 }
 

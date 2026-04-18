@@ -179,20 +179,20 @@ img{display:block;}
 .hero-main-ed{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);padding:56px 48px;position:relative;overflow:hidden;min-height:440px;display:flex;flex-direction:column;justify-content:space-between;}
 .hero-eyebrow-ed{font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--mute);display:flex;align-items:center;gap:10px;margin-bottom:24px;}
 .hero-eyebrow-ed::before{content:'';width:28px;height:1px;background:var(--ink);}
-.hero-title-ed{font-family:'Instrument Serif',serif;font-size:72px;line-height:0.95;letter-spacing:-0.02em;color:var(--ink);max-width:560px;margin-bottom:20px;}
+.hero-title-ed{font-family:'Instrument Serif',serif;font-size:68px;line-height:0.95;letter-spacing:-0.02em;color:var(--ink);max-width:420px;margin-bottom:20px;position:relative;z-index:2;}
 .hero-title-ed em{color:var(--accent);font-style:italic;}
-.hero-desc-ed{color:var(--ink-2);font-size:15px;line-height:1.55;max-width:440px;margin-bottom:32px;}
+.hero-desc-ed{color:var(--ink-2);font-size:15px;line-height:1.55;max-width:400px;margin-bottom:32px;position:relative;z-index:2;}
 .hero-cta-row-ed{display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
 .btn-ed{display:inline-flex;align-items:center;gap:8px;padding:13px 22px;border-radius:var(--radius);font-size:13px;font-weight:500;letter-spacing:0.01em;transition:all .15s;white-space:nowrap;cursor:pointer;border:1px solid transparent;font-family:inherit;}
 .btn-primary-ed{background:var(--ink);color:var(--bg);}
 .btn-primary-ed:hover{background:var(--ink-2);}
 .btn-ghost-ed{border-color:var(--line-2);color:var(--ink);background:transparent;}
 .btn-ghost-ed:hover{border-color:var(--ink);background:var(--surface);}
-.hero-pricetag-ed{position:absolute;right:60px;top:56px;background:var(--ink);color:var(--bg);padding:14px 18px;border-radius:var(--radius);font-family:'JetBrains Mono',monospace;z-index:2;}
+.hero-pricetag-ed{position:absolute;right:24px;top:24px;background:var(--ink);color:var(--bg);padding:12px 16px;border-radius:var(--radius);font-family:'JetBrains Mono',monospace;z-index:4;}
 .hero-pricetag-ed .small{font-size:10px;letter-spacing:0.15em;text-transform:uppercase;opacity:0.6;display:block;margin-bottom:4px;}
-.hero-pricetag-ed .big{font-size:22px;font-weight:500;}
-.hero-product-ed{position:absolute;right:-40px;bottom:-20px;width:320px;height:320px;background:var(--bg-2);border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:visible;}
-.hero-product-ed img{width:280px;height:280px;object-fit:contain;transform:rotate(-8deg);filter:drop-shadow(0 30px 40px rgba(0,0,0,0.08));}
+.hero-pricetag-ed .big{font-size:20px;font-weight:500;}
+.hero-product-ed{position:absolute;right:-20px;bottom:-10px;width:260px;height:260px;background:var(--bg-2);border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:visible;z-index:1;}
+.hero-product-ed img{width:220px;height:220px;object-fit:contain;transform:rotate(-8deg);filter:drop-shadow(0 20px 32px rgba(0,0,0,0.10));}
 .hero-side-ed{display:grid;grid-template-rows:1fr 1fr;gap:16px;}
 .hero-card-ed{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);padding:28px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;cursor:pointer;transition:border-color .15s;}
 .hero-card-ed:hover{border-color:var(--ink-2);}
@@ -212,12 +212,14 @@ img{display:block;}
 .brand-tag-ed:hover{opacity:1;}
 .brand-tag-ed.sans{font-family:'Inter',sans-serif;font-weight:700;font-style:normal;font-size:20px;letter-spacing:-0.02em;}
 /* Strip section */
-.strip-ed{background:var(--bg-2);padding:80px 0;border-bottom:1px solid var(--line);}
-.strip-grid-ed{display:grid;grid-template-columns:1fr 1fr 1fr;gap:40px;}
-.strip-item-ed{display:flex;flex-direction:column;gap:16px;}
-.strip-num-ed{font-family:'Instrument Serif',serif;font-style:italic;font-size:64px;color:var(--accent);line-height:0.9;}
-.strip-title-ed{font-family:'Instrument Serif',serif;font-size:26px;line-height:1.15;letter-spacing:-0.01em;color:var(--ink);}
-.strip-desc-ed{color:var(--ink-2);font-size:13.5px;line-height:1.6;}
+.strip-ed{background:var(--bg-2);padding:72px 0;border-bottom:1px solid var(--line);}
+.strip-grid-ed{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;}
+.strip-item-ed{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);padding:36px 32px 32px;overflow:hidden;transition:border-color .15s;}
+.strip-item-ed:hover{border-color:var(--ink-2);}
+.strip-num-ed{position:absolute;right:-8px;top:-16px;font-family:'Instrument Serif',serif;font-size:120px;font-weight:400;line-height:1;color:transparent;-webkit-text-stroke:1.5px var(--line-2);pointer-events:none;user-select:none;letter-spacing:-0.04em;}
+.strip-icon-ed{width:44px;height:44px;border-radius:var(--radius);background:var(--accent-soft);display:flex;align-items:center;justify-content:center;margin-bottom:20px;color:var(--accent);}
+.strip-title-ed{font-family:'Instrument Serif',serif;font-size:24px;line-height:1.15;letter-spacing:-0.01em;color:var(--ink);margin-bottom:10px;}
+.strip-desc-ed{color:var(--mute);font-size:13px;line-height:1.65;}
 
 /* ═══════════════════════════ BENEFITS BAR ═══════════════════════════ */
 .benefits-bar{padding:28px 0;border-bottom:1px solid var(--line);}
@@ -231,8 +233,10 @@ img{display:block;}
 /* ═══════════════════════════ CATEGORY GRID ═══════════════════════════ */
 .cat-section{padding:72px 0;border-bottom:1px solid var(--line);}
 .cat-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;}
-.cat-card-ed{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);padding:24px 20px;cursor:pointer;transition:all .15s;display:flex;flex-direction:column;align-items:flex-start;gap:32px;min-height:180px;position:relative;overflow:hidden;}
-.cat-card-ed:hover{border-color:var(--ink);transform:translateY(-2px);}
+.cat-card-ed{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);padding:24px 20px;cursor:pointer;transition:all .18s;display:flex;flex-direction:column;align-items:flex-start;gap:32px;min-height:180px;position:relative;overflow:hidden;}
+.cat-card-ed:hover{border-color:var(--ink);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.06);}
+.cat-prod-img{position:absolute;right:-8px;bottom:-8px;width:100px;height:100px;object-fit:contain;opacity:0.18;transform:rotate(8deg);pointer-events:none;transition:opacity .18s,transform .18s;}
+.cat-card-ed:hover .cat-prod-img{opacity:0.32;transform:rotate(6deg) scale(1.05);}
 /* Keep old cat-card for compat */
 .cat-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);padding:20px 12px 16px;text-align:center;cursor:pointer;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:9px;position:relative;overflow:hidden;}
 .cat-card:hover{border-color:var(--ink);transform:translateY(-3px);}
@@ -916,6 +920,15 @@ img{display:block;}
 .mob-search-item-price{font-size:13px;font-weight:700;color:var(--pink);margin-top:2px;}
 .mob-search-empty{text-align:center;padding:36px 16px;color:var(--muted);font-size:14px;}
 /* search-bar button styles handled in header CSS block */
+.search-suggest{display:none;position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:0 12px 40px rgba(0,0,0,0.10);z-index:500;overflow:hidden;max-height:360px;overflow-y:auto;}
+.ss-item{display:flex;align-items:center;gap:12px;padding:10px 16px;cursor:pointer;transition:background .1s;border-bottom:1px solid var(--line);}
+.ss-item:last-child{border-bottom:none;}
+.ss-item:hover{background:var(--bg-2);}
+.ss-item img{width:36px;height:36px;object-fit:contain;border-radius:4px;background:var(--bg-2);flex-shrink:0;}
+.ss-name{font-size:13px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:320px;}
+.ss-price{font-size:12px;color:var(--accent);font-family:'JetBrains Mono',monospace;margin-top:2px;}
+.ss-see-all{display:block;padding:10px 16px;font-size:12px;color:var(--accent);text-align:center;cursor:pointer;font-weight:500;letter-spacing:0.05em;}
+.ss-see-all:hover{background:var(--bg-2);}
 
 /* ── COMPRAR AHORA ── */
 .pdp-buy-now{
@@ -1582,7 +1595,7 @@ html{scroll-behavior:smooth;}
       <a href="#" id="t-phone"><i class="fas fa-phone"></i>+56 2 2345 6789</a>
     </div>
     <div class="tlinks">
-      <button onclick="openAdmin()"><i class="fas fa-cog" style="color:var(--muted)"></i>Admin</button>
+      <!-- admin access via URL: /#__admin -->
     </div>
   </div></div>
   <!-- Header -->
@@ -1593,9 +1606,7 @@ html{scroll-behavior:smooth;}
         <div class="logo-sub" id="s-tag">CL · Calidad garantizada</div>
       </div>
       
-      <div class="search-bar" style="display:flex;position:relative;flex:1;max-width:600px;"><i class="fas fa-search sb-icon" style="position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px;pointer-events:none;z-index:1"></i><input type="search" id="searchInp" placeholder="Buscar productos, marcas…" oninput="if(currentView!=='home')showView('home');renderHomeProducts(this.value);" autocomplete="off" style="border-radius:50px;padding:10px 90px 10px 44px;width:100%;"><button onclick="if(currentView!=='home')showView('home');renderHomeProducts(document.getElementById('searchInp').value);" style="position:absolute;right:5px;top:50%;transform:translateY(-50%);padding:6px 18px;border-radius:50px;font-size:12px;font-weight:700;">Buscar</button></div><div class="header-actions">
-        <button class="h-btn theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Cambiar tema"><i class="fas fa-moon" id="themeIcon"></i></button>
-        <button class="h-btn" onclick="openAdmin()"><i class="fas fa-cog"></i></button>
+      <div class="search-bar" style="display:flex;position:relative;flex:1;max-width:600px;" id="searchBarWrap"><i class="fas fa-search sb-icon" style="position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px;pointer-events:none;z-index:1"></i><input type="search" id="searchInp" placeholder="Buscar productos, marcas…" oninput="_handleDesktopSearch(this.value)" onblur="setTimeout(()=>_hideSuggest(),180)" autocomplete="off" style="border-radius:50px;padding:10px 90px 10px 44px;width:100%;"><button onclick="_commitSearch()" style="position:absolute;right:5px;top:50%;transform:translateY(-50%);padding:6px 18px;border-radius:50px;font-size:12px;font-weight:700;">Buscar</button><div class="search-suggest" id="searchSuggest"></div></div><div class="header-actions">
         <button class="h-btn" onclick="openWish()"><i class="fas fa-heart"></i><span id="wishCount">0</span></button>
         <button class="h-btn cart" onclick="togCart()"><i class="fas fa-shopping-cart"></i>Carro<div class="cart-badge-dot" id="cartBdg">0</div></button>
       </div>
@@ -1689,19 +1700,28 @@ html{scroll-behavior:smooth;}
       <div class="container">
         <div class="strip-grid-ed">
           <div class="strip-item-ed">
-            <div class="strip-num-ed">i.</div>
+            <div class="strip-num-ed">01</div>
+            <div class="strip-icon-ed">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
             <h3 class="strip-title-ed">Despacho a todo Chile</h3>
-            <p class="strip-desc-ed">Trabajamos con Starken, Chilexpress y Correos de Chile. Envío gratis desde $19.990.</p>
+            <p class="strip-desc-ed">Trabajamos con Starken, Chilexpress y Correos de Chile. Envío gratis en compras sobre $19.990.</p>
           </div>
           <div class="strip-item-ed">
-            <div class="strip-num-ed">ii.</div>
-            <h3 class="strip-title-ed">Pago seguro con Mercado Pago</h3>
-            <p class="strip-desc-ed">Crédito, débito y transferencia. Hasta 12 cuotas sin interés en productos seleccionados.</p>
+            <div class="strip-num-ed">02</div>
+            <div class="strip-icon-ed">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
+            <h3 class="strip-title-ed">Pago 100% seguro</h3>
+            <p class="strip-desc-ed">Procesamos con Mercado Pago. Crédito, débito y transferencia. Hasta 12 cuotas sin interés.</p>
           </div>
           <div class="strip-item-ed">
-            <div class="strip-num-ed">iii.</div>
-            <h3 class="strip-title-ed">Garantía de 6 meses</h3>
-            <p class="strip-desc-ed">Todos nuestros productos llegan sellados, con boleta y garantía directa del vendedor.</p>
+            <div class="strip-num-ed">03</div>
+            <div class="strip-icon-ed">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <h3 class="strip-title-ed">Marcas 100% originales</h3>
+            <p class="strip-desc-ed">Todos los productos llegan sellados, con boleta y respaldo directo del fabricante.</p>
           </div>
         </div>
       </div>
@@ -2625,13 +2645,18 @@ function renderHomeCats() {
   grid.innerHTML = cats.map(c => {
     const cnt = products.filter(p=>p.visible!==false && p.cat===c.name).length;
     const icon = CAT_ICONS[c.id] || CAT_ICONS.general;
+    // Pick a featured or hot product image for this category
+    const sample = products.find(p=>p.visible!==false && p.cat===c.name && (p.featured||p.hot) && (p.imgs?.[0]||p.img))
+                || products.find(p=>p.visible!==false && p.cat===c.name && (p.imgs?.[0]||p.img));
+    const imgSrc = sample ? (sample.imgs?.[0] || sample.img || '') : '';
     return `<div class="cat-card-ed" onclick="openCatView('${c.id}')">
-      <div style="position:absolute;top:20px;right:20px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--mute);">${String(cnt).padStart(3,'0')}</div>
-      <div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:var(--accent);background:var(--accent-soft);border-radius:var(--radius);">${icon}</div>
+      <div style="position:absolute;top:16px;right:16px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--mute);letter-spacing:0.08em;">${String(cnt).padStart(3,'0')}</div>
+      <div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:var(--accent);background:var(--accent-soft);border-radius:var(--radius);flex-shrink:0;">${icon}</div>
       <div>
         <div style="font-family:'Instrument Serif',serif;font-size:22px;line-height:1.1;letter-spacing:-0.01em;color:var(--ink);">${esc(c.name)}</div>
         <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--mute);display:flex;align-items:center;gap:6px;margin-top:8px;">Ver productos →</div>
       </div>
+      ${imgSrc ? `<img class="cat-prod-img" src="${imgSrc}" alt="" loading="lazy">` : ''}
     </div>`;
   }).join('');
 }
@@ -3629,7 +3654,9 @@ function updStats(){
 ═════════════════════════════════════ */
 function openAdmin(){document.getElementById('pwScreen').classList.add('open');document.getElementById('pwInput').value='';document.getElementById('pwError').classList.remove('show');setTimeout(()=>document.getElementById('pwInput').focus(),100);}
 function closePw(){document.getElementById('pwScreen').classList.remove('open');}
-function chkPw(){const v=document.getElementById('pwInput').value,pw=lsGet(KPW,'admin123')||'admin123';if(v===pw){closePw();document.getElementById('adminPanel').classList.add('open');swTab('dashboard');updStats();renderProdTable();updCatFilter();loadConfig();loadBannerEditor();loadCatEditor();}else{document.getElementById('pwError').classList.add('show');document.getElementById('pwInput').value='';}}
+/* Acceso admin oculto: navegar a /#__admin */
+(function(){function _chkHash(){if(location.hash==='#__admin'){history.replaceState(null,'',location.pathname+location.search);openAdmin();}}window.addEventListener('hashchange',_chkHash);if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',_chkHash);}else{_chkHash();}})();
+function chkPw(){const v=document.getElementById('pwInput').value,pw=lsGet(KPW,'maxi2026')||'maxi2026';if(v===pw){closePw();document.getElementById('adminPanel').classList.add('open');swTab('dashboard');updStats();renderProdTable();updCatFilter();loadConfig();loadBannerEditor();loadCatEditor();}else{document.getElementById('pwError').classList.add('show');document.getElementById('pwInput').value='';}}
 function closeAdmin(){document.getElementById('adminPanel').classList.remove('open');}
 function swTab(t){
   document.querySelectorAll('.adm-tab').forEach(x=>x.classList.remove('active'));
@@ -3717,15 +3744,42 @@ function closeMobSearch(){
   document.getElementById('mobSearchOverlay').classList.remove('open');
   document.body.style.overflow='';
 }
+/* ─── Desktop smart search autocomplete ─── */
+function _handleDesktopSearch(v){
+  if(currentView!=='home') showView('home');
+  renderHomeProducts(v);
+  _renderSuggest(v);
+}
+function _commitSearch(){
+  var v=document.getElementById('searchInp').value;
+  if(currentView!=='home') showView('home');
+  renderHomeProducts(v);
+  _hideSuggest();
+}
+function _hideSuggest(){var b=document.getElementById('searchSuggest');if(b)b.style.display='none';}
+function _renderSuggest(q){
+  var box=document.getElementById('searchSuggest');
+  if(!box) return;
+  if(!q||q.trim().length<2){_hideSuggest();return;}
+  var t=q.toLowerCase().trim();
+  var src=(typeof products!=='undefined'&&products.length?products:(typeof DEFAULT_PRODUCTS!=='undefined'?DEFAULT_PRODUCTS:[]));
+  var hits=src.filter(function(p){return p.visible!==false&&((p.name||'')+(p.brand||'')).toLowerCase().includes(t);}).slice(0,7);
+  if(!hits.length){_hideSuggest();return;}
+  box.innerHTML=hits.map(function(p){
+    var img=p.imgs&&p.imgs[0]?p.imgs[0]:(p.img||'');
+    var imgEl=img?'<img src="'+img+'" alt="" style="width:36px;height:36px;object-fit:contain;border-radius:4px;background:var(--bg-2);flex-shrink:0" loading="lazy">':'<div style="width:36px;height:36px;background:var(--bg-2);border-radius:4px;flex-shrink:0"></div>';
+    return '<div class="ss-item" onmousedown="event.preventDefault();document.getElementById(\'searchInp\').value=\''+esc(p.name)+'\';renderHomeProducts(\''+esc(p.name)+'\');_hideSuggest()">'+imgEl+'<div><div class="ss-name">'+esc(p.name)+'</div><div class="ss-price">'+fp(p.price)+'</div></div></div>';
+  }).join('')+'<div class="ss-see-all" onmousedown="event.preventDefault();_commitSearch()">Ver los '+src.filter(function(p){return p.visible!==false&&((p.name||'')+(p.brand||'')).toLowerCase().includes(t);}).length+' resultados →</div>';
+  box.style.display='block';
+}
 function mobSearchQuery(q){
   const res=document.getElementById('mobSearchResults');
   if(!q||q.trim().length<2){
     res.innerHTML='<div class="mob-search-empty">🔍 Escribe al menos 2 letras</div>';return;
   }
   const t=q.toLowerCase().trim();
-  const found=(typeof DEFAULT_PRODUCTS!=='undefined'?DEFAULT_PRODUCTS:[])
-    .filter(p=>((p.name||'')+(p.brand||'')+(p.cat||'')).toLowerCase().includes(t))
-    .slice(0,14);
+  const _src=(typeof products!=='undefined'&&products.length?products:(typeof DEFAULT_PRODUCTS!=='undefined'?DEFAULT_PRODUCTS:[]));
+  const found=_src.filter(p=>p.visible!==false&&((p.name||'')+(p.brand||'')+(p.cat||'')).toLowerCase().includes(t)).slice(0,14);
   if(!found.length){
     res.innerHTML='<div class="mob-search-empty">Sin resultados para "'+esc(q)+'"</div>';return;
   }

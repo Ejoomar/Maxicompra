@@ -30,7 +30,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22Maxicompra%22%2C%22short_name%22%3A%22Maxicompra%22%2C%22description%22%3A%22Tu%20tienda%20online%20de%20confianza%22%2C%22start_url%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230e0e1a%22%2C%22theme_color%22%3A%22%23E8175D%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%2520xmlns%253D%2527http%253A%252F%252Fwww.w3.org%252F2000%252Fsvg%2527%2520viewBox%253D%25270%25200%252064%252064%2527%253E%253Crect%2520width%253D%252764%2527%2520height%253D%252764%2527%2520rx%253D%252714%2527%2520fill%253D%2527%2523E8175D%2527%252F%253E%253Ctext%2520x%253D%252732%2527%2520y%253D%252746%2527%2520font-family%253D%2527Arial%2520Black%2527%2520font-size%253D%252738%2527%2520fill%253D%2527white%2527%2520text-anchor%253D%2527middle%2527%253EM%253C%252Ftext%253E%253C%252Fsvg%253E%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"Organization","name":"Maxicompra","url":"https://maxicompra.cl","logo":"https://maxicompra.cl/logo.png","sameAs":["https://www.instagram.com/maxicompra.cl/","https://www.tiktok.com/@maxicompra.cl","https://www.facebook.com/Maxicompra.cl/","https://wa.me/56958498763"],"contactPoint":{"@type":"ContactPoint","telephone":"+56-9-5849-8763","contactType":"customer service","availableLanguage":"Spanish"},"address":{"@type":"PostalAddress","streetAddress":"Los Trabajadores 1026","addressLocality":"Santiago","addressRegion":"Región Metropolitana","addressCountry":"CL"},"description":"Tu tienda online de confianza. Los mejores productos al mejor precio. Envíos a todo Chile."}
+{"@context":"https://schema.org","@type":"Organization","name":"Maxicompra","url":"https://maxicompra.cl","logo":"https://maxicompra.cl/logo.png","sameAs":["https://www.instagram.com/maxicompra.cl/","https://www.tiktok.com/@maxicompra.cl","https://www.facebook.com/Maxicompra.cl/","https://wa.me/56977462964"],"contactPoint":{"@type":"ContactPoint","telephone":"+56-9-7746-2964","contactType":"customer service","availableLanguage":"Spanish"},"address":{"@type":"PostalAddress","streetAddress":"Los Trabajadores 1026","addressLocality":"Santiago","addressRegion":"Región Metropolitana","addressCountry":"CL"},"description":"Tu tienda online de confianza. Los mejores productos al mejor precio. Envíos a todo Chile."}
 </script>
 <title>Maxicompra.cl — Calidad asegurada, exclusividad garantizada.</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -135,13 +135,35 @@ img{display:block;}
 @keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
 /* ═══════════════════════════ TOPBAR ═══════════════════════════ */
-.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:7px 0;position:relative;z-index:1;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:6px 0;position:relative;z-index:1;}
 [data-theme="dark"] .topbar{background:rgba(5,8,16,.85);backdrop-filter:blur(12px);}
-.topbar .container{display:flex;justify-content:space-between;align-items:center;}
+.topbar .container{display:flex;justify-content:flex-end;align-items:center;}
 .tlinks{display:flex;gap:18px;}
 .tlinks a,.tlinks button{background:none;color:var(--muted2,var(--muted));font-size:12px;display:flex;align-items:center;gap:5px;transition:color .2s;padding:0;letter-spacing:.02em;}
 .tlinks a:hover,.tlinks button:hover{color:var(--text);}
 .tlinks i{font-size:10px;color:var(--pink);}
+/* ═══════════════════════════ PROMO BANNER ═══════════════════════════ */
+.promo-banner-wrap{width:100%;display:none;overflow:hidden;line-height:0;}
+.promo-banner-wrap img{width:100%;display:block;max-height:100px;object-fit:cover;}
+/* ═══════════════════════════ INFO STRIP ═══════════════════════════ */
+.info-strip-ed{background:var(--surface);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:22px 0;}
+.info-strip-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;}
+.info-strip-item{display:flex;align-items:flex-start;gap:14px;padding:0 28px 0 0;border-right:1px solid var(--line);}
+.info-strip-item:last-child{border-right:none;padding-right:0;}
+.info-strip-item:first-child{padding-left:0;}
+.info-strip-icon{width:36px;height:36px;border-radius:50%;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.info-strip-icon i{color:var(--accent);font-size:14px;}
+.info-strip-body h5{font-size:10px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink);margin-bottom:4px;}
+.info-strip-body p{font-size:12px;color:var(--ink-2);line-height:1.45;}
+.info-strip-body a{color:var(--accent);text-decoration:none;}
+.info-strip-body a:hover{text-decoration:underline;}
+@media(max-width:768px){.info-strip-grid{grid-template-columns:1fr 1fr;gap:20px;}.info-strip-item{border-right:none;padding:0;}.info-strip-ed{padding:20px 0;}}
+@media(max-width:480px){.info-strip-grid{grid-template-columns:1fr;}}
+/* ═══════════════════════════ BRANDS MARQUEE ═══════════════════════════ */
+.brand-scroll-outer{overflow:hidden;width:100%;}
+.brand-scroll-track{display:flex;gap:56px;white-space:nowrap;animation:brandScroll 30s linear infinite;width:max-content;align-items:center;}
+.brand-scroll-track:hover{animation-play-state:paused;}
+@keyframes brandScroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
 /* ═══════════════════════════ HEADER ═══════════════════════════ */
 .site-header{background:var(--bg);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:300;}
@@ -1183,6 +1205,45 @@ html{scroll-behavior:smooth;}
 .ck-comp-btn i{color:var(--orange);font-size:15px;}
 .ck-comp-preview{margin-top:8px;border-radius:8px;overflow:hidden;display:none;border:1.5px solid var(--border);}
 .ck-comp-preview img{width:100%;max-height:160px;object-fit:cover;display:block;}
+/* ══ ADMIN — PEDIDOS ══ */
+.ord-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
+.ord-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.ord-date-inp,.ord-search-inp{height:36px;padding:0 12px;border:1.5px solid var(--border);border-radius:7px;background:var(--surface);color:var(--ink);font-size:13px;font-family:inherit;outline:none;transition:border-color .2s;}
+.ord-date-inp:focus,.ord-search-inp:focus{border-color:var(--accent);}
+.ord-search-inp{width:200px;}
+.ord-nav-btn,.ord-refresh-btn{height:36px;width:36px;border-radius:7px;background:var(--bg-2);border:1.5px solid var(--border);color:var(--ink);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.ord-nav-btn:hover,.ord-refresh-btn:hover{background:var(--ink);color:var(--bg);}
+.ord-search-btn{height:36px;padding:0 16px;border-radius:7px;background:var(--ink);color:var(--bg);border:none;cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;display:flex;align-items:center;gap:6px;transition:opacity .2s;}
+.ord-search-btn:hover{opacity:.85;}
+.ord-table-wrap{overflow-x:auto;border:1.5px solid var(--border);border-radius:10px;}
+.ord-table{width:100%;border-collapse:collapse;font-size:13px;}
+.ord-table th{text-align:left;padding:10px 14px;font-size:10.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;border-bottom:1.5px solid var(--border);background:var(--bg-2);white-space:nowrap;}
+.ord-table td{padding:12px 14px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.ord-table tbody tr:last-child td{border-bottom:none;}
+.ord-table tbody tr:hover td{background:var(--bg-2);}
+.ord-status{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11.5px;font-weight:700;white-space:nowrap;}
+.ord-status.pending{background:rgba(255,152,0,.15);color:#E06000;}
+.ord-status.paid{background:rgba(0,180,80,.12);color:#007A3D;}
+.ord-status.shipped{background:rgba(0,190,255,.12);color:#006B9C;}
+.ord-status.delivered{background:rgba(0,200,100,.1);color:#006633;}
+.ord-status.cancelled{background:rgba(232,23,93,.1);color:var(--pink);}
+.ord-empty{text-align:center;padding:64px 20px;color:var(--muted);}
+.ord-empty i{font-size:44px;margin-bottom:14px;display:block;opacity:.25;}
+.ord-empty p{font-size:14px;}
+/* Modal */
+.ord-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:2000;align-items:center;justify-content:center;padding:20px;}
+.ord-modal.open{display:flex;}
+.ord-modal-box{background:var(--surface);border-radius:14px;width:100%;max-width:580px;max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25);}
+.ord-modal-head{display:flex;align-items:flex-start;justify-content:space-between;padding:24px 24px 0;}
+.ord-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 24px;margin:16px 0;}
+.ord-detail-cell{background:var(--bg-2);border-radius:8px;padding:11px 14px;}
+.ord-dc-label{font-size:10.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;}
+.ord-dc-value{font-size:14px;font-weight:600;color:var(--ink);margin-top:4px;}
+.ord-items-list{padding:0 24px;display:flex;flex-direction:column;gap:8px;margin-bottom:4px;}
+.ord-item-row{display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--bg-2);border-radius:8px;font-size:13px;}
+.ord-item-img{width:44px;height:44px;border-radius:7px;object-fit:cover;flex-shrink:0;}
+.ord-modal-foot{padding:16px 24px 24px;display:flex;gap:10px;justify-content:flex-end;}
+
 /* — Checkout trust badges — */
 .ck-trust-bar{
   display:flex;align-items:center;justify-content:center;gap:16px;
@@ -1372,6 +1433,8 @@ html{scroll-behavior:smooth;}
       <div class="adm-section-label">Personalización</div>
       <button class="adm-menu-item" onclick="swTab('banners')"><i class="fas fa-image"></i>Banners / Slider</button>
       <button class="adm-menu-item" onclick="swTab('categories')"><i class="fas fa-th-large"></i>Categorías</button>
+      <div class="adm-section-label">Ventas</div>
+      <button class="adm-menu-item" onclick="swTab('orders')"><i class="fas fa-shopping-bag"></i>Pedidos<span class="badge-count" id="ordersBadge" style="margin-left:auto;display:none">0</span></button>
       <div class="adm-section-label">Tienda</div>
       <button class="adm-menu-item" onclick="swTab('store')"><i class="fas fa-store"></i>Mi Tienda</button>
       <button class="adm-menu-item" onclick="swTab('settings')"><i class="fas fa-cog"></i>Ajustes</button>
@@ -1454,7 +1517,9 @@ html{scroll-behavior:smooth;}
             <div class="form-group" style="margin-bottom:12px"><label class="form-label">Costo envío RM</label><input class="form-input" id="cfg-shrm" placeholder="$2.990"></div>
             <div class="form-group" style="margin-bottom:12px"><label class="form-label">Costo envío regiones</label><input class="form-input" id="cfg-shreg" placeholder="$4.990"></div>
             <div class="form-group" style="margin-bottom:12px"><label class="form-label">Cuotas sin interés</label><input class="form-input" id="cfg-cuotas" placeholder="12"></div>
-            <div class="form-group"><label class="form-label">Texto del banner superior</label><textarea class="form-textarea" id="cfg-banner" rows="4" placeholder="Ej: Envío gratis desde $19.990 | 12 cuotas sin interés"></textarea></div>
+            <div class="form-group" style="margin-bottom:12px"><label class="form-label">Texto del banner superior</label><textarea class="form-textarea" id="cfg-banner" rows="3" placeholder="Ej: Envío gratis desde $19.990 | 12 cuotas sin interés"></textarea></div>
+            <div class="form-group" style="margin-bottom:12px"><label class="form-label">URL imagen promocional (banner foto)</label><input class="form-input" id="cfg-promo-img" placeholder="https://...imagen.jpg" oninput="this.value=this.value.trim()"></div>
+            <div class="form-group"><label class="form-label">Dirección (se muestra en la tira de info)</label><input class="form-input" id="cfg-addr" placeholder="Ej: Av. Providencia 1234, Santiago"></div>
           </div>
           <div style="grid-column:span 2;display:flex;justify-content:flex-end;gap:10px">
             <button class="btn-outline" style="padding:10px 20px;font-size:13px" onclick="loadConfig()"><i class="fas fa-undo"></i> Restaurar</button>
@@ -1482,7 +1547,30 @@ html{scroll-behavior:smooth;}
         </div>
       </div>
 
+      <!-- ══ TAB: PEDIDOS ══ -->
+      <div class="adm-tab" id="tab-orders">
+        <div class="ord-header">
+          <h2 class="adm-tab-title" style="margin:0">Pedidos</h2>
+          <div class="ord-controls">
+            <button class="ord-nav-btn" onclick="changeOrdDate(-1)" title="Día anterior"><i class="fas fa-chevron-left"></i></button>
+            <input type="date" id="ordDate" class="ord-date-inp" onchange="loadOrders()">
+            <button class="ord-nav-btn" onclick="changeOrdDate(1)" title="Día siguiente"><i class="fas fa-chevron-right"></i></button>
+            <input type="search" id="ordSearch" class="ord-search-inp" placeholder="Buscar cliente, #pedido…" onkeydown="if(event.key==='Enter')searchOrders()">
+            <button class="ord-search-btn" onclick="searchOrders()"><i class="fas fa-search"></i> Buscar</button>
+            <button class="ord-refresh-btn" onclick="loadOrders()" title="Actualizar"><i class="fas fa-sync-alt"></i></button>
+          </div>
+        </div>
+        <div id="ordList"><div class="ord-empty"><i class="fas fa-inbox"></i><p>Cargando pedidos…</p></div></div>
+      </div>
+
     </div>
+  </div>
+</div>
+
+<!-- ════ ORDER DETAIL MODAL ════ -->
+<div class="ord-modal" id="ordModal" onclick="if(event.target===this)closeOrdModal()">
+  <div class="ord-modal-box">
+    <div id="ordModalContent"></div>
   </div>
 </div>
 
@@ -1587,16 +1675,14 @@ html{scroll-behavior:smooth;}
     <span><span class="ann-dot"></span>Paga seguro con Mercado Pago</span>
     <span><span class="ann-dot"></span>Retira el mismo día en tienda</span>
   </div></div>
+  <!-- Promo Banner (configurable from admin) -->
+  <div class="promo-banner-wrap" id="promoBannerWrap">
+    <img id="promoBannerImg" src="" alt="Promoción">
+  </div>
   <!-- Topbar -->
   <div class="topbar"><div class="container">
     <div class="tlinks">
-      <a href="#" onclick="event.preventDefault();openWA(event)"><i class="fas fa-map-marker-alt"></i>Nuestras tiendas</a>
-      <a href="#" onclick="event.preventDefault();openFAQ('envios')"><i class="fas fa-box"></i>Seguimiento de pedido</a>
-      <a href="#" onclick="event.preventDefault();openWA(event)"><i class="fas fa-building"></i>Venta empresa</a>
-      <a href="#" id="t-phone"><i class="fas fa-phone"></i>+56 2 2345 6789</a>
-    </div>
-    <div class="tlinks">
-      <!-- admin access via URL: /#__admin -->
+      <a href="tel:+56977462964" id="t-phone"><i class="fas fa-phone"></i>+56 9 7746 2964</a>
     </div>
   </div></div>
   <!-- Header -->
@@ -1663,7 +1749,9 @@ html{scroll-behavior:smooth;}
     <section class="brand-bar-ed">
       <div class="container">
         <div class="brand-label-ed">Marcas disponibles</div>
-        <div class="brand-row-ed">
+      </div>
+      <div class="brand-scroll-outer">
+        <div class="brand-scroll-track">
           <span class="brand-tag-ed sans">JBL</span>
           <span class="brand-tag-ed">Duracell</span>
           <span class="brand-tag-ed sans">Samsung</span>
@@ -1673,6 +1761,22 @@ html{scroll-behavior:smooth;}
           <span class="brand-tag-ed sans">TP-Link</span>
           <span class="brand-tag-ed">Maxell</span>
           <span class="brand-tag-ed sans">Aiwa</span>
+          <span class="brand-tag-ed">Oster</span>
+          <span class="brand-tag-ed sans">Xiaomi</span>
+          <span class="brand-tag-ed">Motorola</span>
+          <!-- duplicate set for seamless loop -->
+          <span class="brand-tag-ed sans">JBL</span>
+          <span class="brand-tag-ed">Duracell</span>
+          <span class="brand-tag-ed sans">Samsung</span>
+          <span class="brand-tag-ed">Philips</span>
+          <span class="brand-tag-ed sans">Energizer</span>
+          <span class="brand-tag-ed">Master·G</span>
+          <span class="brand-tag-ed sans">TP-Link</span>
+          <span class="brand-tag-ed">Maxell</span>
+          <span class="brand-tag-ed sans">Aiwa</span>
+          <span class="brand-tag-ed">Oster</span>
+          <span class="brand-tag-ed sans">Xiaomi</span>
+          <span class="brand-tag-ed">Motorola</span>
         </div>
       </div>
     </section>
@@ -1852,7 +1956,7 @@ html{scroll-behavior:smooth;}
       <div class="pdp-back-inner">
         <button class="pdp-back-btn" id="pdpBackBtn" onclick="pdpGoBack()"><i class="fas fa-arrow-left"></i>Volver</button>
         <div class="pdp-breadcrumb" id="pdpBreadcrumb"></div>
-        <button class="h-btn cart" onclick="togCart()" style="font-size:13px;padding:8px 14px"><i class="fas fa-shopping-cart"></i>Carro<div class="cart-badge-dot" id="pdpCartBdg">0</div></button>
+        <div style="width:80px"></div>
       </div>
     </div>
     <div class="pdp-layout">
@@ -1934,6 +2038,44 @@ html{scroll-behavior:smooth;}
   </div>
 
   <!-- Footer (shared) -->
+  <!-- Info Strip (Leon Import style) -->
+  <section class="info-strip-ed">
+    <div class="container">
+      <div class="info-strip-grid">
+        <div class="info-strip-item">
+          <div class="info-strip-icon"><i class="fas fa-credit-card"></i></div>
+          <div class="info-strip-body">
+            <h5>Pago Seguro</h5>
+            <p>MercadoPago · Webpay · Transferencia · Débito</p>
+          </div>
+        </div>
+        <div class="info-strip-item">
+          <div class="info-strip-icon"><i class="fas fa-map-marker-alt"></i></div>
+          <div class="info-strip-body">
+            <h5>Ubicación</h5>
+            <p id="info-addr">Santiago, Chile</p>
+          </div>
+        </div>
+        <div class="info-strip-item">
+          <div class="info-strip-icon"><i class="fas fa-truck"></i></div>
+          <div class="info-strip-body">
+            <h5>Envío a Todo Chile</h5>
+            <p>Starken · Chilexpress · Correos. Mismo día en Santiago hasta las 14:00 hrs.</p>
+          </div>
+        </div>
+        <div class="info-strip-item">
+          <div class="info-strip-icon"><i class="fab fa-instagram"></i></div>
+          <div class="info-strip-body">
+            <h5>Redes Sociales</h5>
+            <p>
+              <a href="https://www.instagram.com/maxicompra.cl/" target="_blank" rel="noopener">@maxicompra.cl</a><br>
+              <a href="https://www.facebook.com/Maxicompra.cl/" target="_blank" rel="noopener">Maxicompra.cl</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
   <footer class="footer-ed"><div class="container">
     <div class="footer-top-ed">
       <div class="footer-brand-ed">
@@ -1942,7 +2084,7 @@ html{scroll-behavior:smooth;}
         </div>
         <p class="footer-tagline-ed" id="f-desc">Tu tienda online de confianza. Los mejores productos al mejor precio. Envíos a todo Chile.</p>
         <div class="footer-social-ed">
-          <a href="https://wa.me/56958498763" target="_blank" rel="noopener" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+          <a href="https://wa.me/56977462964" target="_blank" rel="noopener" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
           <a href="https://www.instagram.com/maxicompra.cl/" target="_blank" rel="noopener" title="Instagram"><i class="fab fa-instagram"></i></a>
           <a href="https://www.facebook.com/Maxicompra.cl/" target="_blank" rel="noopener" title="Facebook"><i class="fab fa-facebook-f"></i></a>
           <a href="https://www.tiktok.com/@maxicompra.cl" target="_blank" rel="noopener" title="TikTok"><i class="fab fa-tiktok"></i></a>
@@ -2183,10 +2325,7 @@ html{scroll-behavior:smooth;}
       </div>
       <!-- Botones -->
       <div class="suc-btns">
-        <button class="suc-btn-primary" onclick="closeCheckout()">
-          <i class="fas fa-store"></i> Seguir comprando
-        </button>
-        <button class="suc-btn-wa" onclick="openWA(event)">
+        <button class="suc-btn-wa" onclick="openWA(event)" style="flex:1">
           <i class="fab fa-whatsapp"></i> Consultar pedido
         </button>
       </div>
@@ -2299,7 +2438,7 @@ const esc     = s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(
 const DCFG = {
   name:'Maxicompra',
   tag:'Calidad asegurada, exclusividad garantizada.',
-  phone:'+56958498763',
+  phone:'+56977462964',
   email:'maxicompraoficial23@gmail.com',
   desc:'Tu tienda online de confianza. Los mejores productos al mejor precio. Envíos a todo Chile.',
   fship:'$19.990',
@@ -2308,7 +2447,9 @@ const DCFG = {
   cuotas:'12',
   hours:'Lunes a Domingo · 9:00 AM – 8:00 PM',
   ret:'30',
-  banner:'Envío gratis desde $19.990 | Hasta 12 cuotas sin interés | Paga seguro con Mercado Pago | Retira el mismo día en tienda'
+  banner:'Envío gratis desde $19.990 | Hasta 12 cuotas sin interés | Paga seguro con Mercado Pago | Retira el mismo día en tienda',
+  promoImg:'',
+  addr:'Santiago, Chile'
 };
 const gc = k => config[k] !== undefined ? config[k] : DCFG[k];
 
@@ -2925,7 +3066,7 @@ function shareP(net) {
 function copyLink() { navigator.clipboard.writeText(window.location.href).then(()=>showToast('Enlace copiado ✓')); }
 function openZoom(src) { document.getElementById('zoomImg').src=src; document.getElementById('zoomOv').classList.add('open'); }
 function closeZoom() { document.getElementById('zoomOv').classList.remove('open'); }
-function updPdpCartBdg() { document.getElementById('pdpCartBdg').textContent = cart.reduce((s,i)=>s+i.qty,0); }
+function updPdpCartBdg() { /* badge removido — carro visible en header */ }
 
 /* ═════════════════════════════════════
    CART
@@ -3105,7 +3246,7 @@ function confirmOrder(){
   const shipTxt  = shipEl  ? shipEl.textContent  : 'GRATIS';
   const totalNum = parseInt((totalTxt||'0').replace(/\D/g,'')) || 0;
 
-  const storePhone = (gc('phone')||'+56958498763').replace(/\D/g,'');
+  const storePhone = (gc('phone')||'+56977462964').replace(/\D/g,'');
 
   // ── Si API está configurada: guardar pedido en servidor ──
   if(API_BASE){
@@ -3264,10 +3405,17 @@ function _confirmOrderFallback(name,email,phone,addr,city,region,payName,shipTxt
 /* ═══════════ WHATSAPP ═══════════ */
 function openWA(e){
   e.preventDefault();
-  const rawPhone = gc('phone') || '+56958498763';
+  const rawPhone = gc('phone') || '+56977462964';
   const phone = rawPhone.replace(/\D/g,'');
   const storeName = gc('name') || 'Maxicompra';
-  const msg = encodeURIComponent(`Hola ${storeName}! Tengo una consulta sobre sus productos 🛍️`);
+  // Si hay un pedido recién confirmado, incluir el número de orden en el mensaje
+  const orderPill = document.getElementById('ckOrderNum');
+  const orderNum = (orderPill && orderPill.textContent && orderPill.textContent !== '#MX-000000')
+    ? orderPill.textContent.trim()
+    : null;
+  const msg = orderNum
+    ? encodeURIComponent(`Hola ${storeName}! Quisiera consultar el estado de mi pedido ${orderNum} 📦`)
+    : encodeURIComponent(`Hola ${storeName}! Tengo una consulta sobre sus productos 🛍️`);
   window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
 }
 
@@ -3431,11 +3579,13 @@ function loadConfig() {
   document.getElementById('cfg-fship').value = gc('fship');
   document.getElementById('cfg-shrm').value  = gc('shrm');
   document.getElementById('cfg-shreg').value = gc('shreg');
-  document.getElementById('cfg-cuotas').value= gc('cuotas');
-  document.getElementById('cfg-banner').value= gc('banner');
+  document.getElementById('cfg-cuotas').value   = gc('cuotas');
+  document.getElementById('cfg-banner').value   = gc('banner');
+  document.getElementById('cfg-promo-img').value = gc('promoImg');
+  document.getElementById('cfg-addr').value      = gc('addr');
 }
 function saveConfig() {
-  config = {name:document.getElementById('cfg-name').value.trim()||DCFG.name,tag:document.getElementById('cfg-tag').value.trim()||DCFG.tag,phone:document.getElementById('cfg-phone').value.trim()||DCFG.phone,email:document.getElementById('cfg-email').value.trim()||DCFG.email,desc:document.getElementById('cfg-desc').value.trim()||DCFG.desc,fship:document.getElementById('cfg-fship').value.trim()||DCFG.fship,shrm:document.getElementById('cfg-shrm').value.trim()||DCFG.shrm,shreg:document.getElementById('cfg-shreg').value.trim()||DCFG.shreg,cuotas:document.getElementById('cfg-cuotas').value.trim()||DCFG.cuotas,banner:document.getElementById('cfg-banner').value.trim()||DCFG.banner};
+  config = {name:document.getElementById('cfg-name').value.trim()||DCFG.name,tag:document.getElementById('cfg-tag').value.trim()||DCFG.tag,phone:document.getElementById('cfg-phone').value.trim()||DCFG.phone,email:document.getElementById('cfg-email').value.trim()||DCFG.email,desc:document.getElementById('cfg-desc').value.trim()||DCFG.desc,fship:document.getElementById('cfg-fship').value.trim()||DCFG.fship,shrm:document.getElementById('cfg-shrm').value.trim()||DCFG.shrm,shreg:document.getElementById('cfg-shreg').value.trim()||DCFG.shreg,cuotas:document.getElementById('cfg-cuotas').value.trim()||DCFG.cuotas,banner:document.getElementById('cfg-banner').value.trim()||DCFG.banner,promoImg:document.getElementById('cfg-promo-img').value.trim(),addr:document.getElementById('cfg-addr').value.trim()||DCFG.addr};
   saveCfg(); applyCfg(); showToast('Configuración guardada ✓');
 }
 function applyCfg() {
@@ -3453,6 +3603,12 @@ function applyCfg() {
   document.getElementById('ben-ship').textContent   = `Compras sobre ${fs}`;
   const bn = gc('banner');
   if (bn) { const pts=bn.split('|').map(s=>s.trim()).filter(Boolean); const tr=document.getElementById('annTrack'); tr.innerHTML=[...pts,...pts].map(p=>`<span>${p}</span>`).join(''); }
+  const pi = gc('promoImg');
+  const pw = document.getElementById('promoBannerWrap');
+  const pi2 = document.getElementById('promoBannerImg');
+  if (pw && pi2) { if(pi){pi2.src=pi;pw.style.display='block';}else{pw.style.display='none';pi2.src='';} }
+  const addrEl = document.getElementById('info-addr');
+  if (addrEl) addrEl.textContent = gc('addr');
 }
 
 /* ═════════════════════════════════════
@@ -3686,17 +3842,161 @@ function swTab(t){
   document.querySelectorAll('.adm-tab').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('.adm-menu-item').forEach(x=>x.classList.remove('active'));
   document.getElementById('tab-'+t).classList.add('active');
-  const labels={dashboard:'dashboard',products:'producto',banners:'banner',categories:'categor',store:'tienda',settings:'ajuste'};
+  const labels={dashboard:'dashboard',products:'producto',banners:'banner',categories:'categor',store:'tienda',settings:'ajuste',orders:'pedido'};
   document.querySelectorAll('.adm-menu-item').forEach(m=>{if(m.textContent.toLowerCase().includes(labels[t]))m.classList.add('active');});
   if(t==='products'){renderProdTable();updCatFilter();}
   if(t==='banners')loadBannerEditor();
   if(t==='categories')loadCatEditor();
   if(t==='store')loadConfig();
+  if(t==='orders')loadOrders();
 }
 function changePw(){const np=document.getElementById('npw').value,cp=document.getElementById('cpw').value;if(!np||np.length<4){showToast('Mínimo 4 caracteres','error');return;}if(np!==cp){showToast('Las contraseñas no coinciden','error');return;}lsSet(KPW,np);document.getElementById('npw').value='';document.getElementById('cpw').value='';showToast('Contraseña actualizada ✓');}
 function exportAll(){const blob=new Blob([JSON.stringify({products,config,banners,cats,exported:new Date().toISOString()},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`maxicompra-backup-${Date.now()}.json`;a.click();showToast('Datos exportados ✓');}
 function importAll(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const d=JSON.parse(ev.target.result);if(d.products&&Array.isArray(d.products)){if(!confirm(`¿Importar ${d.products.length} productos?`))return;products=d.products;saveP();if(d.config){config=d.config;saveCfg();applyCfg();}if(d.banners&&Array.isArray(d.banners)){banners=d.banners;saveBan();renderHeroSlider();}if(d.cats&&Array.isArray(d.cats)){cats=d.cats;saveCats();}renderAll();renderProdTable();updStats();showToast(`${d.products.length} productos importados ✓`);}else showToast('Archivo inválido','error');}catch{showToast('Error al leer el archivo','error');}};r.readAsText(f);e.target.value='';}
 function clearProds(){if(!confirm('¿Eliminar TODOS los productos?'))return;products=[];saveP();renderAll();renderProdTable();updStats();showToast('Todos los productos eliminados');}
+
+/* ═════════════════════════════════════
+   ADMIN — PEDIDOS
+═════════════════════════════════════ */
+var _ordStatusLabels = {pending:'⏳ Pendiente',paid:'✅ Pagado',shipped:'🚚 Enviado',delivered:'🎉 Entregado',cancelled:'❌ Cancelado'};
+var _ordPayLabels    = {mp:'Mercado Pago',transfer:'Transferencia',cash:'Efectivo',webpay:'Webpay'};
+var _ordPayIcons     = {mp:'💙',transfer:'🏦',cash:'💵',webpay:'💳'};
+
+function loadOrders(){
+  var di = document.getElementById('ordDate');
+  if(!di) return;
+  if(!di.value) di.value = new Date().toISOString().slice(0,10);
+  var token = '';
+  try { token = sessionStorage.getItem('mx_admin_token')||''; } catch(e){}
+  if(!token){ document.getElementById('ordList').innerHTML='<div class="ord-empty"><i class="fas fa-lock"></i><p>Sesión expirada — vuelve a iniciar sesión</p></div>'; return; }
+  var container = document.getElementById('ordList');
+  container.innerHTML='<div class="ord-empty"><i class="fas fa-spinner fa-spin"></i><p>Cargando pedidos…</p></div>';
+  fetch(API_BASE+'/api/admin/orders?date='+di.value, {headers:{'Authorization':'Bearer '+token}})
+  .then(function(r){return r.json();})
+  .then(function(d){
+    if(!d.ok){container.innerHTML='<div class="ord-empty"><i class="fas fa-exclamation-circle"></i><p>Error al cargar: '+(d.error||'desconocido')+'</p></div>';return;}
+    renderOrdersTable(d.orders, container);
+    var badge=document.getElementById('ordersBadge');
+    if(badge){badge.textContent=d.total;badge.style.display=d.total>0?'':'none';}
+  })
+  .catch(function(){container.innerHTML='<div class="ord-empty"><i class="fas fa-wifi-slash"></i><p>Sin conexión con el servidor</p></div>';});
+}
+
+function searchOrders(){
+  var q=(document.getElementById('ordSearch')||{}).value||'';
+  q=q.trim();
+  if(!q){loadOrders();return;}
+  if(q.length<2){showToast('Mínimo 2 caracteres','error');return;}
+  var token='';try{token=sessionStorage.getItem('mx_admin_token')||'';}catch(e){}
+  if(!token)return;
+  var container=document.getElementById('ordList');
+  container.innerHTML='<div class="ord-empty"><i class="fas fa-spinner fa-spin"></i><p>Buscando en últimos 90 días…</p></div>';
+  fetch(API_BASE+'/api/admin/orders/search?q='+encodeURIComponent(q),{headers:{'Authorization':'Bearer '+token}})
+  .then(function(r){return r.json();})
+  .then(function(d){
+    if(!d.ok){container.innerHTML='<div class="ord-empty"><i class="fas fa-search"></i><p>Sin resultados</p></div>';return;}
+    renderOrdersTable(d.orders,container);
+    if(d.total>0) showToast(d.total+' resultado(s) encontrado(s)');
+  })
+  .catch(function(){container.innerHTML='<div class="ord-empty"><i class="fas fa-wifi-slash"></i><p>Error de conexión</p></div>';});
+}
+
+function changeOrdDate(delta){
+  var di=document.getElementById('ordDate');
+  if(!di)return;
+  var d=new Date((di.value||new Date().toISOString().slice(0,10))+'T12:00:00');
+  d.setDate(d.getDate()+delta);
+  di.value=d.toISOString().slice(0,10);
+  loadOrders();
+}
+
+function renderOrdersTable(orders,container){
+  if(!orders||!orders.length){
+    container.innerHTML='<div class="ord-empty"><i class="fas fa-inbox"></i><p>No hay pedidos para esta fecha</p></div>';
+    return;
+  }
+  orders.sort(function(a,b){return new Date(b.createdAt)-new Date(a.createdAt);});
+  var rows=orders.map(function(o){
+    var st=o.status||'pending';
+    var time=o.createdAt?new Date(o.createdAt).toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'}):'—';
+    var total='$'+Math.round(o.total||0).toLocaleString('es-CL');
+    var payIcon=_ordPayIcons[o.payment]||'💳';
+    var payLabel=_ordPayLabels[o.payment]||o.payment||'—';
+    return '<tr>'+
+      '<td><strong style="font-family:monospace;font-size:12px">#'+esc(o.id)+'</strong></td>'+
+      '<td>'+esc(o.customer&&o.customer.name||'—')+'<br><span style="font-size:11px;color:var(--muted)">'+esc(o.customer&&o.customer.phone||'')+'</span></td>'+
+      '<td><strong>'+total+'</strong></td>'+
+      '<td>'+payIcon+' <span style="font-size:12px">'+esc(payLabel)+'</span></td>'+
+      '<td><span class="ord-status '+st+'">'+esc(_ordStatusLabels[st]||st)+'</span></td>'+
+      '<td style="color:var(--muted);font-size:12px;white-space:nowrap">'+time+'</td>'+
+      '<td><button class="btn-outline" style="padding:5px 12px;font-size:12px;white-space:nowrap" onclick="openOrdDetail(\''+esc(o.id)+'\')"><i class="fas fa-eye"></i> Ver</button></td>'+
+    '</tr>';
+  }).join('');
+  container.innerHTML='<div class="ord-table-wrap"><table class="ord-table">'+
+    '<thead><tr><th>#Pedido</th><th>Cliente</th><th>Total</th><th>Pago</th><th>Estado</th><th>Hora</th><th></th></tr></thead>'+
+    '<tbody>'+rows+'</tbody>'+
+  '</table></div>';
+}
+
+function openOrdDetail(orderId){
+  var modal=document.getElementById('ordModal');
+  var box=document.getElementById('ordModalContent');
+  if(!modal||!box)return;
+  modal.classList.add('open');
+  box.innerHTML='<div style="padding:48px;text-align:center"><i class="fas fa-spinner fa-spin" style="font-size:28px;color:var(--muted)"></i></div>';
+  var token='';try{token=sessionStorage.getItem('mx_admin_token')||'';}catch(e){}
+  fetch(API_BASE+'/api/order/'+encodeURIComponent(orderId),{headers:token?{'Authorization':'Bearer '+token}:{}})
+  .then(function(r){return r.json();})
+  .then(function(d){
+    if(!d.ok||!d.order){box.innerHTML='<div style="padding:24px;color:var(--red)">Error al cargar el pedido.</div>';return;}
+    renderOrdDetail(d.order,box);
+  })
+  .catch(function(){box.innerHTML='<div style="padding:24px;color:var(--red)">Sin conexión con el servidor.</div>';});
+}
+
+function closeOrdModal(){
+  var m=document.getElementById('ordModal');
+  if(m)m.classList.remove('open');
+}
+
+function renderOrdDetail(o,box){
+  var st=o.status||'pending';
+  var payLabel=_ordPayLabels[o.payment]||o.payment||'—';
+  var payIcon=_ordPayIcons[o.payment]||'💳';
+  var createdAt=o.createdAt?new Date(o.createdAt).toLocaleString('es-CL',{dateStyle:'medium',timeStyle:'short'}):'—';
+  var total='$'+Math.round(o.total||0).toLocaleString('es-CL');
+  var storeWa=(gc('phone')||'+56977462964').replace(/\D/g,'');
+  var itemsHtml=(o.items||[]).map(function(i){
+    return '<div class="ord-item-row">'+
+      (i.img?'<img class="ord-item-img" src="'+esc(i.img)+'" onerror="this.style.display=\'none\'" alt="">':'')+
+      '<div style="flex:1;min-width:0"><div style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(i.name||'—')+'</div>'+
+      '<div style="color:var(--muted);font-size:11.5px;margin-top:2px">Cant: '+i.qty+' · $'+Math.round(i.price||0).toLocaleString('es-CL')+' c/u</div></div>'+
+      '<div style="font-weight:700;white-space:nowrap">$'+Math.round((i.price||0)*(i.qty||1)).toLocaleString('es-CL')+'</div>'+
+    '</div>';
+  }).join('');
+  var waMsg=encodeURIComponent('Hola! Te contactamos sobre tu pedido #'+o.id+' en Maxicompra. ');
+  box.innerHTML=
+    '<div class="ord-modal-head">'+
+      '<div><div style="font-family:monospace;font-size:11px;color:var(--muted);margin-bottom:2px">Pedido #'+esc(o.id)+'</div>'+
+      '<h3 style="margin:0;font-size:18px">Detalle del pedido</h3></div>'+
+      '<button onclick="closeOrdModal()" style="background:none;border:none;font-size:22px;color:var(--muted);cursor:pointer;padding:0 4px;line-height:1"><i class="fas fa-times"></i></button>'+
+    '</div>'+
+    '<div class="ord-detail-grid">'+
+      '<div class="ord-detail-cell"><div class="ord-dc-label">Cliente</div><div class="ord-dc-value">'+esc(o.customer&&o.customer.name||'—')+'</div></div>'+
+      '<div class="ord-detail-cell"><div class="ord-dc-label">Teléfono</div><div class="ord-dc-value">'+esc(o.customer&&o.customer.phone||'—')+'</div></div>'+
+      '<div class="ord-detail-cell" style="grid-column:span 2"><div class="ord-dc-label">Dirección</div><div class="ord-dc-value" style="font-size:13px">'+esc(o.customer&&o.customer.address||'—')+'</div></div>'+
+      '<div class="ord-detail-cell"><div class="ord-dc-label">Método de pago</div><div class="ord-dc-value">'+payIcon+' '+esc(payLabel)+'</div></div>'+
+      '<div class="ord-detail-cell"><div class="ord-dc-label">Estado</div><div class="ord-dc-value"><span class="ord-status '+st+'">'+esc(_ordStatusLabels[st]||st)+'</span></div></div>'+
+      '<div class="ord-detail-cell"><div class="ord-dc-label">Fecha</div><div class="ord-dc-value" style="font-size:12.5px">'+createdAt+'</div></div>'+
+      '<div class="ord-detail-cell"><div class="ord-dc-label">Total</div><div class="ord-dc-value" style="font-size:20px;color:var(--accent)">'+total+'</div></div>'+
+    '</div>'+
+    '<div style="padding:0 24px;font-weight:700;font-size:13px;margin-bottom:10px">Productos ('+(o.items||[]).length+')</div>'+
+    '<div class="ord-items-list">'+itemsHtml+'</div>'+
+    '<div class="ord-modal-foot">'+
+      '<a href="https://wa.me/'+storeWa+'?text='+waMsg+'" target="_blank" rel="noopener" class="btn-grad" style="padding:10px 20px;font-size:13px;text-decoration:none;border-radius:8px"><i class="fab fa-whatsapp"></i> Contactar cliente</a>'+
+      '<button onclick="closeOrdModal()" class="btn-outline" style="padding:10px 20px;font-size:13px">Cerrar</button>'+
+    '</div>';
+}
 
 /* ═════════════════════════════════════
    NEWSLETTER / MISC

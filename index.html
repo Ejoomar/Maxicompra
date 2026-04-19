@@ -123,8 +123,8 @@ img{display:block;}
 
 /* ═══════════════════════════ LOGO ═══════════════════════════ */
 .logo{display:flex;align-items:center;gap:11px;flex-shrink:0;cursor:pointer;}
-.logo-name{font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-size:32px;color:var(--ink);letter-spacing:-0.03em;line-height:0.9;}
-.logo-sub{font-size:10px;letter-spacing:0.22em;text-transform:uppercase;color:var(--mute);margin-top:4px;font-weight:500;}
+.logo-name{font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-size:20px;color:var(--ink);letter-spacing:-0.02em;line-height:1.1;}
+.logo-sub{font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--mute);margin-top:1px;font-weight:500;}
 .logo-svg-wrap{display:none;}
 
 /* ═══════════════════════════ ANNOUNCEMENT ═══════════════════════════ */
@@ -144,7 +144,7 @@ img{display:block;}
 .tlinks i{font-size:10px;color:var(--pink);}
 /* ═══════════════════════════ PROMO BANNER ═══════════════════════════ */
 .promo-banner-wrap{width:100%;display:none;overflow:hidden;line-height:0;}
-.promo-banner-wrap img{width:100%;display:block;max-height:100px;object-fit:cover;}
+.promo-banner-wrap img{width:100%;display:block;max-height:180px;object-fit:cover;}
 /* ═══════════════════════════ INFO STRIP ═══════════════════════════ */
 .info-strip-ed{background:var(--surface);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:22px 0;}
 .info-strip-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;}
@@ -511,10 +511,19 @@ img{display:block;}
 .footer-col-ed ul,.footer-links{list-style:none;display:flex;flex-direction:column;gap:10px;}
 .footer-col-ed a,.footer-col-ed button,.footer-links a,.footer-links button{color:rgba(250,250,247,0.85);font-size:13.5px;transition:color .15s;cursor:pointer;background:none;padding:0;text-align:left;}
 .footer-col-ed a:hover,.footer-col-ed button:hover,.footer-links a:hover,.footer-links button:hover{color:var(--accent);}
-.footer-bot-ed,.footer-bottom{padding-top:28px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;font-size:12px;color:rgba(250,250,247,0.5);font-family:'JetBrains Mono',monospace;}
+.footer-bot-ed,.footer-bottom{padding-top:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;font-size:12px;color:rgba(250,250,247,0.5);font-family:'JetBrains Mono',monospace;}
 .footer-bot-ed a,.footer-bottom a,.footer-bottom p{color:rgba(250,250,247,0.5);cursor:pointer;font-size:12px;}
 .footer-bot-ed a:hover,.footer-bottom a:hover{color:var(--accent);}
 .footer-bottom div{display:flex;gap:20px;}
+/* Payment cards strip */
+.pay-strip{border-top:1px solid rgba(250,250,247,.1);padding:20px 0;margin-top:8px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;}
+.pay-strip-logo{display:flex;align-items:center;gap:12px;}
+.pay-strip-logo img{height:44px;filter:brightness(0) invert(1);opacity:.55;}
+.pay-strip-logo .logo-brand{color:rgba(250,250,247,.75);font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-size:18px;letter-spacing:-.01em;}
+.pay-strip-logo .logo-copy{color:rgba(250,250,247,.4);font-size:10px;font-family:'JetBrains Mono',monospace;margin-top:1px;}
+.pay-cards{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.pay-card{background:#fff;border-radius:6px;padding:5px 10px;display:flex;align-items:center;justify-content:center;height:34px;min-width:52px;}
+.pay-card svg,.pay-card img{height:20px;display:block;}
 /* Keep old footer compat selectors */
 .social-row{display:flex;gap:9px;}
 .soc-btn{width:36px;height:36px;border:1px solid rgba(250,250,247,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;color:rgba(250,250,247,0.8);font-size:15px;transition:all .15s;cursor:pointer;}
@@ -1414,8 +1423,8 @@ html{scroll-behavior:smooth;}
 <div id="adminPanel">
   <div class="adm-header">
     <div class="adm-title-row">
-      <svg width="32" height="32" viewBox="0 0 40 40" fill="none"><defs><linearGradient id="lga" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#F04E38"/><stop offset="100%" stop-color="#E3176D"/></linearGradient></defs><path d="M6 12 L20 24 L34 12" stroke="url(#lga)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M6 22 L20 34 L34 22" stroke="url(#lga)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.7"/></svg>
-      <span class="adm-title">Maxicompra Admin</span>
+      <img src="logo.png" alt="Maxicompra" height="34" style="display:block;object-fit:contain;flex-shrink:0;">
+      <span class="adm-title">Admin Panel</span>
       <span class="tag tag-pink" style="font-size:11px">Panel de Control</span>
     </div>
     <div class="adm-header-btns">
@@ -1689,7 +1698,11 @@ html{scroll-behavior:smooth;}
   <header class="site-header">
     <div class="header-main">
       <div class="logo" onclick="goHome()">
-        <img src="logo.png" alt="Maxicompra" height="38" style="display:block;max-width:160px;object-fit:contain;">
+        <img src="logo.png" alt="Maxicompra" height="44" style="display:block;flex-shrink:0;object-fit:contain;">
+        <div style="display:flex;flex-direction:column;justify-content:center;gap:1px">
+          <span class="logo-name" id="s-name">Maxicompra</span>
+          <span class="logo-sub" id="s-tag">Calidad asegurada</span>
+        </div>
       </div>
       
       <div class="search-bar" style="display:flex;position:relative;flex:1;max-width:600px;" id="searchBarWrap"><i class="fas fa-search sb-icon" style="position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px;pointer-events:none;z-index:1"></i><input type="search" id="searchInp" placeholder="Buscar productos, marcas…" oninput="_handleDesktopSearch(this.value)" onblur="setTimeout(()=>_hideSuggest(),180)" autocomplete="off" style="border-radius:50px;padding:10px 90px 10px 44px;width:100%;"><button onclick="_commitSearch()" style="position:absolute;right:5px;top:50%;transform:translateY(-50%);padding:6px 18px;border-radius:50px;font-size:12px;font-weight:700;">Buscar</button><div class="search-suggest" id="searchSuggest"></div></div><div class="header-actions">
@@ -2103,8 +2116,47 @@ html{scroll-behavior:smooth;}
         <li><a onclick="openFAQ('devoluciones')">Garantía</a></li>
       </ul></div>
     </div>
-    <div class="footer-bot-ed">
-      <span id="f-copy">© Maxicompra 2026 — Todos los derechos reservados</span>
+    <!-- Payment Cards Strip -->
+    <div class="pay-strip">
+      <div class="pay-strip-logo">
+        <img src="logo-blanco.png" alt="Maxicompra" style="height:48px;filter:none;opacity:1;object-fit:contain;">
+        <div>
+          <div class="logo-brand" id="f-brand">Maxicompra</div>
+          <div class="logo-copy" id="f-copy">© 2026 — Todos los derechos reservados</div>
+        </div>
+      </div>
+      <div class="pay-cards">
+        <!-- Webpay -->
+        <div class="pay-card" title="Webpay">
+          <svg viewBox="0 0 60 24" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="24" rx="3" fill="#E30613"/><text x="30" y="16" text-anchor="middle" fill="#fff" font-family="Arial,sans-serif" font-weight="700" font-size="9">WEBPAY</text></svg>
+        </div>
+        <!-- Visa -->
+        <div class="pay-card" title="Visa">
+          <svg viewBox="0 0 60 24" xmlns="http://www.w3.org/2000/svg"><text x="30" y="17" text-anchor="middle" fill="#1A1F71" font-family="Arial,sans-serif" font-weight="900" font-size="16" letter-spacing="-1">VISA</text></svg>
+        </div>
+        <!-- Mastercard -->
+        <div class="pay-card" title="Mastercard">
+          <svg viewBox="0 0 50 32" xmlns="http://www.w3.org/2000/svg"><circle cx="19" cy="16" r="12" fill="#EB001B"/><circle cx="31" cy="16" r="12" fill="#F79E1B"/><path d="M25 7.8a12 12 0 0 1 0 16.4A12 12 0 0 1 25 7.8z" fill="#FF5F00"/></svg>
+        </div>
+        <!-- American Express -->
+        <div class="pay-card" title="American Express" style="background:#2E77BC;">
+          <svg viewBox="0 0 60 24" xmlns="http://www.w3.org/2000/svg"><text x="30" y="16" text-anchor="middle" fill="#fff" font-family="Arial,sans-serif" font-weight="700" font-size="7.5" letter-spacing=".5">AMERICAN EXPRESS</text></svg>
+        </div>
+        <!-- Diners Club -->
+        <div class="pay-card" title="Diners Club">
+          <svg viewBox="0 0 50 32" xmlns="http://www.w3.org/2000/svg"><circle cx="18" cy="16" r="12" fill="none" stroke="#004A97" stroke-width="2"/><circle cx="32" cy="16" r="12" fill="none" stroke="#004A97" stroke-width="2"/><text x="25" y="20" text-anchor="middle" fill="#004A97" font-family="Arial" font-size="7" font-weight="700">DINERS</text></svg>
+        </div>
+        <!-- RedCompra -->
+        <div class="pay-card" title="RedCompra">
+          <svg viewBox="0 0 70 24" xmlns="http://www.w3.org/2000/svg"><rect width="70" height="24" rx="3" fill="#C00000"/><text x="35" y="16" text-anchor="middle" fill="#fff" font-family="Arial,sans-serif" font-weight="700" font-size="9">RedCompra</text></svg>
+        </div>
+        <!-- MercadoPago -->
+        <div class="pay-card" title="Mercado Pago" style="background:#009EE3;">
+          <svg viewBox="0 0 80 24" xmlns="http://www.w3.org/2000/svg"><text x="40" y="16" text-anchor="middle" fill="#fff" font-family="Arial,sans-serif" font-weight="700" font-size="8">Mercado Pago</text></svg>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bot-ed" style="padding-top:12px;border-top:1px solid rgba(250,250,247,.08)">
       <div style="display:flex;gap:16px;">
         <a onclick="openLegal('privacy')">Privacidad</a>
         <a onclick="openLegal('terms')">Términos</a>
@@ -2387,7 +2439,21 @@ const DEFAULT_PRODUCTS = (function(){ try { return JSON.parse(document.getElemen
 let _ls = { getItem(k){return null;}, setItem(){} };
 try { localStorage.setItem('_t','1'); localStorage.removeItem('_t'); _ls = localStorage; } catch(e) {}
 function lsGet(k,def){ try{ const v=_ls.getItem(k); return v!=null?JSON.parse(v):def; }catch(e){return def;} }
-function lsSet(k,v){ try{ _ls.setItem(k,JSON.stringify(v)); }catch(e){} }
+function lsSet(k,v){ try{ _ls.setItem(k,JSON.stringify(v)); return true; }catch(e){ if(e && (e.name==='QuotaExceededError'||e.code===22)){ showToast('⚠️ Almacenamiento lleno. Usa URLs de imagen en vez de cargar archivos.','error'); } return false; } }
+/* Comprime imagen con canvas antes de guardar como base64 */
+function _compressImg(file, maxPx, quality, cb){
+  const img=new Image(); const url=URL.createObjectURL(file);
+  img.onload=()=>{
+    let {width:w,height:h}=img;
+    if(w>maxPx||h>maxPx){ if(w>h){h=Math.round(h*maxPx/w);w=maxPx;}else{w=Math.round(w*maxPx/h);h=maxPx;} }
+    const c=document.createElement('canvas'); c.width=w; c.height=h;
+    c.getContext('2d').drawImage(img,0,0,w,h);
+    URL.revokeObjectURL(url);
+    cb(c.toDataURL('image/jpeg',quality));
+  };
+  img.onerror=()=>{ URL.revokeObjectURL(url); cb(null); };
+  img.src=url;
+}
 /* ── TEMA CLARO / OSCURO ── */
 function toggleTheme(){
   const dark = document.documentElement.getAttribute('data-theme')==='dark';
@@ -3588,12 +3654,15 @@ function saveConfig() {
   config = {name:document.getElementById('cfg-name').value.trim()||DCFG.name,tag:document.getElementById('cfg-tag').value.trim()||DCFG.tag,phone:document.getElementById('cfg-phone').value.trim()||DCFG.phone,email:document.getElementById('cfg-email').value.trim()||DCFG.email,desc:document.getElementById('cfg-desc').value.trim()||DCFG.desc,fship:document.getElementById('cfg-fship').value.trim()||DCFG.fship,shrm:document.getElementById('cfg-shrm').value.trim()||DCFG.shrm,shreg:document.getElementById('cfg-shreg').value.trim()||DCFG.shreg,cuotas:document.getElementById('cfg-cuotas').value.trim()||DCFG.cuotas,banner:document.getElementById('cfg-banner').value.trim()||DCFG.banner,promoImg:document.getElementById('cfg-promo-img').value.trim(),addr:document.getElementById('cfg-addr').value.trim()||DCFG.addr};
   saveCfg(); applyCfg(); showToast('Configuración guardada ✓');
 }
+function _setEl(id, txt) { const e=document.getElementById(id); if(e) e.textContent=txt; }
+function _setHtml(id, h) { const e=document.getElementById(id); if(e) e.innerHTML=h; }
 function applyCfg() {
-  document.getElementById('s-name').textContent = gc('name');
-  document.getElementById('s-tag').textContent  = gc('tag');
-  document.getElementById('f-desc').textContent = gc('desc');
-  document.getElementById('f-copy').textContent = `© ${gc('name')} ${new Date().getFullYear()} — Todos los derechos reservados`;
-  document.getElementById('t-phone').innerHTML  = `<i class="fas fa-phone"></i>${gc('phone')}`;
+  _setEl('s-name', gc('name'));
+  _setEl('s-tag',  gc('tag'));
+  _setEl('f-desc', gc('desc'));
+  _setEl('f-brand', gc('name'));
+  _setEl('f-copy', `© ${new Date().getFullYear()} ${gc('name')} — Todos los derechos reservados`);
+  _setHtml('t-phone', `<i class="fas fa-phone"></i>${gc('phone')}`);
   document.title = gc('name');
   const c = gc('cuotas');
   document.getElementById('ben-cuotas').textContent = `${c} cuotas sin interés`;
@@ -3644,14 +3713,15 @@ function loadBannerEditor() {
 
 function setBannerImg(input, i) {
   const file = input.files[0]; if(!file) return;
-  if(file.size>5*1024*1024){showToast('La imagen debe pesar menos de 5MB','error');return;}
-  const r = new FileReader();
-  r.onload = e => {
-    banners[i].bg = e.target.result;
-    document.getElementById(`banner-prev-${i}`).innerHTML =
-      `<div style="position:relative;width:100%;height:90px;border-radius:8px;overflow:hidden;border:1px solid var(--border)"><div style="position:absolute;inset:0;background-image:url(${e.target.result});background-size:cover;background-position:center;opacity:.6"></div><button style="position:absolute;top:6px;right:6px;width:24px;height:24px;background:var(--red);border:none;border-radius:50%;color:#fff;font-size:11px;cursor:pointer" onclick="removeBannerImg(${i})"><i class="fas fa-times"></i></button><span style="position:absolute;bottom:8px;left:10px;font-size:11px;color:#fff;font-weight:600">Imagen cargada ✓</span></div>`;
-  };
-  r.readAsDataURL(file);
+  if(file.size>10*1024*1024){showToast('La imagen debe pesar menos de 10MB','error');return;}
+  showToast('Comprimiendo imagen…');
+  _compressImg(file, 1400, 0.78, data => {
+    if(!data){showToast('Error al procesar la imagen','error');return;}
+    banners[i].bg = data;
+    const prev = document.getElementById(`banner-prev-${i}`);
+    if(prev) prev.innerHTML =
+      `<div style="position:relative;width:100%;height:90px;border-radius:8px;overflow:hidden;border:1px solid var(--border)"><div style="position:absolute;inset:0;background-image:url(${data});background-size:cover;background-position:center;opacity:.6"></div><button style="position:absolute;top:6px;right:6px;width:24px;height:24px;background:var(--red);border:none;border-radius:50%;color:#fff;font-size:11px;cursor:pointer" onclick="removeBannerImg(${i})"><i class="fas fa-times"></i></button><span style="position:absolute;bottom:8px;left:10px;font-size:11px;color:#fff;font-weight:600">Imagen cargada ✓</span></div>`;
+  });
 }
 function dropBannerImg(e, i) {
   e.preventDefault(); e.currentTarget.classList.remove('drag');
@@ -3690,8 +3760,11 @@ function loadCatEditor() {
 }
 function setCatImg(input, i) {
   const file = input.files[0]; if(!file)return;
-  if(file.size>5*1024*1024){showToast('Imagen máximo 5MB','error');return;}
-  const r=new FileReader(); r.onload=e=>{cats[i].bg=e.target.result;loadCatEditor();}; r.readAsDataURL(file);
+  if(file.size>10*1024*1024){showToast('Imagen máximo 10MB','error');return;}
+  _compressImg(file, 800, 0.80, data => {
+    if(!data){showToast('Error al procesar la imagen','error');return;}
+    cats[i].bg=data; loadCatEditor();
+  });
 }
 function dropCatImg(e, i) { e.preventDefault();e.currentTarget.classList.remove('drag');const f=e.dataTransfer.files[0];if(f&&f.type.startsWith('image/')){const inp={files:[f]};setCatImg(inp,i);} }
 function saveCategories() { saveCats(); renderHomeCats(); renderNavBar(); renderFooterCats(); showToast('Categorías guardadas ✓'); }
@@ -3959,6 +4032,38 @@ function closeOrdModal(){
   if(m)m.classList.remove('open');
 }
 
+var _ST_TRANSITIONS={pending:['paid','payment_pending','payment_failed','cancelled'],payment_pending:['paid','payment_failed','cancelled','pending'],payment_failed:['payment_pending','cancelled'],paid:['shipped','cancelled'],shipped:['delivered','cancelled'],delivered:[],cancelled:[]};
+var _ST_LABELS={pending:'Pendiente',payment_pending:'Pago en proceso',payment_failed:'Pago fallido',paid:'Pagado',shipped:'Enviado',delivered:'Entregado',cancelled:'Cancelado'};
+var _ST_COLORS={pending:'#f59e0b',payment_pending:'#3b82f6',payment_failed:'#ef4444',paid:'#10b981',shipped:'#6366f1',delivered:'#059669',cancelled:'#6b7280'};
+
+function _ordStatusBtns(o){
+  var transitions=_ST_TRANSITIONS[o.status]||[];
+  if(!transitions.length) return '';
+  var btns=transitions.map(function(s){
+    var bg=_ST_COLORS[s]||'#888';
+    return '<button onclick="changeOrdStatus(\''+esc(o.id)+'\',\''+s+'\')" style="background:'+bg+';color:#fff;border:none;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px">'+esc(_ST_LABELS[s]||s)+'</button>';
+  }).join('');
+  return '<div style="padding:16px 24px;border-top:1px solid var(--line);background:var(--surface)"><div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Cambiar estado del pedido</div><div style="display:flex;flex-wrap:wrap;gap:8px">'+btns+'</div></div>';
+}
+
+function changeOrdStatus(orderId, newStatus){
+  var token=''; try{token=sessionStorage.getItem('mx_admin_token')||'';}catch(e){}
+  if(!token){showToast('Sesión expirada','error');return;}
+  fetch(API_BASE+'/api/admin/order/'+encodeURIComponent(orderId)+'/status',{
+    method:'PATCH',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+    body:JSON.stringify({status:newStatus})
+  }).then(function(r){return r.json();}).then(function(d){
+    if(d.ok){
+      showToast('Estado actualizado: '+(_ST_LABELS[newStatus]||newStatus)+' ✓');
+      closeOrdModal();
+      loadOrders();
+    } else {
+      showToast(d.error||'Error al actualizar estado','error');
+    }
+  }).catch(function(){showToast('Error de conexión','error');});
+}
+
 function renderOrdDetail(o,box){
   var st=o.status||'pending';
   var payLabel=_ordPayLabels[o.payment]||o.payment||'—';
@@ -3992,6 +4097,7 @@ function renderOrdDetail(o,box){
     '</div>'+
     '<div style="padding:0 24px;font-weight:700;font-size:13px;margin-bottom:10px">Productos ('+(o.items||[]).length+')</div>'+
     '<div class="ord-items-list">'+itemsHtml+'</div>'+
+    _ordStatusBtns(o)+
     '<div class="ord-modal-foot">'+
       '<a href="https://wa.me/'+storeWa+'?text='+waMsg+'" target="_blank" rel="noopener" class="btn-grad" style="padding:10px 20px;font-size:13px;text-decoration:none;border-radius:8px"><i class="fab fa-whatsapp"></i> Contactar cliente</a>'+
       '<button onclick="closeOrdModal()" class="btn-outline" style="padding:10px 20px;font-size:13px">Cerrar</button>'+

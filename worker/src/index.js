@@ -232,7 +232,7 @@ function emailShipped(order) {
     <p style="color:#555;font-size:14px">Pedido <strong>#${order.id}</strong></p>
     <p style="color:#555;font-size:14px">Llegará en <strong>24-48 horas hábiles</strong> a:</p>
     <p style="color:#333;font-weight:600;font-size:15px">${order.customer.address||'—'}</p>
-    <p style="color:#555;font-size:13px;margin-top:16px">¿Preguntas? Escríbenos por WhatsApp: <a href="https://wa.me/56958498763" style="color:#3b82f6">+56 9 5849 8763</a></p>
+    <p style="color:#555;font-size:13px;margin-top:16px">¿Preguntas? Escríbenos por WhatsApp: <a href="https://wa.me/56977462964" style="color:#3b82f6">+56 9 5849 8763</a></p>
   `);
 }
 
@@ -241,7 +241,7 @@ function emailDelivered(order) {
     <p style="color:#333">Hola <strong>${order.customer.name}</strong>, confirmamos la entrega de tu pedido.</p>
     <p style="color:#555;font-size:14px">Pedido <strong>#${order.id}</strong></p>
     <p style="color:#555;font-size:14px">¡Esperamos que estés feliz con tu compra! Si tienes algún problema, contáctanos dentro de 7 días.</p>
-    <p style="color:#555;font-size:13px">WhatsApp: <a href="https://wa.me/56958498763" style="color:#22c55e">+56 9 5849 8763</a></p>
+    <p style="color:#555;font-size:13px">WhatsApp: <a href="https://wa.me/56977462964" style="color:#22c55e">+56 9 5849 8763</a></p>
   `);
 }
 
@@ -251,7 +251,7 @@ function emailCancelled(order) {
     <p style="color:#555;font-size:14px">Total de la orden: $${Number(order.total).toLocaleString('es-CL')}</p>
     <p style="color:#555;font-size:14px">Si realizaste un pago y no iniciaste la cancelación, contáctanos de inmediato.</p>
     <div style="background:#fef2f2;border-radius:8px;padding:14px;margin-top:16px">
-      <p style="color:#dc2626;margin:0;font-size:14px">WhatsApp: <a href="https://wa.me/56958498763" style="color:#dc2626">+56 9 5849 8763</a></p>
+      <p style="color:#dc2626;margin:0;font-size:14px">WhatsApp: <a href="https://wa.me/56977462964" style="color:#dc2626">+56 9 5849 8763</a></p>
     </div>
   `);
 }
@@ -263,7 +263,7 @@ function emailPaymentPending(order) {
     <p style="color:#555;font-size:14px">Tu pago está siendo procesado por ${payNames[order.payment]||order.payment}. Esto puede tardar algunos minutos.</p>
     <p style="color:#555;font-size:14px">Total: <strong>$${Number(order.total).toLocaleString('es-CL')}</strong></p>
     <div style="background:#fefce8;border:1px solid #fde047;border-radius:8px;padding:14px;margin-top:16px">
-      <p style="color:#854d0e;margin:0;font-size:14px">⏳ Te notificaremos por email una vez que se confirme el pago. Si tienes dudas, escríbenos: <a href="https://wa.me/56958498763" style="color:#854d0e">+56 9 5849 8763</a></p>
+      <p style="color:#854d0e;margin:0;font-size:14px">⏳ Te notificaremos por email una vez que se confirme el pago. Si tienes dudas, escríbenos: <a href="https://wa.me/56977462964" style="color:#854d0e">+56 9 5849 8763</a></p>
     </div>
   `);
 }
@@ -273,7 +273,7 @@ function emailPaymentFailed(order) {
     <p style="color:#333">Hola <strong>${order.customer.name}</strong>, tu pago para el pedido <strong>#${order.id}</strong> no fue aprobado.</p>
     <p style="color:#555;font-size:14px">Puedes intentar nuevamente con otra tarjeta o elige otro método de pago.</p>
     <div style="background:#fef3c7;border-radius:8px;padding:14px;margin-top:16px">
-      <p style="color:#92400e;margin:0;font-size:14px">⚠️ Tu pedido sigue reservado. Contáctanos para coordinar: <a href="https://wa.me/56958498763" style="color:#92400e">+56 9 5849 8763</a></p>
+      <p style="color:#92400e;margin:0;font-size:14px">⚠️ Tu pedido sigue reservado. Contáctanos para coordinar: <a href="https://wa.me/56977462964" style="color:#92400e">+56 9 5849 8763</a></p>
     </div>
   `);
 }
@@ -355,7 +355,7 @@ async function handleCreateOrder(request, env) {
   const waMsg = encodeURIComponent(
     `*🛒 Nuevo pedido ${orderId}*\n\n${itemsText}\n\n*Total: $${Number(total).toLocaleString('es-CL')}*\n\nCliente: ${customer.name}\nTel: ${customer.phone}\nPago: ${payment}`
   );
-  const waUrl = `https://wa.me/${env.WHATSAPP_NUMBER||'56958498763'}?text=${waMsg}`;
+  const waUrl = `https://wa.me/${env.WHATSAPP_NUMBER||'56977462964'}?text=${waMsg}`;
 
   if (customer.email) {
     sendEmail(env, {

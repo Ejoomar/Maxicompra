@@ -3506,8 +3506,10 @@ const SHIPPING_RATES={
 function updateCkSummary(){
   var sub = cart.reduce(function(s,i){return s+i.price*i.qty;},0);
   var region = (document.getElementById('ck-region')||{}).value||'';
-  var freeFrom = parseInt((gc('fship')||'40000').replace(/\D/g,''))||40000;
-  var shipFree = sub >= freeFrom;
+  // Parse free-shipping threshold: treat $0 or missing as "no free shipping" (use 999999999)
+  var rawFship = (gc('fship')||'').replace(/\D/g,'');
+  var freeFrom = rawFship && rawFship!=='0' ? (parseInt(rawFship)||999999999) : 999999999;
+  var shipFree = freeFrom < 999999999 && sub >= freeFrom;
   var baseShip = SHIPPING_RATES[region]||3990;
   var shipNum = shipFree ? 0 : baseShip;
   var subEl=document.getElementById('ck-sub'), shipEl=document.getElementById('ck-ship'), totEl=document.getElementById('ck-total');
@@ -3560,7 +3562,7 @@ function _launchOrderWA(orderNum, waURL, isTransfer, hasComp){
         clearInterval(cdTimer);
         var secEl = document.getElementById('ck-wa-cdsec');
         if(secEl) secEl.remove();
-        try{ window.open(waURL,'_blank'); } catch(e){}
+        window.location.href = waURL;
       }
     }, 1000);
   } else {
@@ -3618,7 +3620,7 @@ function confirmOrder(){
     .then(function(d){
       if(!d.ok){
         if(btn){btn.disabled=false; btn.innerHTML='<i class="fas fa-lock"></i> Confirmar pedido';}
-        _confirmOrderFallback(name,email,phone,addr,city,region,payName,shipTxt,totalTxt,storePhone);
+        _confirmOrderFallback(name,email,phone,addr,city,region,payName,shipTxt,totalTxt,storePhone,payVal==='transfer');
         return;
       }
       // Si el pago es Mercado Pago y el API está activo → Checkout Pro
@@ -3641,11 +3643,11 @@ function confirmOrder(){
     })
     .catch(function(){
       if(btn){btn.disabled=false; btn.innerHTML='<i class="fas fa-lock"></i> Confirmar pedido';}
-      _confirmOrderFallback(name,email,phone,addr,city,region,payName,shipTxt,totalTxt,storePhone);
+      _confirmOrderFallback(name,email,phone,addr,city,region,payName,shipTxt,totalTxt,storePhone,payVal==='transfer');
     });
     return;
   }
-  _confirmOrderFallback(name,email,phone,addr,city,region,payName,shipTxt,totalTxt,storePhone);
+  _confirmOrderFallback(name,email,phone,addr,city,region,payName,shipTxt,totalTxt,storePhone,payVal==='transfer');
 }
 
 function _launchMPCheckout(orderId, email, totalNum, waUrl, name, phone, addr, city, region, payName, shipTxt, totalTxt, storePhone){
@@ -3723,7 +3725,7 @@ function _uploadComprobante(orderId){
   reader.readAsDataURL(file);
 }
 
-function _confirmOrderFallback(name,email,phone,addr,city,region,payName,shipTxt,totalTxt,storePhone){
+function _confirmOrderFallback(name,email,phone,addr,city,region,payName,shipTxt,totalTxt,storePhone,isTransfer){
   const orderNum = 'MX-' + Date.now().toString().slice(-6);
   const itemLines = cart.map(function(i){
     return '  • '+i.qty+'x '+i.name.substring(0,40)+(i.name.length>40?'...':'') + ' — ' + fp(i.price * i.qty);
@@ -3749,7 +3751,7 @@ function _confirmOrderFallback(name,email,phone,addr,city,region,payName,shipTxt
     '⚡ Pedido enviado desde Maxicompra.cl'
   ].join('\n');
   const waURL = 'https://wa.me/'+storePhone+'?text='+encodeURIComponent(msg);
-  _launchOrderWA(orderNum, waURL);
+  _launchOrderWA(orderNum, waURL, !!isTransfer, false);
 }
 
 /* ═══════════ WHATSAPP ═══════════ */

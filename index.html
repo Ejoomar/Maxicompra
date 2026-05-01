@@ -142,6 +142,7 @@ img{display:block;}
 .tlinks a,.tlinks button{background:none;color:var(--muted2,var(--muted));font-size:12px;display:flex;align-items:center;gap:5px;transition:color .2s;padding:0;letter-spacing:.02em;}
 .tlinks a:hover,.tlinks button:hover{color:var(--text);}
 .tlinks i{font-size:10px;color:var(--pink);}
+.tlinks .fa-whatsapp{font-size:14px;color:#25D366;}
 /* ═══════════════════════════ PROMO BANNER ═══════════════════════════ */
 .promo-banner-wrap{width:100%;display:none;overflow:hidden;line-height:0;}
 .promo-banner-wrap img{width:100%;display:block;max-height:180px;object-fit:cover;}
@@ -1842,7 +1843,7 @@ html{scroll-behavior:smooth;}
   <!-- Topbar -->
   <div class="topbar"><div class="container">
     <div class="tlinks">
-      <a href="tel:+56977462964" id="t-phone"><i class="fas fa-phone"></i>+56 9 7746 2964</a>
+      <a href="https://wa.me/56977462964" id="t-phone" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i>+56 9 7746 2964</a>
     </div>
   </div></div>
   <!-- Header -->
@@ -3526,11 +3527,27 @@ function _launchOrderWA(orderNum, waURL, isTransfer, hasComp){
   if(!cdEl){
     cdEl = document.createElement('div');
     cdEl.id = 'ck-wa-countdown';
-    cdEl.style.cssText = 'margin-top:14px;font-size:13px;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:6px;';
+    cdEl.style.cssText = 'margin-top:14px;text-align:center;';
     succEl.appendChild(cdEl);
   }
-  // Botón directo (gesto de usuario = no bloqueado por el browser)
-  cdEl.innerHTML = '<a href="'+waURL+'" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:9px;background:#25D366;color:#fff;font-weight:700;font-size:15px;padding:13px 26px;border-radius:10px;text-decoration:none;margin-top:4px;box-shadow:0 4px 16px rgba(37,211,102,.35)"><i class="fab fa-whatsapp" style="font-size:20px"></i> Enviar pedido por WhatsApp</a>';
+  var waBtnHtml = '<a id="ck-wa-direct-btn" href="'+waURL+'" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:9px;background:#25D366;color:#fff;font-weight:700;font-size:15px;padding:13px 26px;border-radius:10px;text-decoration:none;box-shadow:0 4px 16px rgba(37,211,102,.35)"><i class="fab fa-whatsapp" style="font-size:20px"></i> Enviar pedido por WhatsApp</a>';
+  if(isTransfer){
+    var cdSecs = 5;
+    cdEl.innerHTML = waBtnHtml+'<div id="ck-wa-cdsec" style="margin-top:10px;font-size:13px;color:var(--muted);">Abriendo WhatsApp en <strong id="ck-wa-n" style="color:var(--accent);font-family:\'JetBrains Mono\',monospace;">5</strong>s…</div>';
+    var cdTimer = setInterval(function(){
+      cdSecs--;
+      var nEl = document.getElementById('ck-wa-n');
+      if(nEl) nEl.textContent = cdSecs;
+      if(cdSecs <= 0){
+        clearInterval(cdTimer);
+        var secEl = document.getElementById('ck-wa-cdsec');
+        if(secEl) secEl.remove();
+        try{ window.open(waURL,'_blank'); } catch(e){}
+      }
+    }, 1000);
+  } else {
+    cdEl.innerHTML = waBtnHtml;
+  }
   cart = []; saveC(); updCartBadge(); renderCart();
 }
 
@@ -3911,7 +3928,9 @@ function applyCfg() {
   _setEl('f-desc', gc('desc'));
   _setEl('f-brand', gc('name'));
   _setEl('f-copy', `© ${new Date().getFullYear()} ${gc('name')} — Todos los derechos reservados`);
-  _setHtml('t-phone', `<i class="fas fa-phone"></i>${gc('phone')}`);
+  const rawPhone=(gc('phone')||'+56977462964').replace(/\D/g,'');
+  const tEl=document.getElementById('t-phone');
+  if(tEl){tEl.href='https://wa.me/'+rawPhone;tEl.innerHTML='<i class="fab fa-whatsapp"></i>'+gc('phone');}
   document.title = gc('name');
   const c = gc('cuotas');
   document.getElementById('ben-cuotas').textContent = `${c} cuotas sin interés`;

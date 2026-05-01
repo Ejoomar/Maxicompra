@@ -2485,13 +2485,24 @@ html{scroll-behavior:smooth;}
       <div class="ck-row">
         <div class="form-group"><label class="form-label" for="ck-city">Ciudad / Comuna <em>*</em></label><input class="form-input" id="ck-city" placeholder="Santiago"></div>
         <div class="form-group"><label class="form-label" for="ck-region">Región <em>*</em></label>
-          <select class="form-select" id="ck-region">
+          <select class="form-select" id="ck-region" onchange="updateCkSummary()">
             <option value="">Selecciona región</option>
-            <option>Región Metropolitana</option><option>Valparaíso</option><option>Biobío</option>
-            <option>La Araucanía</option><option>Los Lagos</option><option>O'Higgins</option>
-            <option>Maule</option><option>Coquimbo</option><option>Antofagasta</option>
-            <option>Atacama</option><option>Tarapacá</option><option>Arica y Parinacota</option>
-            <option>Ñuble</option><option>Los Ríos</option><option>Aysén</option><option>Magallanes</option>
+            <option>Región Metropolitana</option>
+            <option>Valparaíso</option>
+            <option>O'Higgins</option>
+            <option>Maule</option>
+            <option>Ñuble</option>
+            <option>Biobío</option>
+            <option>La Araucanía</option>
+            <option>Los Ríos</option>
+            <option>Coquimbo</option>
+            <option>Los Lagos</option>
+            <option>Atacama</option>
+            <option>Antofagasta</option>
+            <option>Tarapacá</option>
+            <option>Arica y Parinacota</option>
+            <option>Aysén</option>
+            <option>Magallanes</option>
           </select>
         </div>
       </div>
@@ -3440,15 +3451,7 @@ function checkout(){
   document.getElementById('cartOv').classList.remove('open');
   document.getElementById('cartPan').classList.remove('open');
   // Poblar resumen
-  const cfg_ship = gc('fship')||'$19.990';
-  const total = cart.reduce((s,i)=>s+i.price*i.qty,0);
-  const shipNum = parseInt((gc('shrm')||'$2990').replace(/\D/g,''));
-  const freeFrom = parseInt((gc('fship')||'$19990').replace(/\D/g,''));
-  const shipFree = total >= freeFrom;
-  document.getElementById('ck-sub').textContent = fp(total);
-  document.getElementById('ck-ship').textContent = shipFree ? 'GRATIS' : fp(shipNum);
-  document.getElementById('ck-ship').style.color = shipFree ? 'var(--green)' : 'var(--text)';
-  document.getElementById('ck-total').textContent = fp(total + (shipFree ? 0 : shipNum));
+  updateCkSummary();
   // Items del resumen
   const wrap = document.getElementById('ckItems');
   wrap.innerHTML = cart.map(i=>{
@@ -3492,14 +3495,29 @@ function selPay(el,val){
   };
   btn.innerHTML = labels[val] || '<i class="fas fa-lock"></i> Confirmar pedido';
 }
+const SHIPPING_RATES={
+  'Región Metropolitana':2990,
+  'Valparaíso':3990,"O'Higgins":3990,'Maule':3990,'Ñuble':3990,
+  'Biobío':4990,'La Araucanía':4990,'Los Ríos':4990,'Coquimbo':4990,
+  'Los Lagos':5990,'Atacama':5990,
+  'Antofagasta':6990,'Tarapacá':6990,
+  'Arica y Parinacota':7990,'Aysén':7990,'Magallanes':7990
+};
 function updateCkSummary(){
   var sub = cart.reduce(function(s,i){return s+i.price*i.qty;},0);
-  var shipNum = sub>=40000?0:3990;
-  var total = sub + shipNum;
+  var region = (document.getElementById('ck-region')||{}).value||'';
+  var freeFrom = parseInt((gc('fship')||'40000').replace(/\D/g,''))||40000;
+  var shipFree = sub >= freeFrom;
+  var baseShip = SHIPPING_RATES[region]||3990;
+  var shipNum = shipFree ? 0 : baseShip;
   var subEl=document.getElementById('ck-sub'), shipEl=document.getElementById('ck-ship'), totEl=document.getElementById('ck-total');
   if(subEl) subEl.textContent=fp(sub);
-  if(shipEl){shipEl.textContent=shipNum===0?'GRATIS':fp(shipNum);shipEl.style.color=shipNum===0?'var(--green)':'var(--text)';}
-  if(totEl) totEl.textContent=fp(total);
+  if(shipEl){
+    if(shipFree){shipEl.textContent='GRATIS';shipEl.style.color='var(--green)';}
+    else if(!region){shipEl.textContent='Selecciona región';shipEl.style.color='var(--muted)';}
+    else{shipEl.textContent=fp(shipNum);shipEl.style.color='var(--text)';}
+  }
+  if(totEl) totEl.textContent=fp(shipFree?sub:(region?sub+shipNum:sub));
 }
 function updateCkSummaryWithMP(applyMP){ updateCkSummary(); } // backward compat
 function _launchOrderWA(orderNum, waURL, isTransfer, hasComp){

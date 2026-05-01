@@ -17,3 +17,8 @@ COMANDOS/
 .wrangler/
 worker/.wrangler/
 index.min.tmp.html
+
+.dev.vars*
+!.dev.vars.example
+.env*
+!.env.example

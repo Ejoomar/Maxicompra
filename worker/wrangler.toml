@@ -20,7 +20,7 @@ preview_id = "feb978d733cb4475a6cc477c93a36b00"
 [vars]
 STORE_NAME = "Maxicompra"
 STORE_URL = "https://maxicompra.cl"
-WHATSAPP_NUMBER = "56958498763"
+WHATSAPP_NUMBER = "56977462964"
 
 # Secretos que debes configurar con:
 #   wrangler secret put ADMIN_PASSWORD_HASH

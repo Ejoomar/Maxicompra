@@ -35,7 +35,8 @@
 <title>Maxicompra.cl — Calidad asegurada, exclusividad garantizada.</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"></noscript>
 <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-Avb2QiuDEEvB4bZJYdft2mNjVShBftLdPG8FJ0V7irTLQ8Uo0qcPxh4Plq7G5tGm0rU+1SPhVotteLpBERwTkw==" crossorigin="anonymous" referrerpolicy="no-referrer" onload="this.onload=null;this.rel='stylesheet'"/>
 <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-Avb2QiuDEEvB4bZJYdft2mNjVShBftLdPG8FJ0V7irTLQ8Uo0qcPxh4Plq7G5tGm0rU+1SPhVotteLpBERwTkw==" crossorigin="anonymous" referrerpolicy="no-referrer"/></noscript>
 <style>
@@ -90,7 +91,28 @@ body{background:var(--bg);color:var(--ink);font-family:'Inter','Helvetica Neue',
 button{font-family:inherit;cursor:pointer;border:none;}
 input,textarea,select{font-family:inherit;}
 a{text-decoration:none;color:inherit;}
-img{display:block;}
+img{display:block;max-width:100%;}
+
+/* ═══════════ ACCESIBILIDAD & PERFORMANCE — Fase 1 ═══════════ */
+/* Touch targets mínimos 44px (WCAG 2.5.5) */
+.ci-qty-btn{min-width:44px!important;min-height:44px!important;width:auto!important;height:auto!important;padding:0 12px!important;}
+.ci-del{min-height:44px;display:inline-flex;align-items:center;gap:4px;padding:0 6px!important;}
+.share-ico{min-width:44px;min-height:44px;}
+.prod-add{min-height:44px;}
+/* Overflow horizontal global */
+.hero-editorial,.prods-grid-wrap,.cat-scrl-wrap,.sec-grid,.info-strip-grid{overflow-x:hidden;max-width:100%;}
+/* Fuentes mínimas en mobile */
+@media(max-width:768px){
+  .tag{font-size:10px;}
+  .sec-label-ed{font-size:11px;}
+  .ci-body h5{font-size:13px;}
+  .ci-qty-row{font-size:12px;}
+  .ann-track>span{font-size:12px;}
+  .info-strip-body p{font-size:13px;}
+  .promo-flash-text{font-size:13px;}
+  .nav-item{font-size:12px;}
+  .tlinks a,.tlinks button{font-size:12px;}
+}
 
 /* ═══════════════════════════ UTILITY ═══════════════════════════ */
 .container{max-width:1360px;margin:auto;padding:0 32px;}
@@ -1862,9 +1884,9 @@ html{scroll-behavior:smooth;}
         </div>
       </div>
       
-      <div class="search-bar" style="display:flex;position:relative;flex:1;max-width:600px;" id="searchBarWrap"><i class="fas fa-search sb-icon" style="position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px;pointer-events:none;z-index:1"></i><input type="search" id="searchInp" placeholder="Buscar productos, marcas…" oninput="_handleDesktopSearch(this.value)" onblur="setTimeout(()=>_hideSuggest(),180)" autocomplete="off" style="border-radius:50px;padding:10px 90px 10px 44px;width:100%;"><button onclick="_commitSearch()" style="position:absolute;right:5px;top:50%;transform:translateY(-50%);padding:6px 18px;border-radius:50px;font-size:12px;font-weight:700;">Buscar</button><div class="search-suggest" id="searchSuggest"></div></div><div class="header-actions">
-        <button class="h-btn" onclick="openWish()"><i class="fas fa-heart"></i><span id="wishCount">0</span></button>
-        <button class="h-btn cart" onclick="togCart()"><i class="fas fa-shopping-cart"></i>Carro<div class="cart-badge-dot" id="cartBdg">0</div></button>
+      <div class="search-bar" style="display:flex;position:relative;flex:1;max-width:600px;" id="searchBarWrap"><i class="fas fa-search sb-icon" style="position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px;pointer-events:none;z-index:1"></i><input type="search" id="searchInp" placeholder="Buscar productos, marcas…" oninput="_handleDesktopSearch(this.value)" onblur="setTimeout(()=>_hideSuggest(),180)" autocomplete="off" style="border-radius:50px;padding:10px 90px 10px 44px;width:100%;"><button onclick="_commitSearch()" aria-label="Buscar productos" style="position:absolute;right:5px;top:50%;transform:translateY(-50%);padding:6px 18px;border-radius:50px;font-size:12px;font-weight:700;">Buscar</button><div class="search-suggest" id="searchSuggest"></div></div><div class="header-actions">
+        <button class="h-btn" onclick="openWish()" aria-label="Lista de deseos"><i class="fas fa-heart"></i><span id="wishCount">0</span></button>
+        <button class="h-btn cart" onclick="togCart()" aria-label="Abrir carrito de compras"><i class="fas fa-shopping-cart"></i>Carro<div class="cart-badge-dot" id="cartBdg">0</div></button>
       </div>
     </div>
     <nav class="site-nav"><div class="nav-inner" id="navBar">
@@ -2202,7 +2224,7 @@ html{scroll-behavior:smooth;}
           <!-- Qty + Add -->
           <div class="pdp-actions-row">
             <div class="qty-box"><button aria-label="Disminuir cantidad" onclick="chgPdpQty(-1)"><i class="fas fa-minus"></i></button><div class="qty-num" id="pdpQtyNum">1</div><button aria-label="Aumentar cantidad" onclick="chgPdpQty(1)"><i class="fas fa-plus"></i></button></div>
-            <button class="pdp-wish-btn" id="pdpWishBtn" onclick="togWishPDP()" style="display:none"></button>
+            <button class="pdp-wish-btn" id="pdpWishBtn" onclick="togWishPDP()" aria-label="Agregar a lista de deseos" style="display:none"></button>
       <button class="pdp-buy-now" style="flex:1.2" onclick="buyNowPDP()"><i class="fas fa-bolt"></i>Comprar ahora</button>
       <button class="btn-grad pdp-add-main" id="pdpAddBtn" onclick="addFromPDP()"><i class="fas fa-shopping-cart"></i>Agregar al carro</button>
           </div>
@@ -2471,19 +2493,19 @@ html{scroll-behavior:smooth;}
 
       <div class="ck-step-title"><i class="fas fa-user"></i> Datos personales</div>
       <div class="ck-row">
-        <div class="form-group"><label class="form-label" for="ck-fname">Nombre <em>*</em></label><input class="form-input" id="ck-fname" placeholder="Juan Pérez"></div>
-        <div class="form-group"><label class="form-label" for="ck-email">Email <em>*</em></label><input class="form-input" id="ck-email" type="email" placeholder="juan@correo.com"></div>
+        <div class="form-group"><label class="form-label" for="ck-fname">Nombre <em>*</em></label><input class="form-input" id="ck-fname" type="text" placeholder="Juan Pérez" autocomplete="name"></div>
+        <div class="form-group"><label class="form-label" for="ck-email">Email <em>*</em></label><input class="form-input" id="ck-email" type="email" placeholder="juan@correo.com" autocomplete="email"></div>
       </div>
       <div class="ck-row g1">
-        <div class="form-group"><label class="form-label" for="ck-phone">Teléfono <em>*</em></label><input class="form-input" id="ck-phone" type="tel" pattern="(\+?56\s?)?[29]\d{8}|(\+?56\s?)?9\d{8}" placeholder="+56 9 1234 5678" maxlength="20"></div>
+        <div class="form-group"><label class="form-label" for="ck-phone">Teléfono <em>*</em></label><input class="form-input" id="ck-phone" type="tel" pattern="(\+?56\s?)?[29]\d{8}|(\+?56\s?)?9\d{8}" placeholder="+56 9 1234 5678" maxlength="20" autocomplete="tel"></div>
       </div>
 
       <div class="ck-step-title"><i class="fas fa-truck"></i> Dirección de entrega</div>
       <div class="ck-row g1">
-        <div class="form-group"><label class="form-label" for="ck-addr">Dirección <em>*</em></label><input class="form-input" id="ck-addr" placeholder="Av. Providencia 1234, Depto 5B"></div>
+        <div class="form-group"><label class="form-label" for="ck-addr">Dirección <em>*</em></label><input class="form-input" id="ck-addr" placeholder="Av. Providencia 1234, Depto 5B" autocomplete="address-line1"></div>
       </div>
       <div class="ck-row">
-        <div class="form-group"><label class="form-label" for="ck-city">Ciudad / Comuna <em>*</em></label><input class="form-input" id="ck-city" placeholder="Santiago"></div>
+        <div class="form-group"><label class="form-label" for="ck-city">Ciudad / Comuna <em>*</em></label><input class="form-input" id="ck-city" placeholder="Santiago" autocomplete="address-level2"></div>
         <div class="form-group"><label class="form-label" for="ck-region">Región <em>*</em></label>
           <select class="form-select" id="ck-region" onchange="updateCkSummary()">
             <option value="">Selecciona región</option>
@@ -3258,7 +3280,7 @@ function buildPDPGallery(p) {
   mainImg.onclick = () => { if(mainImg.src) openZoom(mainImg.src); };
   // Thumbs
   let html = imgs.map((img,i) =>
-    `<div class="thumb-item ${i===0?'active':''}" onclick="switchPdpImg(${i})"><img src="${img}" alt="img-${i}"></div>`
+    `<div class="thumb-item ${i===0?'active':''}" onclick="switchPdpImg(${i})"><img src="${img}" alt="img-${i}" loading="lazy" decoding="async"></div>`
   ).join('');
   if (p.video) html += `<div class="thumb-item is-video" onclick="showPdpVideo('${esc(p.video)}')" title="Ver video"></div>`;
   document.getElementById('pdpThumbs').innerHTML = html;
@@ -4582,7 +4604,7 @@ function mobSearchQuery(q){
       var featured = products.find(function(p){ return p.hot || p.offer; }) || products[0];
       if(featured && (featured.imgs&&featured.imgs[0]||featured.img)){
         var src = (featured.imgs&&featured.imgs[0]) || featured.img;
-        heroImg.innerHTML = '<img src="'+src+'" alt="'+featured.name+'" style="width:100%;height:100%;object-fit:contain;mix-blend-mode:multiply;" loading="eager">';
+        heroImg.innerHTML = '<img src="'+src+'" alt="'+featured.name+'" style="width:100%;height:100%;object-fit:contain;mix-blend-mode:multiply;" loading="eager" fetchpriority="high" decoding="async">';
       }
     }
   }, 'heroEdUpdate');

@@ -606,6 +606,13 @@ img{display:block;max-width:100%;}
 .toast.show{transform:translateX(-50%) translateY(0);}
 .toast.error{background:var(--red);}
 .toast.wish{background:var(--accent);}
+/* Social proof toast — bottom-left */
+.sp-toast{position:fixed;bottom:24px;left:20px;max-width:280px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);padding:12px 16px;font-size:13px;color:var(--ink);z-index:199;box-shadow:0 6px 24px rgba(0,0,0,0.10);opacity:0;transform:translateY(20px);transition:opacity .35s,transform .35s;pointer-events:none;}
+.sp-toast.visible{opacity:1;transform:translateY(0);pointer-events:auto;}
+.sp-toast-inner{display:flex;align-items:center;gap:10px;}
+.sp-toast-icon{font-size:18px;flex-shrink:0;}
+.sp-toast-text{line-height:1.4;color:var(--ink-2);}
+@media(max-width:480px){.sp-toast{bottom:88px;left:12px;max-width:260px;}}
 
 .backtop{position:fixed;bottom:28px;right:28px;width:40px;height:40px;background:var(--ink);color:var(--bg);border:none;border-radius:50%;font-size:17px;display:flex;align-items:center;justify-content:center;z-index:400;opacity:0;transform:translateY(18px);transition:all .3s;cursor:pointer;}
 .backtop.visible{opacity:1;transform:translateY(0);}
@@ -2124,10 +2131,14 @@ html{scroll-behavior:smooth;}
       <div class="recent-grid" id="recentGrid"></div>
     </div></section>
     <!-- Newsletter -->
-    <div class="newsletter-section"><div class="container"><div class="nl-inner"><p class="nl-trust" style="font-size:11px;color:var(--muted);margin-bottom:8px;letter-spacing:.3px">🔒 Sin spam · Solo ofertas exclusivas · Cancela cuando quieras</p>
-      <h2>Suscríbete y recibe <span style="color:var(--pink)">ofertas exclusivas</span></h2>
-      <p>Sé el primero en enterarte de descuentos y novedades de Maxicompra</p>
-      <div class="nl-form"><label for="nlEmail" class="sr-only">Tu correo electrónico</label><input type="email" id="nlEmail" placeholder="tu@correo.com"><button onclick="subNl()"><i class="fas fa-paper-plane"></i> Suscribirse</button></div>
+    <div class="newsletter-section"><div class="container"><div class="nl-inner">
+      <div style="display:inline-flex;align-items:center;gap:8px;background:var(--accent-soft);border:1px solid rgba(227,23,109,.25);border-radius:50px;padding:6px 16px;font-size:12px;font-weight:700;color:var(--accent);letter-spacing:.05em;text-transform:uppercase;margin-bottom:20px;">
+        <i class="fas fa-tag"></i> 10% en tu primera compra
+      </div>
+      <h2>Únete a más de 1.000 <span style="color:var(--pink)">clientes felices</span></h2>
+      <p>Suscríbete y recibe tu cupón de 10% descuento al instante. Sin spam — solo ofertas reales.</p>
+      <div class="nl-form" id="nlForm"><label for="nlEmail" class="sr-only">Tu correo electrónico</label><input type="email" id="nlEmail" placeholder="tu@correo.cl" autocomplete="email" required><button onclick="subNl()" type="button"><i class="fas fa-gift"></i> Quiero mi 10%</button></div>
+      <p style="font-size:11px;color:var(--muted);margin-top:12px;">🔒 Sin spam · Cancela cuando quieras · Solo ofertas exclusivas</p>
     </div></div></div>
   </div>
 
@@ -2137,11 +2148,19 @@ html{scroll-behavior:smooth;}
       <div class="cat-page-bg" id="catPageBg"></div>
       <div class="cat-page-overlay" id="catPageOverlay"></div>
       <div class="cat-page-content container">
-        <div class="cat-page-breadcrumb">
-          <span class="bc-link" onclick="goHome()">Inicio</span>
-          <i class="fas fa-chevron-right" style="font-size:9px;opacity:.5"></i>
-          <span id="catPageCrumb">Categoría</span>
-        </div>
+        <nav aria-label="Breadcrumb" class="cat-page-breadcrumb">
+          <ol itemscope itemtype="https://schema.org/BreadcrumbList" style="list-style:none;display:flex;align-items:center;gap:6px;margin:0;padding:0;">
+            <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+              <span class="bc-link" onclick="goHome()" itemprop="item" role="link" tabindex="0"><span itemprop="name">Inicio</span></span>
+              <meta itemprop="position" content="1">
+            </li>
+            <li aria-hidden="true"><i class="fas fa-chevron-right" style="font-size:9px;opacity:.5"></i></li>
+            <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+              <span id="catPageCrumb" itemprop="name">Categoría</span>
+              <meta itemprop="position" content="2">
+            </li>
+          </ol>
+        </nav>
         <div class="cat-page-title">
           <span class="cat-page-title-emoji" id="catPageEmoji">📦</span>
           <span id="catPageName">Categoría</span>
@@ -2678,7 +2697,8 @@ html{scroll-behavior:smooth;}
 </div>
 
 <div class="toast" id="toast"><i class="fas fa-check-circle"></i><span id="tMsg"></span></div>
-<button class="backtop" id="bTop" onclick="window.scrollTo({top:0,behavior:'smooth'})"><i class="fas fa-arrow-up"></i></button>
+<div class="sp-toast" id="spToast" aria-live="polite" aria-atomic="true"></div>
+<button class="backtop" id="bTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Volver al inicio de página"><i class="fas fa-arrow-up"></i></button>
 <script>
 'use strict';
 /* ═══════════════════════════════════════════════════════════
@@ -2956,8 +2976,8 @@ function getProductList(catId='', search='') {
     if (cat) list = list.filter(p => p.cat === cat.name);
   }
   if (search) {
-    const q = search.toLowerCase();
-    list = list.filter(p => p.name.toLowerCase().includes(q) || (p.brand||'').toLowerCase().includes(q) || (p.cat||'').toLowerCase().includes(q));
+    const q = _norm(search);
+    list = list.filter(p => _norm(p.name).includes(q) || _norm(p.brand||'').includes(q) || _norm(p.cat||'').includes(q));
   }
   switch(sortMode) {
     case 'pa': list.sort((a,b) => a.price - b.price); break;
@@ -4538,6 +4558,7 @@ function closeMobSearch(){
   document.body.style.overflow='';
 }
 /* ─── Desktop smart search autocomplete ─── */
+function _norm(s){ return (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,''); }
 function _handleDesktopSearch(v){
   if(currentView!=='home') showView('home');
   renderHomeProducts(v);
@@ -4554,15 +4575,15 @@ function _renderSuggest(q){
   var box=document.getElementById('searchSuggest');
   if(!box) return;
   if(!q||q.trim().length<2){_hideSuggest();return;}
-  var t=q.toLowerCase().trim();
+  var t=_norm(q.trim());
   var src=(typeof products!=='undefined'&&products.length?products:(typeof DEFAULT_PRODUCTS!=='undefined'?DEFAULT_PRODUCTS:[]));
-  var hits=src.filter(function(p){return p.visible!==false&&((p.name||'')+(p.brand||'')).toLowerCase().includes(t);}).slice(0,7);
+  var hits=src.filter(function(p){return p.visible!==false&&_norm((p.name||'')+(p.brand||'')).includes(t);}).slice(0,7);
   if(!hits.length){_hideSuggest();return;}
   box.innerHTML=hits.map(function(p){
     var img=p.imgs&&p.imgs[0]?p.imgs[0]:(p.img||'');
     var imgEl=img?'<img src="'+img+'" alt="" style="width:36px;height:36px;object-fit:contain;border-radius:4px;background:var(--bg-2);flex-shrink:0" loading="lazy">':'<div style="width:36px;height:36px;background:var(--bg-2);border-radius:4px;flex-shrink:0"></div>';
     return '<div class="ss-item" onmousedown="event.preventDefault();document.getElementById(\'searchInp\').value=\''+esc(p.name)+'\';renderHomeProducts(\''+esc(p.name)+'\');_hideSuggest()">'+imgEl+'<div><div class="ss-name">'+esc(p.name)+'</div><div class="ss-price">'+fp(p.price)+'</div></div></div>';
-  }).join('')+'<div class="ss-see-all" onmousedown="event.preventDefault();_commitSearch()">Ver los '+src.filter(function(p){return p.visible!==false&&((p.name||'')+(p.brand||'')).toLowerCase().includes(t);}).length+' resultados →</div>';
+  }).join('')+'<div class="ss-see-all" onmousedown="event.preventDefault();_commitSearch()">Ver los '+src.filter(function(p){return p.visible!==false&&_norm((p.name||'')+(p.brand||'')).includes(t);}).length+' resultados →</div>';
   box.style.display='block';
 }
 function mobSearchQuery(q){
@@ -4570,9 +4591,9 @@ function mobSearchQuery(q){
   if(!q||q.trim().length<2){
     res.innerHTML='<div class="mob-search-empty">🔍 Escribe al menos 2 letras</div>';return;
   }
-  const t=q.toLowerCase().trim();
+  const t=_norm(q.trim());
   const _src=(typeof products!=='undefined'&&products.length?products:(typeof DEFAULT_PRODUCTS!=='undefined'?DEFAULT_PRODUCTS:[]));
-  const found=_src.filter(p=>p.visible!==false&&((p.name||'')+(p.brand||'')+(p.cat||'')).toLowerCase().includes(t)).slice(0,14);
+  const found=_src.filter(p=>p.visible!==false&&_norm((p.name||'')+(p.brand||'')+(p.cat||'')).includes(t)).slice(0,14);
   if(!found.length){
     res.innerHTML='<div class="mob-search-empty">Sin resultados para "'+esc(q)+'"</div>';return;
   }
@@ -4582,6 +4603,29 @@ function mobSearchQuery(q){
     return '<div class="mob-search-item" data-pid="'+p.id+'" onclick="closeMobSearch();openPDP(this.dataset.pid)">'+img+'<div class="mob-search-item-info"><div class="mob-search-item-name">'+esc(p.name)+'</div><div class="mob-search-item-price">'+fp(p.price)+'</div></div></div>';
   }).join('');
 }
+
+/* ─── Social Proof Toast ─── */
+(function initSocialProof(){
+  var msgs=[
+    {icon:'🛒',text:'Alguien en Santiago acaba de agregar un producto al carro'},
+    {icon:'⭐',text:'Rodrigo dejó una reseña de 5 estrellas hace 20 minutos'},
+    {icon:'📦',text:'Pedido despachado hoy a La Serena'},
+    {icon:'💳',text:'María completó su compra hace un momento'},
+    {icon:'🔥',text:'Producto recién llegado: alta demanda esta semana'},
+    {icon:'✅',text:'Compra verificada en Providencia hace 5 minutos'}
+  ];
+  var idx=0;
+  function show(){
+    var toast=document.getElementById('spToast');
+    if(!toast) return;
+    var m=msgs[idx++ % msgs.length];
+    toast.innerHTML='<div class="sp-toast-inner"><span class="sp-toast-icon">'+m.icon+'</span><span class="sp-toast-text">'+m.text+'</span></div>';
+    toast.classList.add('visible');
+    setTimeout(function(){ toast.classList.remove('visible'); }, 5000);
+  }
+  // Primera aparición: 12s después de cargar, luego cada 18s
+  setTimeout(function(){ show(); setInterval(show, 18000); }, 12000);
+})();
 
 /* Inicializar con aislamiento de errores — cada función independiente */
 (function initApp() {

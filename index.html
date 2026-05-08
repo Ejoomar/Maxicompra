@@ -5063,7 +5063,7 @@ function _skelCards(n) {
 
 /* ── HISTORY / BACK BUTTON FIX ── */
 // ── Popstate: handles real URL navigation (browser back/forward + direct URL access) ──
-history.replaceState({view:'home'}, '', window.location.pathname || '/');
+if(window.location.hash !== '#__admin') history.replaceState({view:'home'}, '', window.location.pathname || '/');
 window.addEventListener('popstate', function(e){
   var state = e.state || {};
   var path  = window.location.pathname;

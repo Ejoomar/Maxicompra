@@ -4546,18 +4546,14 @@ function importAll(e){
         if(d.cats&&Array.isArray(d.cats)){cats=d.cats;saveCats();}
         renderAll();renderProdTable();updStats();
         showToast(`${d.products.length} productos importados ✓`);
-        // Sync all to Worker KV with delays to avoid rate limits
+        // Sync all to Worker KV in one bulk request
         var token='';try{token=sessionStorage.getItem('mx_admin_token')||'';}catch(ex){}
         if(token){
-          products.forEach(function(p,i){
-            setTimeout(function(){
-              fetch(API_BASE+'/api/admin/product',{
-                method:'POST',
-                headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
-                body:JSON.stringify(p)
-              }).catch(function(){});
-            }, i*80);
-          });
+          fetch(API_BASE+'/api/admin/products/bulk',{
+            method:'POST',
+            headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+            body:JSON.stringify({products:products})
+          }).catch(function(){});
         }
       } else showToast('Archivo inválido','error');
     }catch{showToast('Error al leer el archivo','error');}
@@ -4568,31 +4564,25 @@ function clearProds(){if(!confirm('¿Eliminar TODOS los productos?'))return;prod
 function syncAllProductsToKV(){
   var token=''; try{token=sessionStorage.getItem('mx_admin_token')||'';}catch(e){}
   if(!token){showToast('Debes iniciar sesión como admin primero','error');return;}
-  if(!confirm('¿Sincronizar '+products.length+' productos con el servidor? Esto puede tardar unos segundos.'))return;
-  showToast('Sincronizando '+products.length+' productos...');
-  var errors=0, done=0;
+  if(!confirm('¿Sincronizar '+products.length+' productos con el servidor?'))return;
+  // Ensure all products have slugs before syncing
   var list=products.map(function(p){
     if(!p.slug) p.slug=_toSlug(p.name||'')+'-'+(p.id||'').slice(-4);
     return p;
   });
-  saveP(); // persist slugs locally
-  list.forEach(function(p,i){
-    setTimeout(function(){
-      fetch(API_BASE+'/api/admin/product',{
-        method:'POST',
-        headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
-        body:JSON.stringify(p)
-      }).then(function(r){ if(!r.ok) errors++; }).catch(function(){ errors++; })
-      .finally(function(){
-        done++;
-        if(done===list.length){
-          showToast(errors===0
-            ? 'Sincronización completa ✓ ('+done+' productos)'
-            : 'Sincronizado con '+errors+' errores','error');
-        }
-      });
-    }, i*80);
-  });
+  saveP();
+  showToast('Sincronizando '+list.length+' productos...');
+  fetch(API_BASE+'/api/admin/products/bulk',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+    body:JSON.stringify({products:list})
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if(d.ok) showToast('Sincronización completa ✓ ('+d.count+' productos)');
+    else showToast('Error: '+(d.error||'desconocido'),'error');
+  })
+  .catch(function(){ showToast('Error de conexión al sincronizar','error'); });
 }
 
 /* ═════════════════════════════════════

@@ -980,6 +980,22 @@ async function handleUpsertProduct(request, env) {
   return json({ ok: true, product }, 200, request);
 }
 
+async function handleBulkUpsertProducts(request, env) {
+  const auth = await requireAuth(request, env);
+  if (!auth) return err('No autorizado', 401, request);
+  let body;
+  try { body = await request.json(); } catch { return err('JSON inválido', 400, request); }
+  if (!Array.isArray(body?.products)) return err('Se espera { products: [...] }', 400, request);
+  const products = body.products.map(p => {
+    const id   = String(p.id || `PROD-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+    const name = String(p.name || '').trim().slice(0, 200);
+    const slug = p.slug || (_toSlug(name) + '-' + id.slice(-4));
+    return { ...p, id, name, slug };
+  });
+  await env.CONFIG.put('products:all', JSON.stringify(products));
+  return json({ ok: true, count: products.length }, 200, request);
+}
+
 async function handleGetProductBySlug(slug, request, env) {
   if (!slug || slug.length > 100) return err('Slug inválido', 400, request);
   const products = await env.CONFIG.get('products:all', 'json') || [];
@@ -1073,7 +1089,8 @@ export default {
     if (path.match(/^\/api\/admin\/order\/[^/]+$/) && method === 'GET')
       return handleGetOrderAdmin(path.split('/')[4], request, env);
     if (path === '/api/admin/products'      && method === 'GET')    return handleAdminListProducts(request, env);
-    if (path === '/api/admin/product'       && method === 'POST')   return handleUpsertProduct(request, env);
+    if (path === '/api/admin/product'        && method === 'POST')   return handleUpsertProduct(request, env);
+    if (path === '/api/admin/products/bulk' && method === 'POST')   return handleBulkUpsertProducts(request, env);
     if (path.match(/^\/api\/admin\/product\/[^/]+$/) && method === 'DELETE')
       return handleDeleteProduct(request, path.split('/')[4], env);
 

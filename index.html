@@ -26,7 +26,7 @@
   <link rel="canonical" href="https://maxicompra.cl">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230D1424'/%3E%3Cdefs%3E%3ClinearGradient id='lg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23F04E38'/%3E%3Cstop offset='100%25' stop-color='%23E3176D'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M12 28 L26 16 L32 22 L38 16 L52 28' fill='none' stroke='url(%23lg)' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M18 36 L32 50 L46 36' fill='none' stroke='url(%23lg)' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
   <link rel="apple-touch-icon" href="logo.png">
-<meta name="description" content="Maxicompra.cl — Calidad asegurada, exclusividad garantizada. Los mejores productos de electrónica al mejor precio. Envíos a todo Chile.">
+<meta name="description" content="Los mejores productos de electrónica, hogar y más al mejor precio. Envío gratis a todo Chile.">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22Maxicompra%22%2C%22short_name%22%3A%22Maxicompra%22%2C%22description%22%3A%22Tu%20tienda%20online%20de%20confianza%22%2C%22start_url%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230e0e1a%22%2C%22theme_color%22%3A%22%23E8175D%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%2520xmlns%253D%2527http%253A%252F%252Fwww.w3.org%252F2000%252Fsvg%2527%2520viewBox%253D%25270%25200%252064%252064%2527%253E%253Crect%2520width%253D%252764%2527%2520height%253D%252764%2527%2520rx%253D%252714%2527%2520fill%253D%2527%2523E8175D%2527%252F%253E%253Ctext%2520x%253D%252732%2527%2520y%253D%252746%2527%2520font-family%253D%2527Arial%2520Black%2527%2520font-size%253D%252738%2527%2520fill%253D%2527white%2527%2520text-anchor%253D%2527middle%2527%253EM%253C%252Ftext%253E%253C%252Fsvg%253E%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D">
 <script type="application/ld+json">
@@ -2225,10 +2225,10 @@ html{scroll-behavior:smooth;}
             </li>
           </ol>
         </nav>
-        <div class="cat-page-title">
+        <h1 class="cat-page-title">
           <span class="cat-page-title-emoji" id="catPageEmoji">📦</span>
           <span id="catPageName">Categoría</span>
-        </div>
+        </h1>
         <div class="cat-page-count" id="catPageCount"></div>
       </div>
     </div>
@@ -2276,7 +2276,7 @@ html{scroll-behavior:smooth;}
         <div class="pdp-info-panel">
           <div class="pdp-top-badges" id="pdpBadges"></div>
           <div class="pdp-sku" id="pdpSku"></div>
-          <h2 class="pdp-title" id="pdpTitle">Producto</h2>
+          <h1 class="pdp-title" id="pdpTitle">Producto</h1>
           <div class="pdp-meta-row">Marca: <strong id="pdpBrand"></strong>&nbsp;·&nbsp;Vendido por: <strong id="pdpSeller" style="color:var(--green)"></strong></div>
           <div class="pdp-stars-row">
             <span class="stars-big" id="pdpStars"></span>
@@ -2941,6 +2941,13 @@ function goHome() {
   renderHomeProducts('');
   showView('home');
   if(typeof hideStickyPdp==='function') hideStickyPdp();
+  var _n = gc('name') || 'Maxicompra';
+  var _t = gc('tag')  || 'Calidad asegurada, exclusividad garantizada.';
+  _updateSeoMeta(
+    _n + ' — ' + _t,
+    'Los mejores productos de electrónica, hogar y más al mejor precio. Envío gratis a todo Chile.',
+    'https://maxicompra.cl'
+  );
 }
 
 function openCatView(catId) {
@@ -2993,6 +3000,12 @@ function openCatView(catId) {
   renderNavBar();
   showView('category');
   prevView = 'home';
+  var _sn = gc('name') || 'Maxicompra';
+  _updateSeoMeta(
+    cat.name + ' | ' + _sn,
+    'Los mejores productos de ' + cat.name + ' al mejor precio. Envío gratis a todo Chile.',
+    'https://maxicompra.cl'
+  );
 }
 
 function openPDP(id) {
@@ -3010,23 +3023,35 @@ function openPDP(id) {
   if(typeof initStickyPdp==='function') initStickyPdp(p);
   // Schema.org Product + AggregateRating
   _injectProductSchema(p);
+  // SEO: dynamic title, canonical, og tags
+  var _sn = gc('name') || 'Maxicompra';
+  var _desc = p.desc ? p.desc.slice(0, 150) + (p.desc.length > 150 ? '…' : '') : p.name;
+  _updateSeoMeta(
+    p.name + ' — ' + _sn,
+    _desc + ' | ' + _sn + '.cl',
+    'https://maxicompra.cl'
+  );
 }
 
 function _injectProductSchema(p) {
   var old = document.getElementById('pdp-schema');
   if (old) old.remove();
   var imgUrl = (p.imgs && p.imgs[0]) || p.img || '';
+  var safeImg = imgUrl && !imgUrl.startsWith('data:') && !imgUrl.startsWith('blob:')
+    ? ['https://maxicompra.cl' + (imgUrl.startsWith('/')?'':'/') + imgUrl]
+    : undefined;
   var schema = {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: p.name,
     description: p.desc || p.name,
     brand: p.brand ? {'@type':'Brand', name: p.brand} : undefined,
-    image: imgUrl ? ['https://maxicompra.cl' + (imgUrl.startsWith('/')?'':'/') + imgUrl] : undefined,
+    image: safeImg,
     offers: {
       '@type': 'Offer',
       price: p.price,
       priceCurrency: 'CLP',
+      url: 'https://maxicompra.cl',
       availability: 'https://schema.org/InStock',
       seller: {'@type':'Organization', name:'Maxicompra'}
     }
@@ -3422,12 +3447,12 @@ function buildPDPGallery(p) {
   const vBox    = document.getElementById('pdpVideoBox');
   vBox.classList.remove('show');
   document.getElementById('pdpVideoContent').innerHTML = '';
-  if (imgs.length) { mainImg.src = imgs[0]; mainImg.style.display=''; noImg.style.display='none'; }
-  else { mainImg.style.display='none'; noImg.style.display='flex'; }
+  if (imgs.length) { mainImg.src = imgs[0]; mainImg.alt = p.name; mainImg.style.display=''; noImg.style.display='none'; }
+  else { mainImg.src=''; mainImg.alt=''; mainImg.style.display='none'; noImg.style.display='flex'; }
   mainImg.onclick = () => { if(mainImg.src) openZoom(mainImg.src); };
   // Thumbs
   let html = imgs.map((img,i) =>
-    `<div class="thumb-item ${i===0?'active':''}" onclick="switchPdpImg(${i})"><img src="${img}" alt="img-${i}" loading="lazy" decoding="async"></div>`
+    `<div class="thumb-item ${i===0?'active':''}" onclick="switchPdpImg(${i})"><img src="${img}" alt="${esc(p.name)} — imagen ${i+1}" loading="lazy" decoding="async"></div>`
   ).join('');
   if (p.video) html += `<div class="thumb-item is-video" onclick="showPdpVideo('${esc(p.video)}')" title="Ver video"></div>`;
   document.getElementById('pdpThumbs').innerHTML = html;
@@ -4112,6 +4137,24 @@ function saveConfig() {
 }
 function _setEl(id, txt) { const e=document.getElementById(id); if(e) e.textContent=txt; }
 function _setHtml(id, h) { const e=document.getElementById(id); if(e) e.innerHTML=h; }
+function _updateSeoMeta(title, desc, url) {
+  document.title = title;
+  var can = document.querySelector('link[rel="canonical"]');
+  if (can) can.setAttribute('href', url);
+  var mDesc  = document.querySelector('meta[name="description"]');
+  var ogT    = document.querySelector('meta[property="og:title"]');
+  var ogD    = document.querySelector('meta[property="og:description"]');
+  var ogU    = document.querySelector('meta[property="og:url"]');
+  var twT    = document.querySelector('meta[name="twitter:title"]');
+  var twD    = document.querySelector('meta[name="twitter:description"]');
+  if (mDesc) mDesc.setAttribute('content', desc);
+  if (ogT)   ogT.setAttribute('content', title);
+  if (ogD)   ogD.setAttribute('content', desc);
+  if (ogU)   ogU.setAttribute('content', url);
+  if (twT)   twT.setAttribute('content', title);
+  if (twD)   twD.setAttribute('content', desc);
+}
+
 function applyCfg() {
   _setEl('s-name', gc('name'));
   _setEl('s-tag',  gc('tag'));
@@ -4121,7 +4164,7 @@ function applyCfg() {
   const rawPhone=(gc('phone')||'+56977462964').replace(/\D/g,'');
   const tEl=document.getElementById('t-phone');
   if(tEl){tEl.href='https://wa.me/'+rawPhone;tEl.innerHTML='<i class="fab fa-whatsapp"></i>'+gc('phone');}
-  document.title = gc('name');
+  var _tag = gc('tag'); document.title = _tag ? gc('name') + ' — ' + _tag : gc('name');
   const c = gc('cuotas');
   document.getElementById('ben-cuotas').textContent = `${c} cuotas sin interés`;
   document.getElementById('promo-cuotas').textContent = `${c} cuotas sin interés`;

@@ -4572,10 +4572,15 @@ function syncAllProductsToKV(){
   });
   saveP();
   showToast('Sincronizando '+list.length+' productos...');
+  // Strip base64/blob images before sending — reduces payload from ~50MB to ~1MB
+  var listClean=list.map(function(p){
+    var imgs=(p.imgs||[]).filter(function(u){ return typeof u==='string'&&(u.startsWith('http://')||u.startsWith('https://')); });
+    return Object.assign({},p,{imgs:imgs});
+  });
   fetch(API_BASE+'/api/admin/products/bulk',{
     method:'POST',
     headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
-    body:JSON.stringify({products:list})
+    body:JSON.stringify({products:listClean})
   })
   .then(function(r){ return r.json(); })
   .then(function(d){

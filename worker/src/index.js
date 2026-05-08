@@ -990,9 +990,17 @@ async function handleBulkUpsertProducts(request, env) {
     const id   = String(p.id || `PROD-${Date.now()}-${Math.random().toString(36).slice(2)}`);
     const name = String(p.name || '').trim().slice(0, 200);
     const slug = p.slug || (_toSlug(name) + '-' + id.slice(-4));
-    return { ...p, id, name, slug };
+    // Strip base64/blob images — KV only stores HTTP URLs
+    const imgs = Array.isArray(p.imgs)
+      ? p.imgs.filter(u => typeof u === 'string' && (u.startsWith('http://') || u.startsWith('https://')))
+      : [];
+    return { ...p, id, name, slug, imgs };
   });
-  await env.CONFIG.put('products:all', JSON.stringify(products));
+  try {
+    await env.CONFIG.put('products:all', JSON.stringify(products));
+  } catch (e) {
+    return err('Error guardando en KV: ' + e.message, 500, request);
+  }
   return json({ ok: true, count: products.length }, 200, request);
 }
 

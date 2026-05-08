@@ -946,33 +946,77 @@ async function handleAdminListProducts(request, env) {
   return json({ ok: true, products }, 200, request);
 }
 
+function _toSlug(str) {
+  return (str || '').toLowerCase()
+    .replace(/[áàäâ]/g, 'a').replace(/[éèëê]/g, 'e').replace(/[íìïî]/g, 'i')
+    .replace(/[óòöô]/g, 'o').replace(/[úùüû]/g, 'u').replace(/ñ/g, 'n')
+    .replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-')
+    .slice(0, 60).replace(/^-|-$/, '');
+}
+
 async function handleUpsertProduct(request, env) {
   const auth = await requireAuth(request, env);
   if (!auth) return err('No autorizado', 401, request);
+
   let body;
   try { body = await request.json(); } catch { return err('JSON inválido', 400, request); }
-  if (!body?.name || !body?.price) return err('name y price son obligatorios', 400, request);
+
+  const name  = String(body?.name  || '').trim().slice(0, 200);
+  const price = Math.max(0, Number(body?.price || 0));
+  if (!name || !price) return err('name y price son obligatorios', 400, request);
+
+  const id   = String(body.id || `PROD-${Date.now()}`);
+  const slug = body.slug || (_toSlug(name) + '-' + id.slice(-4));
+
+  // Store full SPA product object — preserve all fields (imgs, cat, desc, hot, etc.)
+  const product = { ...body, id, name, price, slug, updatedAt: new Date().toISOString() };
 
   const products = await env.CONFIG.get('products:all', 'json') || [];
-  const product = {
-    id: body.id || `PROD-${Date.now()}`,
-    name:          String(body.name          || '').trim().slice(0, 200),
-    brand:         String(body.brand         || '').trim().slice(0, 100),
-    category:      String(body.category      || '').trim().slice(0, 100),
-    price:         Math.max(0, Number(body.price)),
-    originalPrice: body.originalPrice ? Math.max(0, Number(body.originalPrice)) : undefined,
-    image:         String(body.image         || '').trim().slice(0, 500),
-    description:   String(body.description   || '').trim().slice(0, 1000),
-    stock:         body.stock !== undefined ? Number(body.stock) : -1,
-    updatedAt:     new Date().toISOString(),
-  };
-
-  const idx = products.findIndex(p => p.id === product.id);
+  const idx = products.findIndex(p => p.id === id);
   if (idx >= 0) products[idx] = product;
   else products.unshift(product);
 
   await env.CONFIG.put('products:all', JSON.stringify(products));
   return json({ ok: true, product }, 200, request);
+}
+
+async function handleGetProductBySlug(slug, request, env) {
+  if (!slug || slug.length > 100) return err('Slug inválido', 400, request);
+  const products = await env.CONFIG.get('products:all', 'json') || [];
+  const product  = products.find(p => p.slug === slug && p.visible !== false);
+  if (!product) return err('Producto no encontrado', 404, request);
+  return json({ ok: true, product }, 200, request);
+}
+
+async function handleSitemap(request, env) {
+  const products = await env.CONFIG.get('products:all', 'json') || [];
+  const base     = 'https://maxicompra.cl';
+  const today    = new Date().toISOString().slice(0, 10);
+
+  const catIds = [...new Set(
+    products.filter(p => p.visible !== false && (p.cat || p.category))
+            .map(p => p.cat || p.category)
+  )];
+
+  const catUrls = catIds.map(cat =>
+    `  <url>\n    <loc>${base}/c/${encodeURIComponent(cat)}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>daily</changefreq>\n    <priority>0.7</priority>\n  </url>`
+  ).join('\n');
+
+  const productUrls = products
+    .filter(p => p.visible !== false && p.slug)
+    .map(p =>
+      `  <url>\n    <loc>${base}/p/${p.slug}</loc>\n    <lastmod>${(p.updatedAt || today).slice(0, 10)}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n  </url>`
+    ).join('\n');
+
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url>\n    <loc>${base}/</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>daily</changefreq>\n    <priority>1.0</priority>\n  </url>\n${catUrls}\n${productUrls}\n</urlset>`;
+
+  return new Response(xml, {
+    headers: {
+      'Content-Type': 'application/xml; charset=utf-8',
+      'Cache-Control': 'public, max-age=3600',
+      ...corsHeaders(request),
+    },
+  });
 }
 
 async function handleDeleteProduct(request, id, env) {
@@ -997,8 +1041,11 @@ export default {
     }
 
     // Public routes
+    if (path === '/sitemap.xml'             && method === 'GET')    return handleSitemap(request, env);
     if (path === '/api/health'              && method === 'GET')    return handleHealth(request, env);
     if (path === '/api/products'            && method === 'GET')    return handleGetProducts(request, env);
+    if (path.match(/^\/api\/product\/slug\/[^/]+$/) && method === 'GET')
+      return handleGetProductBySlug(decodeURIComponent(path.split('/')[4]), request, env);
     if (path === '/api/order'               && method === 'POST')   return handleCreateOrder(request, env);
     if (path.startsWith('/api/order/')      && method === 'GET')    return handleGetOrder(path.split('/')[3], request, env);
     if (path.match(/^\/api\/order\/[^/]+\/comprobante$/) && method === 'POST')

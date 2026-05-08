@@ -1778,6 +1778,7 @@ html{scroll-behavior:smooth;}
           </div>
           <div class="adm-card">
             <h4><i class="fas fa-database"></i>Datos & Backup</h4>
+            <div class="set-row"><div class="set-info"><h5>Sincronizar con servidor</h5><p>Sube todos los productos al servidor (URLs SEO)</p></div><button class="btn-outline" style="padding:8px 14px;font-size:13px" onclick="syncAllProductsToKV()"><i class="fas fa-cloud-upload-alt"></i> Sincronizar</button></div>
             <div class="set-row"><div class="set-info"><h5>Exportar todo</h5><p>Productos, configuración y banners en JSON</p></div><button class="btn-outline" style="padding:8px 14px;font-size:13px" onclick="exportAll()"><i class="fas fa-download"></i> Exportar</button></div>
             <div class="set-row"><div class="set-info"><h5>Importar datos</h5><p>Restaura desde un archivo JSON</p></div><label class="btn-outline" style="padding:8px 14px;font-size:13px;cursor:pointer"><i class="fas fa-upload"></i> Importar<input type="file" accept=".json" style="display:none" onchange="importAll(event)"></label></div>
             <div class="set-row"><div class="set-info"><h5>Borrar todos los productos</h5><p>Acción irreversible</p></div><button class="btn-danger" style="padding:8px 14px;font-size:13px" onclick="clearProds()"><i class="fas fa-trash"></i> Borrar</button></div>
@@ -2943,6 +2944,7 @@ function goHome() {
   if(typeof hideStickyPdp==='function') hideStickyPdp();
   var _n = gc('name') || 'Maxicompra';
   var _t = gc('tag')  || 'Calidad asegurada, exclusividad garantizada.';
+  history.pushState({view:'home'}, _n, '/');
   _updateSeoMeta(
     _n + ' — ' + _t,
     'Los mejores productos de electrónica, hogar y más al mejor precio. Envío gratis a todo Chile.',
@@ -3001,10 +3003,12 @@ function openCatView(catId) {
   showView('category');
   prevView = 'home';
   var _sn = gc('name') || 'Maxicompra';
+  var _catUrl = '/c/' + catId;
+  history.pushState({view:'category', cat:catId}, cat.name + ' | ' + _sn, _catUrl);
   _updateSeoMeta(
     cat.name + ' | ' + _sn,
     'Los mejores productos de ' + cat.name + ' al mejor precio. Envío gratis a todo Chile.',
-    'https://maxicompra.cl'
+    'https://maxicompra.cl' + _catUrl
   );
 }
 
@@ -3023,13 +3027,16 @@ function openPDP(id) {
   if(typeof initStickyPdp==='function') initStickyPdp(p);
   // Schema.org Product + AggregateRating
   _injectProductSchema(p);
-  // SEO: dynamic title, canonical, og tags
+  // SEO: dynamic title, canonical, og tags + real URL
   var _sn = gc('name') || 'Maxicompra';
   var _desc = p.desc ? p.desc.slice(0, 150) + (p.desc.length > 150 ? '…' : '') : p.name;
+  var _slug = p.slug || (_toSlug(p.name) + '-' + p.id.slice(-4));
+  var _url = '/p/' + _slug;
+  history.pushState({view:'product', id:p.id, slug:_slug}, p.name, _url);
   _updateSeoMeta(
     p.name + ' — ' + _sn,
     _desc + ' | ' + _sn + '.cl',
-    'https://maxicompra.cl'
+    'https://maxicompra.cl' + _url
   );
 }
 
@@ -3051,7 +3058,7 @@ function _injectProductSchema(p) {
       '@type': 'Offer',
       price: p.price,
       priceCurrency: 'CLP',
-      url: 'https://maxicompra.cl',
+      url: 'https://maxicompra.cl/p/' + (p.slug || (_toSlug(p.name) + '-' + p.id.slice(-4))),
       availability: 'https://schema.org/InStock',
       seller: {'@type':'Organization', name:'Maxicompra'}
     }
@@ -4137,6 +4144,13 @@ function saveConfig() {
 }
 function _setEl(id, txt) { const e=document.getElementById(id); if(e) e.textContent=txt; }
 function _setHtml(id, h) { const e=document.getElementById(id); if(e) e.innerHTML=h; }
+function _toSlug(str) {
+  return (str || '').toLowerCase()
+    .replace(/[áàäâ]/g,'a').replace(/[éèëê]/g,'e').replace(/[íìïî]/g,'i')
+    .replace(/[óòöô]/g,'o').replace(/[úùüû]/g,'u').replace(/ñ/g,'n')
+    .replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-').replace(/-+/g,'-')
+    .slice(0,60).replace(/^-|-$/g,'');
+}
 function _updateSeoMeta(title, desc, url) {
   document.title = title;
   var can = document.querySelector('link[rel="canonical"]');
@@ -4377,8 +4391,11 @@ function saveProd(){
   if(!price||price<=0){showToast('Precio inválido','error');return;}
   const orig=parseFloat(document.getElementById('prod-orig').value)||null;
   const off=(orig&&orig>price)?Math.round((1-price/orig)*100):null;
+  var _pid = editId || uid();
+  var _existSlug = editId ? (products.find(p=>p.id===editId)||{}).slug : null;
+  var _slug = _existSlug || (_toSlug(name) + '-' + _pid.slice(-4));
   const prod={
-    id:editId||uid(), name, brand:document.getElementById('prod-brand').value.trim(),
+    id:_pid, name, brand:document.getElementById('prod-brand').value.trim(),
     cat:document.getElementById('prod-cat').value, sku:document.getElementById('prod-sku').value.trim(),
     seller:document.getElementById('prod-seller').value.trim()||gc('name'),
     price, orig, off, cuotas:document.getElementById('prod-cuotas').value.trim(),
@@ -4392,12 +4409,33 @@ function saveProd(){
     newp:document.getElementById('b-new').checked, featured:document.getElementById('b-feat').checked,
     envio:document.getElementById('tog-ship').classList.contains('on'),
     visible:document.getElementById('tog-vis').classList.contains('on'),
+    slug:_slug,
   };
   if(editId){ const idx=products.findIndex(p=>p.id===editId); if(idx!==-1)products[idx]=prod; }
   else products.unshift(prod);
   saveP(); renderAll(); closeProdModal(); updStats(); showToast(editId?'Producto actualizado ✓':'Producto agregado ✓');
+  // Sync to Worker KV (fire-and-forget)
+  (function(p){
+    var token=''; try{token=sessionStorage.getItem('mx_admin_token')||'';}catch(e){}
+    if(!token) return;
+    fetch(API_BASE+'/api/admin/product',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+      body:JSON.stringify(p)
+    }).catch(function(){});
+  })(prod);
 }
-function deleteProd(id){ if(!confirm('¿Eliminar este producto?'))return; products=products.filter(p=>p.id!==id); saveP(); renderAll(); renderProdTable(); updStats(); showToast('Eliminado'); }
+function deleteProd(id){
+  if(!confirm('¿Eliminar este producto?'))return;
+  products=products.filter(p=>p.id!==id);
+  saveP(); renderAll(); renderProdTable(); updStats(); showToast('Eliminado');
+  // Sync delete to Worker KV (fire-and-forget)
+  var token=''; try{token=sessionStorage.getItem('mx_admin_token')||'';}catch(e){}
+  if(token) fetch(API_BASE+'/api/admin/product/'+encodeURIComponent(id),{
+    method:'DELETE',
+    headers:{'Authorization':'Bearer '+token}
+  }).catch(function(){});
+}
 function dupProd(id){ const p=products.find(x=>x.id===id);if(!p)return; products.unshift({...p,id:uid(),name:p.name+' (copia)'}); saveP(); renderAll(); renderProdTable(); updStats(); showToast('Duplicado ✓'); }
 function renderAll(){ renderHomeProducts(document.getElementById('searchInp').value||''); renderHomeCats(); renderNavBar(); renderFooterCats(); }
 
@@ -4489,8 +4527,73 @@ function swTab(t){
 }
 function changePw(){const np=document.getElementById('npw').value,cp=document.getElementById('cpw').value;if(!np||np.length<4){showToast('Mínimo 4 caracteres','error');return;}if(np!==cp){showToast('Las contraseñas no coinciden','error');return;}lsSet(KPW,np);document.getElementById('npw').value='';document.getElementById('cpw').value='';showToast('Contraseña actualizada ✓');}
 function exportAll(){const blob=new Blob([JSON.stringify({products,config,banners,cats,exported:new Date().toISOString()},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`maxicompra-backup-${Date.now()}.json`;a.click();showToast('Datos exportados ✓');}
-function importAll(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const d=JSON.parse(ev.target.result);if(d.products&&Array.isArray(d.products)){if(!confirm(`¿Importar ${d.products.length} productos?`))return;products=d.products;saveP();if(d.config){config=d.config;saveCfg();applyCfg();}if(d.banners&&Array.isArray(d.banners)){banners=d.banners;saveBan();renderHeroSlider();}if(d.cats&&Array.isArray(d.cats)){cats=d.cats;saveCats();}renderAll();renderProdTable();updStats();showToast(`${d.products.length} productos importados ✓`);}else showToast('Archivo inválido','error');}catch{showToast('Error al leer el archivo','error');}};r.readAsText(f);e.target.value='';}
+function importAll(e){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    try{
+      const d=JSON.parse(ev.target.result);
+      if(d.products&&Array.isArray(d.products)){
+        if(!confirm(`¿Importar ${d.products.length} productos?`))return;
+        // Ensure all imported products have slugs
+        products=d.products.map(function(p){
+          if(!p.slug) p.slug=_toSlug(p.name||'')+'-'+(p.id||'').slice(-4);
+          return p;
+        });
+        saveP();
+        if(d.config){config=d.config;saveCfg();applyCfg();}
+        if(d.banners&&Array.isArray(d.banners)){banners=d.banners;saveBan();renderHeroSlider();}
+        if(d.cats&&Array.isArray(d.cats)){cats=d.cats;saveCats();}
+        renderAll();renderProdTable();updStats();
+        showToast(`${d.products.length} productos importados ✓`);
+        // Sync all to Worker KV with delays to avoid rate limits
+        var token='';try{token=sessionStorage.getItem('mx_admin_token')||'';}catch(ex){}
+        if(token){
+          products.forEach(function(p,i){
+            setTimeout(function(){
+              fetch(API_BASE+'/api/admin/product',{
+                method:'POST',
+                headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+                body:JSON.stringify(p)
+              }).catch(function(){});
+            }, i*80);
+          });
+        }
+      } else showToast('Archivo inválido','error');
+    }catch{showToast('Error al leer el archivo','error');}
+  };
+  r.readAsText(f);e.target.value='';
+}
 function clearProds(){if(!confirm('¿Eliminar TODOS los productos?'))return;products=[];saveP();renderAll();renderProdTable();updStats();showToast('Todos los productos eliminados');}
+function syncAllProductsToKV(){
+  var token=''; try{token=sessionStorage.getItem('mx_admin_token')||'';}catch(e){}
+  if(!token){showToast('Debes iniciar sesión como admin primero','error');return;}
+  if(!confirm('¿Sincronizar '+products.length+' productos con el servidor? Esto puede tardar unos segundos.'))return;
+  showToast('Sincronizando '+products.length+' productos...');
+  var errors=0, done=0;
+  var list=products.map(function(p){
+    if(!p.slug) p.slug=_toSlug(p.name||'')+'-'+(p.id||'').slice(-4);
+    return p;
+  });
+  saveP(); // persist slugs locally
+  list.forEach(function(p,i){
+    setTimeout(function(){
+      fetch(API_BASE+'/api/admin/product',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+        body:JSON.stringify(p)
+      }).then(function(r){ if(!r.ok) errors++; }).catch(function(){ errors++; })
+      .finally(function(){
+        done++;
+        if(done===list.length){
+          showToast(errors===0
+            ? 'Sincronización completa ✓ ('+done+' productos)'
+            : 'Sincronizado con '+errors+' errores','error');
+        }
+      });
+    }, i*80);
+  });
+}
 
 /* ═════════════════════════════════════
    ADMIN — PEDIDOS
@@ -4959,32 +5062,56 @@ function _skelCards(n) {
 })();
 
 /* ── HISTORY / BACK BUTTON FIX ── */
-(function(){
-  // Push estado inicial
-  history.replaceState({level:0},'','');
-  history.pushState({level:1},'','');
+// ── Popstate: handles real URL navigation (browser back/forward + direct URL access) ──
+history.replaceState({view:'home'}, '', window.location.pathname || '/');
+window.addEventListener('popstate', function(e){
+  var state = e.state || {};
+  var path  = window.location.pathname;
+  // Close overlays first
+  var ckOv = document.getElementById('ckOverlay');
+  if(ckOv && ckOv.classList.contains('open')){ closeCheckout(); return; }
+  var cartOv = document.getElementById('cartOv');
+  if(cartOv && cartOv.classList.contains('open')){ togCart(); return; }
+  var mobSrch = document.getElementById('mobSearchOverlay');
+  if(mobSrch && mobSrch.classList.contains('open')){ closeMobSearch(); return; }
+  var qvOv = document.getElementById('qvOverlay');
+  if(qvOv && qvOv.classList.contains('open')){ if(typeof closeQV==='function') closeQV(); return; }
+  // Navigate based on state or path
+  if(state.view === 'product' && state.id){
+    var pp = products.find(function(x){ return x.id === state.id; });
+    if(pp){ openPDP(pp.id); return; }
+  }
+  if(state.view === 'category' && state.cat){ openCatView(state.cat); return; }
+  if(path.startsWith('/p/')){
+    var _s = path.slice(3);
+    var pp = products.find(function(x){ return x.slug === _s; });
+    if(pp){ openPDP(pp.id); return; }
+  }
+  if(path.startsWith('/c/')){ openCatView(path.slice(3)); return; }
+  goHome();
+});
 
-  window.addEventListener('popstate', function(e){
-    var lvl = e.state ? e.state.level : 0;
-    // Re-push para que el siguiente back también sea interceptado
-    history.pushState({level:1},'','');
-
-    // Cerrar en orden de prioridad
-    var ckOv = document.getElementById('ckOverlay');
-    if(ckOv && ckOv.classList.contains('open')){ closeCheckout(); return; }
-    var cartOv = document.getElementById('cartOv');
-    if(cartOv && cartOv.classList.contains('open')){ togCart(); return; }
-    var mobSrch = document.getElementById('mobSearchOverlay');
-    if(mobSrch && mobSrch.classList.contains('open')){ closeMobSearch(); return; }
-    var qvOv = document.getElementById('qvOverlay');
-    if(qvOv && qvOv.classList.contains('open')){ closeQV && closeQV(); return; }
-    // Si estamos en vista product o category, volver a home
-    if(typeof currentView !== 'undefined' && currentView !== 'home'){
-      if(typeof goHome === 'function') goHome();
-      return;
-    }
-  });
-})();
+// ── Handle direct URL access (e.g. Google lands on /p/iphone-15-pro-xxxx) ──
+function _handleInitialUrl(){
+  var path = window.location.pathname;
+  if(path === '/' || path === '') return;
+  if(path.startsWith('/p/')){
+    var _slug = path.slice(3);
+    var found = products.find(function(x){ return x.slug === _slug; });
+    if(found){ openPDP(found.id); return; }
+    // Products may not be merged yet — poll briefly
+    var _tries = 0;
+    var _poll = setInterval(function(){
+      _tries++;
+      var p2 = products.find(function(x){ return x.slug === _slug; });
+      if(p2){ clearInterval(_poll); openPDP(p2.id); return; }
+      if(_tries >= 20) clearInterval(_poll);
+    }, 150);
+    return;
+  }
+  if(path.startsWith('/c/')){ openCatView(path.slice(3)); return; }
+}
+document.addEventListener('DOMContentLoaded', function(){ setTimeout(_handleInitialUrl, 0); });
 
 
 /* ── Image lazy-load opacity ── */

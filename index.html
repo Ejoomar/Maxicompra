@@ -723,16 +723,6 @@ img{display:block;max-width:100%;}
 .desc-char-bar .char-count{font-weight:600;}
 .desc-char-bar.warn .char-count{color:var(--orange);}
 .desc-char-bar.limit .char-count{color:var(--red);}
-/* AI image generator */
-.ai-gen-section{margin-top:10px;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;}
-.ai-gen-title{font-size:12px;font-weight:600;color:var(--text);margin-bottom:8px;display:flex;align-items:center;gap:6px;}
-.ai-gen-row{display:flex;gap:8px;}
-.ai-gen-input{flex:1;background:var(--card);border:1.5px solid var(--border);border-radius:6px;padding:8px 12px;color:var(--text);font-size:13px;outline:none;transition:border-color .2s;font-family:inherit;}
-.ai-gen-input:focus{border-color:var(--pink);}
-.ai-gen-btn{background:var(--grad);border:none;color:#fff;padding:8px 16px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;transition:opacity .2s;font-family:inherit;}
-.ai-gen-btn:hover{opacity:.85;}
-.ai-gen-btn:disabled{opacity:.5;cursor:not-allowed;}
-.ai-gen-hint{font-size:11px;color:var(--muted);margin-top:6px;}
 
 /* Image uploader */
 .img-uploader{border:2px dashed var(--border);border-radius:12px;padding:24px;text-align:center;cursor:pointer;transition:all .3s;position:relative;overflow:hidden;}
@@ -1839,18 +1829,6 @@ html{scroll-behavior:smooth;}
           </div>
           <div class="imgs-preview-row" id="imgPreviewRow"></div>
           <input type="hidden" id="prod-imgs">
-          <!-- AI Image Generator -->
-          <div class="ai-gen-section">
-            <div class="ai-gen-title"><i class="fas fa-magic" style="color:var(--accent)"></i> Generador de imágenes IA <span style="background:var(--accent-soft);color:var(--accent);font-size:10px;padding:2px 6px;border-radius:4px;font-weight:700;">GRATIS</span></div>
-            <div class="ai-gen-row">
-              <input class="ai-gen-input" id="aiGenPrompt" placeholder="Ej: parlante bluetooth negro moderno fondo blanco estudio fotográfico" maxlength="200">
-              <button class="ai-gen-btn" id="aiGenBtn" onclick="generateAIImage()"><i class="fas fa-magic"></i> Generar</button>
-            </div>
-            <div style="margin-top:7px;display:flex;align-items:center;gap:8px;">
-              <input class="ai-gen-input" id="aiGenRef" placeholder="🔗 URL de imagen de referencia (opcional) — pega el link de una foto similar" style="font-size:12px;">
-            </div>
-            <div class="ai-gen-hint">Powered by Pollinations.AI · Gratis · Sin API key · La imagen se agrega directamente al producto<br>Con referencia: la IA usa esa foto como base y aplica tu descripción encima</div>
-          </div>
         </div>
         <!-- Video -->
         <div class="form-group span2">
@@ -4284,8 +4262,6 @@ function clearProdForm(){
   formImgs=[]; specData=[]; featData=[]; _dragImgIdx=null;
   renderFormImgs(); renderSpecRows(); renderFeatRows();
   var ta=document.getElementById('prod-desc'); if(ta)updateDescChar(ta);
-  var inp=document.getElementById('aiGenPrompt'); if(inp)inp.value='';
-  var ref=document.getElementById('aiGenRef'); if(ref)ref.value='';
 }
 function addProductImgs(input){
   [...input.files].forEach(f=>{
@@ -4345,31 +4321,6 @@ function dtbNewline(){
   updateDescChar(ta);
 }
 
-/* ── Pollinations.AI Image Generator ── */
-function generateAIImage(){
-  var prompt = (document.getElementById('aiGenPrompt')?.value||'').trim();
-  if(!prompt){showToast('Escribe un prompt para la imagen','error');return;}
-  if(formImgs.length>=6){showToast('Máximo 6 imágenes por producto','error');return;}
-  var btn = document.getElementById('aiGenBtn');
-  if(btn){btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Generando...';}
-  var seed = Math.floor(Math.random()*99999);
-  var refUrl = (document.getElementById('aiGenRef')?.value||'').trim();
-  var url = 'https://image.pollinations.ai/prompt/'+encodeURIComponent(prompt+', product photography, white background, high quality, studio shot')+'?width=800&height=800&nologo=true&seed='+seed;
-  if(refUrl) url += '&image='+encodeURIComponent(refUrl);
-  // Usamos Image() en vez de fetch() para evitar bloqueo CORS del browser
-  var testImg = new Image();
-  testImg.onload = function(){
-    formImgs.push(url); // guardamos la URL directamente (liviano, sin CORS)
-    renderFormImgs();
-    showToast('¡Imagen generada con IA! ✨');
-    if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-magic"></i> Generar';}
-  };
-  testImg.onerror = function(){
-    showToast('No se pudo generar. Verifica tu conexión o prueba otro prompt.','error');
-    if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-magic"></i> Generar';}
-  };
-  testImg.src = url;
-}
 function addSpecRow(k='',v=''){ specData.push({k,v}); renderSpecRows(); }
 function removeSpec(i){ specData.splice(i,1); renderSpecRows(); }
 function renderSpecRows(){ document.getElementById('specRowsWrap').innerHTML=specData.map((s,i)=>`<div class="spec-row-item"><input class="form-input" placeholder="Ej: Potencia" value="${esc(s.k)}" oninput="specData[${i}].k=this.value"><input class="form-input" placeholder="Ej: 20W" value="${esc(s.v)}" oninput="specData[${i}].v=this.value"><button class="row-del-btn" onclick="removeSpec(${i})"><i class="fas fa-times"></i></button></div>`).join(''); }

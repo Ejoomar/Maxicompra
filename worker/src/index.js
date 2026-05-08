@@ -1023,7 +1023,7 @@ async function handleSitemap(request, env) {
   )];
 
   const catUrls = catIds.map(cat =>
-    `  <url>\n    <loc>${base}/c/${encodeURIComponent(cat)}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>daily</changefreq>\n    <priority>0.7</priority>\n  </url>`
+    `  <url>\n    <loc>${base}/c/${_toSlug(cat)}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>daily</changefreq>\n    <priority>0.7</priority>\n  </url>`
   ).join('\n');
 
   const productUrls = products

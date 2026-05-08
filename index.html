@@ -36,6 +36,7 @@
 <script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('./sw.js').catch(function(){});});}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://maxicompra-api.elflaco0800.workers.dev">
 <link rel="preload" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"></noscript>
 <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-Avb2QiuDEEvB4bZJYdft2mNjVShBftLdPG8FJ0V7irTLQ8Uo0qcPxh4Plq7G5tGm0rU+1SPhVotteLpBERwTkw==" crossorigin="anonymous" referrerpolicy="no-referrer" onload="this.onload=null;this.rel='stylesheet'"/>
@@ -325,6 +326,7 @@ img{display:block;max-width:100%;}
 .prod{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden;cursor:pointer;transition:all .18s;display:flex;flex-direction:column;position:relative;}
 .prod:hover{border-color:var(--ink-2);transform:translateY(-3px);}
 .prod:hover .prod-img-el{transform:scale(1.04);}
+a.prod,a.cat-card-ed,a.product-card{text-decoration:none;color:inherit;}
 .product-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden;transition:all .18s;cursor:pointer;position:relative;}
 .product-card:hover{border-color:var(--ink-2);transform:translateY(-3px);}
 .pc-img-wrap{background:var(--bg-2);height:185px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
@@ -2945,6 +2947,8 @@ function goHome() {
   var _n = gc('name') || 'Maxicompra';
   var _t = gc('tag')  || 'Calidad asegurada, exclusividad garantizada.';
   history.pushState({view:'home'}, _n, '/');
+  var _bc = document.getElementById('seo-breadcrumb');
+  if (_bc) _bc.remove();
   _updateSeoMeta(
     _n + ' — ' + _t,
     'Los mejores productos de electrónica, hogar y más al mejor precio. Envío gratis a todo Chile.',
@@ -3005,6 +3009,8 @@ function openCatView(catId) {
   var _sn = gc('name') || 'Maxicompra';
   var _catUrl = '/c/' + catId;
   history.pushState({view:'category', cat:catId}, cat.name + ' | ' + _sn, _catUrl);
+  var _bc = document.getElementById('seo-breadcrumb');
+  if (_bc) _bc.remove();
   _updateSeoMeta(
     cat.name + ' | ' + _sn,
     'Los mejores productos de ' + cat.name + ' al mejor precio. Envío gratis a todo Chile.',
@@ -3033,11 +3039,31 @@ function openPDP(id) {
   var _slug = p.slug || (_toSlug(p.name) + '-' + p.id.slice(-4));
   var _url = '/p/' + _slug;
   history.pushState({view:'product', id:p.id, slug:_slug}, p.name, _url);
+  var _img = (p.imgs && p.imgs[0] && p.imgs[0].startsWith('http')) ? p.imgs[0] : null;
   _updateSeoMeta(
     p.name + ' — ' + _sn,
     _desc + ' | ' + _sn + '.cl',
-    'https://maxicompra.cl' + _url
+    'https://maxicompra.cl' + _url,
+    _img
   );
+  var _bcEl = document.getElementById('seo-breadcrumb');
+  if (!_bcEl) {
+    _bcEl = document.createElement('script');
+    _bcEl.type = 'application/ld+json';
+    _bcEl.id = 'seo-breadcrumb';
+    document.head.appendChild(_bcEl);
+  }
+  var _catName = p.cat || 'General';
+  var _catObj  = cats.find(function(c){ return c.name === _catName; });
+  var _catId   = _catObj ? _catObj.id : _toSlug(_catName);
+  _bcEl.textContent = JSON.stringify({
+    "@context":"https://schema.org","@type":"BreadcrumbList",
+    "itemListElement":[
+      {"@type":"ListItem","position":1,"name":"Inicio","item":"https://maxicompra.cl/"},
+      {"@type":"ListItem","position":2,"name":_catName,"item":"https://maxicompra.cl/c/"+_catId},
+      {"@type":"ListItem","position":3,"name":p.name,"item":"https://maxicompra.cl/p/"+_slug}
+    ]
+  });
 }
 
 function _injectProductSchema(p) {
@@ -3261,12 +3287,13 @@ function productCardHTML(p) {
   var shipHtml = p.envio ? `<div class="prod-ship" style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:4px;font-family:'JetBrains Mono',monospace;margin-top:4px;">✓ Envío gratis</div>` : '';
   var cuotasHtml = '';
   var ratHtml = hasRat ? `<div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--mute);font-family:'JetBrains Mono',monospace;"><span style="color:#F59E0B;">★</span>${_ratDisp}${_revCount > 0 ? `<span style="opacity:.45">·</span>${_revCount >= 1000 ? (_revCount/1000).toFixed(1)+'k' : _revCount}` : ''}</div>` : '';
+  var _pSlug = p.slug || (_toSlug(p.name) + '-' + p.id.slice(-4));
   return `
-  <article class="prod" onclick="openPDP('${p.id}')">
+  <a class="prod" href="/p/${_pSlug}" onclick="event.preventDefault();openPDP('${p.id}')">
     <div class="prod-img" style="aspect-ratio:1;background:var(--bg-2);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;">
       ${badgeOff ? `<div class="pc-badges" style="flex-direction:row;">${badgeOff}</div>` : ''}
-      <button class="prod-wish ${inW?'on':''}" aria-label="${inW?'Quitar de favoritos':'Agregar a favoritos'}" onclick="event.stopPropagation();togWishId('${p.id}')">${inW?'♥':'♡'}</button>
-      <button class="prod-cmp-btn" id="cmpbtn-${p.id}" aria-label="Agregar a comparar" title="Comparar" onclick="event.stopPropagation();cmpToggle('${p.id}')">⇄</button>
+      <button class="prod-wish ${inW?'on':''}" aria-label="${inW?'Quitar de favoritos':'Agregar a favoritos'}" onclick="event.stopPropagation();event.preventDefault();togWishId('${p.id}')">${inW?'♥':'♡'}</button>
+      <button class="prod-cmp-btn" id="cmpbtn-${p.id}" aria-label="Agregar a comparar" title="Comparar" onclick="event.stopPropagation();event.preventDefault();cmpToggle('${p.id}')">⇄</button>
       ${img ? `<img src="${img}" alt="${esc(p.name)}" loading="lazy" style="width:82%;height:82%;object-fit:contain;mix-blend-mode:multiply;transition:transform .3s;" onerror="this.style.display='none'" class="prod-img-el">` : '<span style="font-size:36px;opacity:0.12;color:var(--mute)">■</span>'}
     </div>
     <div class="prod-body" style="padding:14px 16px;display:flex;flex-direction:column;gap:4px;flex:1;">
@@ -3281,10 +3308,10 @@ function productCardHTML(p) {
       ${shipHtml}
     </div>
     <div class="prod-foot" style="display:flex;align-items:center;padding:0 16px 14px;gap:8px;">
-      <button class="prod-add" id="pcbtn-${p.id}" aria-label="Agregar al carro" onclick="event.stopPropagation();addToCart('${p.id}')">Al carro</button>
-      <button onclick="event.stopPropagation();addToCartN('${p.id}',1,true);checkout()" style="height:38px;padding:0 14px;background:var(--ink);color:var(--bg);font-size:12px;font-weight:500;border-radius:var(--radius);display:flex;align-items:center;gap:6px;transition:opacity .15s;cursor:pointer;font-family:inherit;white-space:nowrap;border:none;">Comprar</button>
+      <button class="prod-add" id="pcbtn-${p.id}" aria-label="Agregar al carro" onclick="event.stopPropagation();event.preventDefault();addToCart('${p.id}')">Al carro</button>
+      <button onclick="event.stopPropagation();event.preventDefault();addToCartN('${p.id}',1,true);checkout()" style="height:38px;padding:0 14px;background:var(--ink);color:var(--bg);font-size:12px;font-weight:500;border-radius:var(--radius);display:flex;align-items:center;gap:6px;transition:opacity .15s;cursor:pointer;font-family:inherit;white-space:nowrap;border:none;">Comprar</button>
     </div>
-  </article>`;
+  </a>`;
 }
 
 /* ═════════════════════════════════════
@@ -3319,15 +3346,15 @@ function renderHomeCats() {
     const sample = products.find(p=>p.visible!==false && p.cat===c.name && (p.featured||p.hot) && (p.imgs?.[0]||p.img))
                 || products.find(p=>p.visible!==false && p.cat===c.name && (p.imgs?.[0]||p.img));
     const imgSrc = sample ? (sample.imgs?.[0] || sample.img || '') : '';
-    return `<div class="cat-card-ed" onclick="openCatView('${c.id}')">
+    return `<a class="cat-card-ed" href="/c/${c.id}" onclick="event.preventDefault();openCatView('${c.id}')">
       <div class="cat-accent-bar" style="background:${accentColor}"></div>
       <div style="position:absolute;top:16px;left:16px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--mute);letter-spacing:0.08em;z-index:2;">${String(cnt).padStart(3,'0')}</div>
       <div style="position:relative;z-index:2;">
         <div style="font-family:'Instrument Serif',serif;font-size:21px;line-height:1.1;letter-spacing:-0.01em;color:var(--ink);">${esc(c.name)}</div>
         <div style="font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:${accentColor};display:flex;align-items:center;gap:5px;margin-top:6px;font-weight:600;">Ver →</div>
       </div>
-      ${imgSrc ? `<img class="cat-prod-img" src="${imgSrc}" alt="" loading="lazy">` : ''}
-    </div>`;
+      ${imgSrc ? `<img class="cat-prod-img" src="${imgSrc}" alt="${esc(c.name)}" loading="lazy">` : ''}
+    </a>`;
   }).join('');
   // Mark grid as rendered so CSS animation doesn't re-fire on next call
   setTimeout(()=>grid.classList.add('cats-rendered'),600);
@@ -3337,7 +3364,7 @@ function renderFooterCats() {
   const activeCats = [...new Set(products.filter(p=>p.visible!==false).map(p=>p.cat).filter(Boolean))];
   document.getElementById('footerCats').innerHTML = cats
     .filter(c => activeCats.includes(c.name))
-    .map(c => `<li><a onclick="openCatView('${c.id}')">${esc(c.name)}</a></li>`).join('')
+    .map(c => `<li><a href="/c/${c.id}" onclick="event.preventDefault();openCatView('${c.id}')">${esc(c.name)}</a></li>`).join('')
     || '<li><a>Sin categorías</a></li>';
 }
 
@@ -3546,15 +3573,16 @@ function buildRelated(p) {
   document.getElementById('relatedGrid').innerHTML = rel.length
     ? rel.map(r => {
         const img = r.imgs&&r.imgs[0]||null;
-        return `<div class="product-card" onclick="openPDP('${r.id}')">
+        const _rSlug = r.slug || (_toSlug(r.name) + '-' + r.id.slice(-4));
+        return `<a class="product-card" href="/p/${_rSlug}" onclick="event.preventDefault();openPDP('${r.id}')">
           <div class="pc-img-wrap">${img?`<img src="${img}" alt="${esc(r.name)}" loading="lazy">`:`<div class="pc-no-img">📦</div>`}</div>
           <div class="pc-info">
             <div class="pc-brand">${r.brand||''}</div>
             <div class="pc-name">${r.name}</div>
             <div class="pc-prices"><span class="pc-price-now">${fp(r.price)}</span></div>
-            <button class="pc-add" onclick="event.stopPropagation();addToCart('${r.id}')"><i class="fas fa-shopping-cart"></i>Agregar</button>
+            <button class="pc-add" onclick="event.stopPropagation();event.preventDefault();addToCart('${r.id}')"><i class="fas fa-shopping-cart"></i>Agregar</button>
           </div>
-        </div>`;
+        </a>`;
       }).join('')
     : '<p style="color:var(--muted)">No hay productos relacionados.</p>';
 }
@@ -4151,7 +4179,7 @@ function _toSlug(str) {
     .replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-').replace(/-+/g,'-')
     .slice(0,60).replace(/^-|-$/g,'');
 }
-function _updateSeoMeta(title, desc, url) {
+function _updateSeoMeta(title, desc, url, img) {
   document.title = title;
   var can = document.querySelector('link[rel="canonical"]');
   if (can) can.setAttribute('href', url);
@@ -4159,14 +4187,21 @@ function _updateSeoMeta(title, desc, url) {
   var ogT    = document.querySelector('meta[property="og:title"]');
   var ogD    = document.querySelector('meta[property="og:description"]');
   var ogU    = document.querySelector('meta[property="og:url"]');
+  var ogImg  = document.querySelector('meta[property="og:image"]');
+  var ogTyp  = document.querySelector('meta[property="og:type"]');
   var twT    = document.querySelector('meta[name="twitter:title"]');
   var twD    = document.querySelector('meta[name="twitter:description"]');
+  var twImg  = document.querySelector('meta[name="twitter:image"]');
   if (mDesc) mDesc.setAttribute('content', desc);
   if (ogT)   ogT.setAttribute('content', title);
   if (ogD)   ogD.setAttribute('content', desc);
   if (ogU)   ogU.setAttribute('content', url);
   if (twT)   twT.setAttribute('content', title);
   if (twD)   twD.setAttribute('content', desc);
+  var _img = img || 'https://maxicompra.cl/og.png';
+  if (ogImg) ogImg.setAttribute('content', _img);
+  if (twImg) twImg.setAttribute('content', _img);
+  if (ogTyp) ogTyp.setAttribute('content', img ? 'product' : 'website');
 }
 
 function applyCfg() {

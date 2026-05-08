@@ -1846,7 +1846,10 @@ html{scroll-behavior:smooth;}
               <input class="ai-gen-input" id="aiGenPrompt" placeholder="Ej: parlante bluetooth negro moderno fondo blanco estudio fotográfico" maxlength="200">
               <button class="ai-gen-btn" id="aiGenBtn" onclick="generateAIImage()"><i class="fas fa-magic"></i> Generar</button>
             </div>
-            <div class="ai-gen-hint">Powered by Pollinations.AI · Gratis · Sin API key · La imagen se agrega directamente al producto</div>
+            <div style="margin-top:7px;display:flex;align-items:center;gap:8px;">
+              <input class="ai-gen-input" id="aiGenRef" placeholder="🔗 URL de imagen de referencia (opcional) — pega el link de una foto similar" style="font-size:12px;">
+            </div>
+            <div class="ai-gen-hint">Powered by Pollinations.AI · Gratis · Sin API key · La imagen se agrega directamente al producto<br>Con referencia: la IA usa esa foto como base y aplica tu descripción encima</div>
           </div>
         </div>
         <!-- Video -->
@@ -4282,6 +4285,7 @@ function clearProdForm(){
   renderFormImgs(); renderSpecRows(); renderFeatRows();
   var ta=document.getElementById('prod-desc'); if(ta)updateDescChar(ta);
   var inp=document.getElementById('aiGenPrompt'); if(inp)inp.value='';
+  var ref=document.getElementById('aiGenRef'); if(ref)ref.value='';
 }
 function addProductImgs(input){
   [...input.files].forEach(f=>{
@@ -4349,7 +4353,9 @@ function generateAIImage(){
   var btn = document.getElementById('aiGenBtn');
   if(btn){btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Generando...';}
   var seed = Math.floor(Math.random()*99999);
+  var refUrl = (document.getElementById('aiGenRef')?.value||'').trim();
   var url = 'https://image.pollinations.ai/prompt/'+encodeURIComponent(prompt+', product photography, white background, high quality, studio shot')+'?width=800&height=800&nologo=true&seed='+seed;
+  if(refUrl) url += '&image='+encodeURIComponent(refUrl);
   // Usamos Image() en vez de fetch() para evitar bloqueo CORS del browser
   var testImg = new Image();
   testImg.onload = function(){

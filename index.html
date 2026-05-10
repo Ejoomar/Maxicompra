@@ -174,35 +174,37 @@ img{display:block;max-width:100%;}
 .promo-banner-wrap{width:100%;display:none;overflow:hidden;line-height:0;}
 .promo-banner-wrap img{width:100%;display:block;max-height:180px;object-fit:cover;}
 /* ═══════════════════════════ PROMO CAROUSEL ═══════════════════════════ */
-.promo-carousel-section{padding:40px 0;border-bottom:1px solid var(--line);}
-.promo-carousel{position:relative;border-radius:var(--radius-lg);overflow:hidden;min-height:300px;background:var(--ink);}
-.slide{position:absolute;inset:0;opacity:0;transform:translateX(32px);transition:opacity .45s ease,transform .45s ease;pointer-events:none;}
+.promo-carousel-section{border-bottom:1px solid var(--line);}
+.promo-carousel{position:relative;overflow:hidden;min-height:480px;background:var(--ink);}
+.slide{position:absolute;inset:0;opacity:0;transform:translateX(40px);transition:opacity .5s ease,transform .5s ease;pointer-events:none;}
 .slide.active{opacity:1;transform:translateX(0);pointer-events:auto;}
-.slide.exit{opacity:0;transform:translateX(-32px);transition:opacity .45s ease,transform .45s ease;}
-.slide-bg{position:absolute;inset:0;background-size:cover;background-position:center;}
+.slide-bg{position:absolute;inset:0;background-size:cover;background-position:center;transition:transform 8s ease;}
+.slide.active .slide-bg{transform:scale(1.04);}
 .slide-overlay{position:absolute;inset:0;}
-.slide-content{position:relative;z-index:2;padding:52px 64px;display:flex;align-items:center;justify-content:space-between;gap:32px;min-height:300px;}
-.slide-text{max-width:540px;}
-.slide-badge{display:inline-block;background:var(--accent);color:#fff;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:4px 12px;border-radius:100px;margin-bottom:16px;}
-.slide-title{font-family:'Instrument Serif',Georgia,serif;font-size:clamp(26px,3.5vw,44px);color:#fff;line-height:1.15;margin-bottom:10px;}
-.slide-sub{font-size:15px;color:rgba(255,255,255,.72);margin-bottom:6px;line-height:1.55;}
-.slide-detail{font-size:13px;color:rgba(255,255,255,.45);margin-bottom:8px;}
-.slide-price-txt{font-size:13px;color:var(--accent);font-weight:700;margin-bottom:20px;letter-spacing:.02em;}
-.slide-cta{border:none;cursor:pointer;padding:13px 28px;border-radius:100px;font-size:13px;font-weight:700;letter-spacing:.03em;transition:opacity .15s,transform .15s;}
-.slide-cta:hover{opacity:.85;transform:translateY(-1px);}
-.slide-side{font-size:88px;opacity:.18;flex-shrink:0;line-height:1;user-select:none;}
-.slide-dots{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);display:flex;gap:7px;z-index:4;}
-.dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.3);cursor:pointer;transition:background .25s,transform .25s,width .25s;border:none;padding:0;}
-.dot.active{background:#fff;width:22px;border-radius:100px;}
-.slide-arrows{position:absolute;top:50%;transform:translateY(-50%);width:100%;display:flex;justify-content:space-between;padding:0 18px;z-index:4;pointer-events:none;}
-.slide-arr{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;cursor:pointer;pointer-events:auto;transition:background .2s;color:#fff;font-size:13px;backdrop-filter:blur(8px);}
-.slide-arr:hover{background:rgba(255,255,255,.22);}
+.slide-content{position:relative;z-index:2;padding:72px 80px;display:flex;align-items:center;justify-content:space-between;gap:40px;min-height:480px;}
+.slide-text{max-width:560px;}
+.slide-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.15);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:6px 14px;border-radius:100px;margin-bottom:20px;}
+.slide-title{font-family:'Instrument Serif',Georgia,serif;font-size:clamp(30px,4vw,56px);color:#fff;line-height:1.1;margin-bottom:12px;text-shadow:0 2px 20px rgba(0,0,0,.3);}
+.slide-sub{font-size:16px;color:rgba(255,255,255,.8);margin-bottom:8px;line-height:1.6;}
+.slide-detail{font-size:13px;color:rgba(255,255,255,.5);margin-bottom:10px;}
+.slide-price-txt{font-size:14px;color:#fff;font-weight:800;margin-bottom:28px;letter-spacing:.03em;background:var(--accent);display:inline-block;padding:4px 14px;border-radius:6px;}
+.slide-cta{border:none;cursor:pointer;padding:15px 32px;border-radius:100px;font-size:14px;font-weight:700;letter-spacing:.03em;transition:opacity .15s,transform .15s,box-shadow .15s;box-shadow:0 4px 20px rgba(0,0,0,.25);}
+.slide-cta:hover{opacity:.9;transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.35);}
+.slide-img-side{flex-shrink:0;width:280px;height:280px;object-fit:contain;filter:drop-shadow(0 20px 40px rgba(0,0,0,.4));transform:rotate(-4deg);transition:transform .5s ease;}
+.slide.active .slide-img-side{transform:rotate(-4deg) translateY(-6px);}
+.slide-dots{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:4;}
+.dot{width:8px;height:8px;border-radius:100px;background:rgba(255,255,255,.35);cursor:pointer;transition:background .25s,width .3s;border:none;padding:0;}
+.dot.active{background:#fff;width:28px;}
+.slide-arrows{position:absolute;top:50%;transform:translateY(-50%);width:100%;display:flex;justify-content:space-between;padding:0 24px;z-index:4;pointer-events:none;}
+.slide-arr{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;cursor:pointer;pointer-events:auto;transition:background .2s,transform .15s;color:#fff;font-size:14px;backdrop-filter:blur(10px);}
+.slide-arr:hover{background:rgba(255,255,255,.25);transform:scale(1.05);}
+@media(max-width:1024px){.slide-content{padding:56px 48px;}.slide-img-side{width:220px;height:220px;}}
 @media(max-width:768px){
-  .slide-content{padding:36px 24px;flex-direction:column;align-items:flex-start;min-height:260px;}
-  .slide-title{font-size:clamp(22px,6vw,30px);}
-  .slide-side{display:none;}
+  .slide-content{padding:48px 24px;flex-direction:column;align-items:flex-start;min-height:380px;gap:24px;}
+  .slide-title{font-size:clamp(26px,7vw,36px);}
+  .slide-img-side{width:160px;height:160px;position:absolute;right:16px;bottom:60px;opacity:.5;}
   .slide-arrows{display:none;}
-  .promo-carousel{min-height:260px;}
+  .promo-carousel{min-height:380px;}
 }
 /* ═══════════════════════════ INFO STRIP ═══════════════════════════ */
 .info-strip-ed{background:var(--surface);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:22px 0;}
@@ -2019,46 +2021,9 @@ html{scroll-behavior:smooth;}
 
   <!-- HOME VIEW -->
   <div class="view active" id="view-home">
-    <!-- Hero Editorial -->
-    <section class="hero-editorial">
-      <div class="container">
-        <div class="hero-grid-ed">
-          <div class="hero-main-ed" id="heroMainEd">
-            <div>
-              <div class="hero-eyebrow-ed">Colección · 2026</div>
-              <h1 class="hero-title-ed">Todo lo que necesitas, <em>sin vueltas</em>.</h1>
-              <p class="hero-desc-ed" id="s-desc">Electrónica, audio y accesorios para el día a día. Marcas confiables, precios honestos y envío a todo Chile.</p>
-            </div>
-            <div class="hero-cta-row-ed">
-              <button class="btn-ed btn-primary-ed" onclick="document.getElementById('homeProdsSection')?.scrollIntoView({behavior:'smooth'})">Comprar ahora →</button>
-              <button class="btn-ed btn-ghost-ed" onclick="showOffersFilter&&showOffersFilter()">Ver ofertas</button>
-            </div>
-            <div class="hero-pricetag-ed" id="heroPricetag">
-              <span class="small">Desde</span>
-              <span class="big" id="heroPriceMin">$8.590</span>
-            </div>
-            <div class="hero-product-ed" id="heroProductImg"></div>
-          </div>
-          <div class="hero-side-ed">
-            <div class="hero-card-ed" onclick="openCatView&&openCatView('electronica')">
-              <div class="hero-card-num-ed">01</div>
-              <div>
-                <div class="hero-card-title-ed">Power banks y cargadores rápidos</div>
-                <div class="hero-card-label-ed">Electrónica · Desde $15.667</div>
-              </div>
-              <div class="hero-card-arrow-ed">→</div>
-            </div>
-            <div class="hero-card-ed dark" onclick="openCatView&&openCatView('audio')">
-              <div class="hero-card-num-ed">02</div>
-              <div>
-                <div class="hero-card-title-ed">Audio JBL, Master-G &amp; más</div>
-                <div class="hero-card-label-ed">Parlantes, audífonos TWS</div>
-              </div>
-              <div class="hero-card-arrow-ed">→</div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <!-- Promo Carousel Hero -->
+    <section class="promo-carousel-section">
+      <div class="promo-carousel" id="heroSlider" aria-label="Ofertas y promociones" aria-live="polite"></div>
     </section>
     <!-- Brand Bar -->
     <section class="brand-bar-ed">
@@ -2093,12 +2058,6 @@ html{scroll-behavior:smooth;}
           <span class="brand-tag-ed sans">Xiaomi</span>
           <span class="brand-tag-ed">Motorola</span>
         </div>
-      </div>
-    </section>
-    <!-- Promo Carousel -->
-    <section class="promo-carousel-section">
-      <div class="container">
-        <div class="promo-carousel" id="heroSlider" aria-label="Ofertas y promociones" aria-live="polite"></div>
       </div>
     </section>
     <!-- Benefits -->
@@ -2970,20 +2929,52 @@ cats = DEFAULT_CATS; saveCats();
 
 /* ── DEFAULT BANNERS ── */
 const DEFAULT_BANNERS = [
-  {badge:'🔥 Más Vendido', title:'Bienvenido a Maxicompra', sub:'Los mejores productos de electrónica al mejor precio. Calidad garantizada.',
-   detail:'Envío gratis · 12 cuotas sin interés · Pago 100% seguro',
-   price:'Ver productos ↓', btnText:'Ver catálogo', btnColor:'var(--grad)', bg:'', overlay:'linear-gradient(135deg,rgba(10,13,24,.92) 50%,rgba(232,23,93,.25))'},
-  {badge:'💳 Pago seguro', title:'Paga con Mercado Pago', sub:'Rápido, seguro y con hasta 12 cuotas sin interés en miles de productos.',
-   detail:'Débito · Crédito · Transferencia · Efectivo',
-   price:'¡Elige tu método!', btnText:'Ver ofertas', btnColor:'linear-gradient(135deg,#00B4D8,#0096C7)', bg:'', overlay:'linear-gradient(135deg,rgba(10,13,24,.92) 50%,rgba(0,198,255,.2))'},
-  {badge:'🚀 Envío gratis', title:'Envío gratis desde $19.990', sub:'Recibe cómodamente en tu hogar. RM y regiones con despacho rápido.',
-   detail:'RM y Regiones · Entrega en 24-48 hrs',
-   price:'¡A todo Chile!', btnText:'Comprar ahora', btnColor:'linear-gradient(135deg,#00C853,#00897B)', bg:'', overlay:'linear-gradient(135deg,rgba(10,13,24,.92) 50%,rgba(0,230,118,.15))'},
-  {badge:'🔄 30 días', title:'Devolución sin preguntas', sub:'Cambia o devuelve tu compra hasta 30 días después. Sin burocracia.',
-   detail:'Ley del consumidor · Garantía de satisfacción',
-   price:'Compra con confianza', btnText:'Ver términos', btnColor:'linear-gradient(135deg,#7B2FF7,#5A00CD)', bg:'', overlay:'linear-gradient(135deg,rgba(10,13,24,.92) 50%,rgba(123,47,247,.2))'},
+  {
+    badge:'🎧 Audio & Electrónica',
+    title:'Audífonos JBL\ndesde $8.590',
+    sub:'TWS inalámbricos, over-ear y parlantes Bluetooth. Sonido premium para cada estilo de vida.',
+    detail:'JBL · Master·G · Aiwa · Maxell',
+    price:'🔥 Hasta 30% OFF esta semana',
+    btnText:'Ver audio',
+    btnColor:'linear-gradient(135deg,#E8175D,#9B1238)',
+    bg:'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=1400&q=80&fit=crop',
+    overlay:'linear-gradient(100deg,rgba(10,8,20,.93) 45%,rgba(232,23,93,.18) 100%)',
+  },
+  {
+    badge:'⚡ Ofertas de temporada',
+    title:'Hasta 40% OFF\nen tecnología',
+    sub:'Power banks, cargadores rápidos, cables USB-C y accesorios para tus dispositivos.',
+    detail:'Stock limitado · Precio válido hasta agotar',
+    price:'💳 12 cuotas sin interés',
+    btnText:'Ver ofertas',
+    btnColor:'linear-gradient(135deg,#F97316,#DC2626)',
+    bg:'https://images.unsplash.com/photo-1491933382434-500287f9b54b?w=1400&q=80&fit=crop',
+    overlay:'linear-gradient(100deg,rgba(8,12,22,.92) 45%,rgba(249,115,22,.15) 100%)',
+  },
+  {
+    badge:'🚀 Despacho express',
+    title:'Envío gratis\na todo Chile',
+    sub:'Despachamos con Chilexpress y Starken. Entrega en 24-48 horas hábiles a tu puerta.',
+    detail:'RM y regiones · Compras desde $19.990',
+    price:'📦 También retiro en tienda el mismo día',
+    btnText:'Comprar ahora',
+    btnColor:'linear-gradient(135deg,#059669,#065F46)',
+    bg:'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=1400&q=80&fit=crop',
+    overlay:'linear-gradient(100deg,rgba(5,10,18,.93) 45%,rgba(5,150,105,.2) 100%)',
+  },
+  {
+    badge:'💳 Mercado Pago',
+    title:'Paga en cuotas\nsin interés',
+    sub:'Todas las tarjetas de crédito, débito y transferencia. Proceso 100% seguro y encriptado.',
+    detail:'Visa · Mastercard · Redcompra · CMR · American Express',
+    price:'🔒 Pago protegido por Mercado Pago',
+    btnText:'Ver catálogo',
+    btnColor:'linear-gradient(135deg,#2563EB,#1D4ED8)',
+    bg:'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1400&q=80&fit=crop',
+    overlay:'linear-gradient(100deg,rgba(8,10,22,.93) 45%,rgba(37,99,235,.2) 100%)',
+  },
 ];
-if (!banners) { banners = DEFAULT_BANNERS; saveBan(); }
+if (!banners || !banners.some(b => b.bg)) { banners = DEFAULT_BANNERS; saveBan(); }
 
 /* ── NAVIGATION STATE ── */
 let currentView = 'home';
@@ -3515,7 +3506,7 @@ function renderHeroSlider() {
       <div class="slide-content">
         <div class="slide-text">
           <div class="slide-badge">${esc(s.badge||'')}</div>
-          <h2 class="slide-title">${esc(s.title||'Bienvenido')}</h2>
+          <h2 class="slide-title">${esc(s.title||'Bienvenido').replace(/\n/g,'<br>')}</h2>
           <p class="slide-sub">${esc(s.sub||'')}</p>
           <div class="slide-detail">${esc(s.detail||'')}</div>
           <div class="slide-price-txt">${esc(s.price||'')}</div>

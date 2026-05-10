@@ -29,7 +29,6 @@ export async function onRequest() {
       const desc     = esc((p.desc || p.name).slice(0, 5000));
       const brand    = esc(p.brand || 'Maxicompra');
       const cat      = esc(p.cat || 'General');
-      const updated  = (p.updatedAt || today).slice(0, 10);
 
       return `    <item>
       <g:id>${esc(p.id)}</g:id>
@@ -43,7 +42,6 @@ export async function onRequest() {
       <g:brand>${brand}</g:brand>
       <g:google_product_category>${cat}</g:google_product_category>
       <g:identifier_exists>no</g:identifier_exists>
-      <g:updated_at>${updated}</g:updated_at>
     </item>`;
     }).join('\n');
 

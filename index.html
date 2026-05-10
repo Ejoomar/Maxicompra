@@ -32,6 +32,9 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Organization","name":"Maxicompra","url":"https://maxicompra.cl","logo":"https://maxicompra.cl/logo.png","sameAs":["https://www.instagram.com/maxicompra.cl/","https://www.tiktok.com/@maxicompra.cl","https://www.facebook.com/Maxicompra.cl/","https://wa.me/56977462964"],"contactPoint":{"@type":"ContactPoint","telephone":"+56-9-7746-2964","contactType":"customer service","availableLanguage":"Spanish"},"address":{"@type":"PostalAddress","streetAddress":"Los Trabajadores 1026","addressLocality":"Santiago","addressRegion":"Región Metropolitana","addressCountry":"CL"},"description":"Tu tienda online de confianza. Los mejores productos al mejor precio. Envíos a todo Chile."}
 </script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebSite","name":"Maxicompra","url":"https://maxicompra.cl","potentialAction":{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https://maxicompra.cl/?q={search_term_string}"},"query-input":"required name=search_term_string"}}
+</script>
 <title>Maxicompra.cl — Calidad asegurada, exclusividad garantizada.</title>
 <script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('./sw.js').catch(function(){});});}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2268,7 +2271,7 @@ html{scroll-behavior:smooth;}
         <!-- Gallery -->
         <div class="pdp-gallery">
           <div class="pdp-main-img" id="pdpMainImgWrap">
-            <img id="pdpMainImg" src="" alt="" style="display:none">
+            <img id="pdpMainImg" src="" alt="" width="460" height="460" decoding="async" fetchpriority="high" style="display:none">
             <div class="pdp-no-img" id="pdpNoImg">📦</div>
             <div class="video-container" id="pdpVideoBox"><div id="pdpVideoContent"></div></div>
           </div>
@@ -3293,7 +3296,7 @@ function productCardHTML(p) {
       ${badgeOff ? `<div class="pc-badges" style="flex-direction:row;">${badgeOff}</div>` : ''}
       <button class="prod-wish ${inW?'on':''}" aria-label="${inW?'Quitar de favoritos':'Agregar a favoritos'}" onclick="event.stopPropagation();event.preventDefault();togWishId('${p.id}')">${inW?'♥':'♡'}</button>
       <button class="prod-cmp-btn" id="cmpbtn-${p.id}" aria-label="Agregar a comparar" title="Comparar" onclick="event.stopPropagation();event.preventDefault();cmpToggle('${p.id}')">⇄</button>
-      ${img ? `<img src="${img}" alt="${esc(p.name)}" loading="lazy" style="width:82%;height:82%;object-fit:contain;mix-blend-mode:multiply;transition:transform .3s;" onerror="this.style.display='none'" class="prod-img-el">` : '<span style="font-size:36px;opacity:0.12;color:var(--mute)">■</span>'}
+      ${img ? `<img src="${img}" alt="${esc(p.name)}" loading="lazy" decoding="async" width="200" height="200" style="width:82%;height:82%;object-fit:contain;mix-blend-mode:multiply;transition:transform .3s;" onerror="this.style.display='none'" class="prod-img-el">` : '<span style="font-size:36px;opacity:0.12;color:var(--mute)">■</span>'}
     </div>
     <div class="prod-body" style="padding:14px 16px;display:flex;flex-direction:column;gap:4px;flex:1;">
       ${p.brand ? `<div style="font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--mute-2);font-weight:500;">${esc(p.brand)}</div>` : ''}
@@ -3485,7 +3488,7 @@ function buildPDPGallery(p) {
   mainImg.onclick = () => { if(mainImg.src) openZoom(mainImg.src); };
   // Thumbs
   let html = imgs.map((img,i) =>
-    `<div class="thumb-item ${i===0?'active':''}" onclick="switchPdpImg(${i})"><img src="${img}" alt="${esc(p.name)} — imagen ${i+1}" loading="lazy" decoding="async"></div>`
+    `<div class="thumb-item ${i===0?'active':''}" onclick="switchPdpImg(${i})"><img src="${img}" alt="${esc(p.name)} — imagen ${i+1}" loading="lazy" decoding="async" width="80" height="80"></div>`
   ).join('');
   if (p.video) html += `<div class="thumb-item is-video" onclick="showPdpVideo('${esc(p.video)}')" title="Ver video"></div>`;
   document.getElementById('pdpThumbs').innerHTML = html;

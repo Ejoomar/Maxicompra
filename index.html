@@ -374,6 +374,12 @@ a.prod,a.cat-card-ed,a.product-card{text-decoration:none;color:inherit;}
 .cat-page-title-emoji{display:none;}
 .cat-page-count{font-size:11px;color:var(--mute);font-family:'JetBrains Mono',monospace;margin-top:14px;letter-spacing:0.15em;text-transform:uppercase;}
 .cat-page-desc{font-size:15px;color:var(--mute);line-height:1.6;margin-top:14px;max-width:560px;}
+/* ═══ 404 VIEW ═══ */
+.not-found-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;padding:60px 24px;text-align:center;}
+.not-found-code{font-family:'Instrument Serif',Georgia,serif;font-size:clamp(100px,20vw,180px);font-weight:400;line-height:1;color:var(--ink);opacity:.08;letter-spacing:-0.04em;user-select:none;}
+.not-found-title{font-family:'Instrument Serif',Georgia,serif;font-size:clamp(28px,5vw,42px);font-weight:400;color:var(--ink);margin-top:-32px;margin-bottom:16px;}
+.not-found-desc{font-size:15px;color:var(--mute);max-width:420px;line-height:1.6;margin-bottom:32px;}
+.not-found-actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;}
 .cat-accent-bar{display:block;position:absolute;top:0;left:0;right:0;height:3px;z-index:3;opacity:0.72;transition:opacity .18s;}
 .cat-card-ed:hover .cat-accent-bar{opacity:1;}
 .cat-card-ed:hover{border-color:transparent;}
@@ -2343,6 +2349,19 @@ html{scroll-behavior:smooth;}
       </div>
       <!-- Related -->
       <div class="related-section"><h3 style="font-family:'Instrument Serif',Georgia,serif;font-size:20px;font-weight:800;color:var(--text);margin-bottom:20px">🔗 Productos relacionados</h3><div class="related-grid" id="relatedGrid"></div></div>
+    </div>
+  </div>
+
+  <!-- 404 VIEW -->
+  <div class="view" id="view-404">
+    <div class="not-found-wrap">
+      <div class="not-found-code">404</div>
+      <h1 class="not-found-title">Página no encontrada</h1>
+      <p class="not-found-desc" id="notFoundDesc">El producto o categoría que buscas no existe o fue eliminado.</p>
+      <div class="not-found-actions">
+        <button class="btn-ed btn-primary-ed" onclick="goHome()">Ir al inicio</button>
+        <button class="btn-ed btn-ghost-ed" onclick="goHome();setTimeout(function(){document.getElementById('searchInp')&&document.getElementById('searchInp').focus()},300)">Buscar productos</button>
+      </div>
     </div>
   </div>
 
@@ -5175,6 +5194,19 @@ window.addEventListener('popstate', function(e){
   goHome();
 });
 
+function show404(msg) {
+  var el = document.getElementById('notFoundDesc');
+  if (el) el.textContent = msg || 'El producto o categoría que buscas no existe o fue eliminado.';
+  var _bc = document.getElementById('seo-breadcrumb');
+  if (_bc) _bc.remove();
+  var _cs = document.getElementById('seo-cat-schema');
+  if (_cs) _cs.remove();
+  showView('404');
+  var _sn = gc('name') || 'Maxicompra';
+  history.replaceState({view:'404'}, 'Página no encontrada | ' + _sn, window.location.pathname);
+  _updateSeoMeta('Página no encontrada | ' + _sn, 'Lo sentimos, esta página no existe. Visita Maxicompra y encuentra miles de productos al mejor precio.', 'https://maxicompra.cl' + window.location.pathname);
+}
+
 // ── Handle direct URL access (e.g. Google lands on /p/iphone-15-pro-xxxx) ──
 function _handleInitialUrl(){
   var path = window.location.pathname;
@@ -5189,11 +5221,18 @@ function _handleInitialUrl(){
       _tries++;
       var p2 = products.find(function(x){ return x.slug === _slug; });
       if(p2){ clearInterval(_poll); openPDP(p2.id); return; }
-      if(_tries >= 20) clearInterval(_poll);
+      if(_tries >= 20){ clearInterval(_poll); show404('No encontramos el producto que buscas. Puede haber sido eliminado o la URL cambió.'); }
     }, 150);
     return;
   }
-  if(path.startsWith('/c/')){ openCatView(path.slice(3)); return; }
+  if(path.startsWith('/c/')){
+    var catId = path.slice(3);
+    var validCat = cats.find(function(c){ return c.id === catId; });
+    if(validCat){ openCatView(catId); return; }
+    show404('La categoría "' + catId + '" no existe en nuestra tienda.');
+    return;
+  }
+  show404();
 }
 document.addEventListener('DOMContentLoaded', function(){ setTimeout(_handleInitialUrl, 0); });
 

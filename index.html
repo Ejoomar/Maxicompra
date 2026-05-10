@@ -301,15 +301,12 @@ img{display:block;max-width:100%;}
 .hero-card-arrow-ed{position:absolute;right:20px;bottom:20px;width:36px;height:36px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;}
 .hero-card-ed.dark .hero-card-arrow-ed{background:var(--bg);color:var(--ink);}
 /* Brand bar */
-.brand-bar-ed{padding:36px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--bg);overflow:hidden;}
-.brand-label-ed{font-size:10px;letter-spacing:0.22em;text-transform:uppercase;color:var(--mute);margin-bottom:22px;display:flex;align-items:center;gap:12px;}
+.brand-bar-ed{padding:44px 0 48px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--bg);overflow:hidden;}
+.brand-label-ed{font-size:10px;letter-spacing:0.22em;text-transform:uppercase;color:var(--mute);margin-bottom:24px;display:flex;align-items:center;gap:12px;}
 .brand-label-ed::after{content:'';flex:1;height:1px;background:var(--line);}
-.brand-chip{display:inline-flex;align-items:center;gap:10px;padding:8px 18px 8px 8px;border-radius:100px;cursor:pointer;transition:transform .2s,box-shadow .2s,opacity .2s;white-space:nowrap;opacity:.85;}
-.brand-chip:hover{transform:scale(1.06);box-shadow:0 4px 18px rgba(0,0,0,.13);opacity:1;}
-.brand-chip-logo{width:32px;height:32px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;box-shadow:0 1px 4px rgba(0,0,0,.12);}
-.brand-chip-logo img{width:22px;height:22px;object-fit:contain;}
-.brand-chip-logo span{font-size:12px;font-weight:800;color:#333;}
-.brand-chip-name{font-size:13px;font-weight:700;letter-spacing:-.01em;}
+.brand-name{display:inline-block;cursor:default;transition:opacity .2s,transform .2s;opacity:.55;line-height:1;white-space:nowrap;}
+.brand-name:hover{opacity:1;transform:translateY(-1px);}
+.brand-sep{display:inline-block;width:4px;height:4px;border-radius:50%;background:var(--line);margin:0 8px;vertical-align:middle;flex-shrink:0;}
 /* Strip section */
 .strip-ed{background:var(--bg-2);padding:80px 0;border-bottom:1px solid var(--line);}
 .strip-grid-ed{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border-top:2px solid var(--ink);padding-top:40px;}
@@ -2071,31 +2068,54 @@ html{scroll-behavior:smooth;}
       </div>
       <div class="brand-scroll-outer">
         <div class="brand-scroll-track">
-          <div class="brand-chip" style="background:rgba(224,85,0,.13);color:#C94A00"><span class="brand-chip-logo"><img src="https://logo.clearbit.com/jbl.com" alt="JBL" loading="lazy" onerror="this.style.display='none';this.parentElement.innerHTML='<span>J</span>'"></span><span class="brand-chip-name">JBL</span></div>
-          <div class="brand-chip" style="background:rgba(180,172,0,.14);color:#6B6700"><span class="brand-chip-logo"><img src="https://logo.clearbit.com/duracell.com" alt="Duracell" loading="lazy" onerror="this.style.display='none';this.parentElement.innerHTML='<span>D</span>'"></span><span class="brand-chip-name">Duracell</span></div>
-          <div class="brand-chip" style="background:rgba(20,40,160,.13);color:#1428A0"><span class="brand-chip-logo"><img src="https://logo.clearbit.com/samsung.com" alt="Samsung" loading="lazy" onerror="this.style.display='none';this.parentElement.innerHTML='<span>S</span>'"></span><span class="brand-chip-name">Samsung</span></div>
-          <div class="brand-chip" style="background:rgba(0,98,163,.13);color:#00609B"><span class="brand-chip-logo"><img src="https://logo.clearbit.com/philips.com" alt="Philips" loading="lazy" onerror="this.style.display='none';this.parentElement.innerHTML='<span>P</span>'"></span><span class="brand-chip-name">Philips</span></div>
-          <div class="brand-chip" style="background:rgba(196,31,31,.13);color:#B01E1E"><span class="brand-chip-logo"><img src="https://logo.clearbit.com/energizer.com" alt="Energizer" loading="lazy" onerror="this.style.display='none';this.parentElement.innerHTML='<span>E</span>'"></span><span class="brand-chip-name">Energizer</span></div>
-          <div class="brand-chip" style="background:rgba(0,105,92,.14);color:#005A50"><span class="brand-chip-logo"><span>M</span></span><span class="brand-chip-name">Master·G</span></div>
-          <div class="brand-chip" style="background:rgba(211,47,47,.13);color:#C01F1F"><span class="brand-chip-logo"><img src="https://logo.clearbit.com/tp-link.com" alt="TP-Link" loading="lazy" onerror="this.style.display='none';this.parentElement.innerHTML='<span>T</span>'"></span><span class="brand-chip-name">TP-Link</span></div>
-          <div class="brand-chip" style="background:rgba(55,71,79,.13);color:#37474F"><span class="brand-chip-logo"><img src="https://logo.clearbit.com/maxell.com" alt="Maxell" loading="lazy" onerror="this.style.display='none';this.parentElement.innerHTML='<span>M</span>'"></span><span class="brand-chip-name">Maxell</span></div>
-          <div class="brand-chip" style="background:rgba(0,48,110,.13);color:#00306E"><span class="brand-chip-logo"><img src="https://logo.clearbit.com/aiwa.com" alt="Aiwa" loading="lazy" onerror="this.style.display='none';this.parentElement.innerHTML='<span>A</span>'"></span><span class="brand-chip-name">Aiwa</span></div>
-          <div class="brand-chip" style="background:rgba(183,28,28,.13);color:#9B1717"><span class="brand-chip-logo"><img src="https://logo.clearbit.com/oster.com" alt="Oster" loading="lazy" onerror="this.style.display='none';this.parentElement.innerHTML='<span>O</span>'"></span><span class="brand-chip-name">Oster</span></div>
-          <div class="brand-chip" style="background:rgba(224,96,0,.13);color:#C05400"><span class="brand-chip-logo"><img src="https://logo.clearbit.com/xiaomi.com" alt="Xiaomi" loading="lazy" onerror="this.style.display='none';this.parentElement.innerHTML='<span>X</span>'"></span><span class="brand-chip-name">Xiaomi</span></div>
-          <div class="brand-chip" style="background:rgba(21,101,192,.13);color:#1565C0"><span class="brand-chip-logo"><img src="https://logo.clearbit.com/motorola.com" alt="Motorola" loading="lazy" onerror="this.style.display='none';this.parentElement.innerHTML='<span>M</span>'"></span><span class="brand-chip-name">Motorola</span></div>
+          <span class="brand-name" style="font-family:'Inter',sans-serif;font-weight:900;font-size:26px;letter-spacing:-.04em;color:#E8500A">JBL</span>
+          <span class="brand-sep"></span>
+          <span class="brand-name" style="font-family:'Instrument Serif',serif;font-style:italic;font-size:30px;color:#8A7C00">Duracell</span>
+          <span class="brand-sep"></span>
+          <span class="brand-name" style="font-family:'Inter',sans-serif;font-weight:700;font-size:22px;letter-spacing:.04em;color:#1428A0">SAMSUNG</span>
+          <span class="brand-sep"></span>
+          <span class="brand-name" style="font-family:'Inter',sans-serif;font-weight:400;font-size:24px;letter-spacing:-.02em;color:#0070C0">Philips</span>
+          <span class="brand-sep"></span>
+          <span class="brand-name" style="font-family:'Inter',sans-serif;font-weight:800;font-size:18px;letter-spacing:.06em;text-transform:uppercase;color:#C41F1F">energizer</span>
+          <span class="brand-sep"></span>
+          <span class="brand-name" style="font-family:'Inter',sans-serif;font-weight:700;font-size:22px;letter-spacing:-.01em;color:#00695C">Master·G</span>
+          <span class="brand-sep"></span>
+          <span class="brand-name" style="font-family:'Inter',sans-serif;font-weight:700;font-size:20px;letter-spacing:-.01em;color:#D32F2F">TP-Link</span>
+          <span class="brand-sep"></span>
+          <span class="brand-name" style="font-family:'Instrument Serif',serif;font-style:italic;font-size:28px;color:#546E7A">Maxell</span>
+          <span class="brand-sep"></span>
+          <span class="brand-name" style="font-family:'Inter',sans-serif;font-weight:900;font-size:22px;letter-spacing:.08em;color:#1A237E">AIWA</span>
+          <span class="brand-sep"></span>
+          <span class="brand-name" style="font-family:'Instrument Serif',serif;font-size:28px;color:#B71C1C">Oster</span>
+          <span class="brand-sep"></span>
+          <span class="brand-name" style="font-family:'Inter',sans-serif;font-weight:700;font-size:23px;letter-spacing:-.02em;color:#E65100">Xiaomi</span>
+          <span class="brand-sep"></span>
+          <span class="brand-name" style="font-family:'Inter',sans-serif;font-weight:400;font-size:22px;letter-spacing:-.01em;color:#1565C0">Motorola</span>
           <!-- duplicate for seamless loop -->
-          <div class="brand-chip" style="background:rgba(224,85,0,.13);color:#C94A00"><span class="brand-chip-logo"><img src="https://logo.clearbit.com/jbl.com" alt="JBL" loading="lazy" onerror="this.style.display='none';this.parentElement.innerHTML='<span>J</span>'"></span><span class="brand-chip-name">JBL</span></div>
-          <div class="brand-chip" style="background:rgba(180,172,0,.14);color:#6B6700"><span class="brand-chip-logo"><img src="https://logo.clearbit.com/duracell.com" alt="Duracell" loading="lazy" onerror="this.style.display='none';this.parentElement.innerHTML='<span>D</span>'"></span><span class="brand-chip-name">Duracell</span></div>
-          <div class="brand-chip" style="background:rgba(20,40,160,.13);color:#1428A0"><span class="brand-chip-logo"><img src="https://logo.clearbit.com/samsung.com" alt="Samsung" loading="lazy" onerror="this.style.display='none';this.parentElement.innerHTML='<span>S</span>'"></span><span class="brand-chip-name">Samsung</span></div>
-          <div class="brand-chip" style="background:rgba(0,98,163,.13);color:#00609B"><span class="brand-chip-logo"><img src="https://logo.clearbit.com/philips.com" alt="Philips" loading="lazy" onerror="this.style.display='none';this.parentElement.innerHTML='<span>P</span>'"></span><span class="brand-chip-name">Philips</span></div>
-          <div class="brand-chip" style="background:rgba(196,31,31,.13);color:#B01E1E"><span class="brand-chip-logo"><img src="https://logo.clearbit.com/energizer.com" alt="Energizer" loading="lazy" onerror="this.style.display='none';this.parentElement.innerHTML='<span>E</span>'"></span><span class="brand-chip-name">Energizer</span></div>
-          <div class="brand-chip" style="background:rgba(0,105,92,.14);color:#005A50"><span class="brand-chip-logo"><span>M</span></span><span class="brand-chip-name">Master·G</span></div>
-          <div class="brand-chip" style="background:rgba(211,47,47,.13);color:#C01F1F"><span class="brand-chip-logo"><img src="https://logo.clearbit.com/tp-link.com" alt="TP-Link" loading="lazy" onerror="this.style.display='none';this.parentElement.innerHTML='<span>T</span>'"></span><span class="brand-chip-name">TP-Link</span></div>
-          <div class="brand-chip" style="background:rgba(55,71,79,.13);color:#37474F"><span class="brand-chip-logo"><img src="https://logo.clearbit.com/maxell.com" alt="Maxell" loading="lazy" onerror="this.style.display='none';this.parentElement.innerHTML='<span>M</span>'"></span><span class="brand-chip-name">Maxell</span></div>
-          <div class="brand-chip" style="background:rgba(0,48,110,.13);color:#00306E"><span class="brand-chip-logo"><img src="https://logo.clearbit.com/aiwa.com" alt="Aiwa" loading="lazy" onerror="this.style.display='none';this.parentElement.innerHTML='<span>A</span>'"></span><span class="brand-chip-name">Aiwa</span></div>
-          <div class="brand-chip" style="background:rgba(183,28,28,.13);color:#9B1717"><span class="brand-chip-logo"><img src="https://logo.clearbit.com/oster.com" alt="Oster" loading="lazy" onerror="this.style.display='none';this.parentElement.innerHTML='<span>O</span>'"></span><span class="brand-chip-name">Oster</span></div>
-          <div class="brand-chip" style="background:rgba(224,96,0,.13);color:#C05400"><span class="brand-chip-logo"><img src="https://logo.clearbit.com/xiaomi.com" alt="Xiaomi" loading="lazy" onerror="this.style.display='none';this.parentElement.innerHTML='<span>X</span>'"></span><span class="brand-chip-name">Xiaomi</span></div>
-          <div class="brand-chip" style="background:rgba(21,101,192,.13);color:#1565C0"><span class="brand-chip-logo"><img src="https://logo.clearbit.com/motorola.com" alt="Motorola" loading="lazy" onerror="this.style.display='none';this.parentElement.innerHTML='<span>M</span>'"></span><span class="brand-chip-name">Motorola</span></div>
+          <span class="brand-sep"></span>
+          <span class="brand-name" style="font-family:'Inter',sans-serif;font-weight:900;font-size:26px;letter-spacing:-.04em;color:#E8500A">JBL</span>
+          <span class="brand-sep"></span>
+          <span class="brand-name" style="font-family:'Instrument Serif',serif;font-style:italic;font-size:30px;color:#8A7C00">Duracell</span>
+          <span class="brand-sep"></span>
+          <span class="brand-name" style="font-family:'Inter',sans-serif;font-weight:700;font-size:22px;letter-spacing:.04em;color:#1428A0">SAMSUNG</span>
+          <span class="brand-sep"></span>
+          <span class="brand-name" style="font-family:'Inter',sans-serif;font-weight:400;font-size:24px;letter-spacing:-.02em;color:#0070C0">Philips</span>
+          <span class="brand-sep"></span>
+          <span class="brand-name" style="font-family:'Inter',sans-serif;font-weight:800;font-size:18px;letter-spacing:.06em;text-transform:uppercase;color:#C41F1F">energizer</span>
+          <span class="brand-sep"></span>
+          <span class="brand-name" style="font-family:'Inter',sans-serif;font-weight:700;font-size:22px;letter-spacing:-.01em;color:#00695C">Master·G</span>
+          <span class="brand-sep"></span>
+          <span class="brand-name" style="font-family:'Inter',sans-serif;font-weight:700;font-size:20px;letter-spacing:-.01em;color:#D32F2F">TP-Link</span>
+          <span class="brand-sep"></span>
+          <span class="brand-name" style="font-family:'Instrument Serif',serif;font-style:italic;font-size:28px;color:#546E7A">Maxell</span>
+          <span class="brand-sep"></span>
+          <span class="brand-name" style="font-family:'Inter',sans-serif;font-weight:900;font-size:22px;letter-spacing:.08em;color:#1A237E">AIWA</span>
+          <span class="brand-sep"></span>
+          <span class="brand-name" style="font-family:'Instrument Serif',serif;font-size:28px;color:#B71C1C">Oster</span>
+          <span class="brand-sep"></span>
+          <span class="brand-name" style="font-family:'Inter',sans-serif;font-weight:700;font-size:23px;letter-spacing:-.02em;color:#E65100">Xiaomi</span>
+          <span class="brand-sep"></span>
+          <span class="brand-name" style="font-family:'Inter',sans-serif;font-weight:400;font-size:22px;letter-spacing:-.01em;color:#1565C0">Motorola</span>
         </div>
       </div>
     </section>
@@ -2783,7 +2803,7 @@ html{scroll-behavior:smooth;}
 ═══════════════════════════════════════════════════════════ */
 
 /* ── STORAGE KEYS ── */
-const KP='mx_prods', KC='mx_cart', KW='mx_wish', KCF='mx_cfg', KPW='mx_pw', KB='mx_banners', KCS='mx_cats', KR='mx_reviews';
+const KP='mx_prods', KC='mx_cart', KW='mx_wish', KCF='mx_cfg', KPW='mx_pw', KB='mx_banners_v2', KCS='mx_cats', KR='mx_reviews';
 
 /* ── PRODUCTOS ── */
 // Cargados desde caché localStorage; actualizados desde la API al iniciar
@@ -3463,7 +3483,7 @@ function renderHeroSlider() {
   const side_emoji = s => { const m = (s.badge||'').match(/^\p{Emoji}/u); return m ? m[0] : '🛍️'; };
   const slides = banners.map((s, i) => `
     <div class="slide${i===0?' active':''}" id="slide-${i}" role="group" aria-label="Anuncio ${i+1} de ${banners.length}">
-      <div class="slide-bg" style="${s.bg ? 'background-image:url('+JSON.stringify(s.bg)+')' : 'background:var(--ink)'}"></div>
+      <div class="slide-bg" style="${s.bg ? `background-image:url('${s.bg.replace(/'/g,'%27')}')` : 'background:var(--ink)'}"></div>
       <div class="slide-overlay" style="background:${esc(s.overlay||'linear-gradient(135deg,rgba(10,13,24,.92) 50%,rgba(232,23,93,.2))')}"></div>
       <div class="slide-content">
         <div class="slide-text">

@@ -373,6 +373,7 @@ a.prod,a.cat-card-ed,a.product-card{text-decoration:none;color:inherit;}
 .cat-page-title{font-family:'Instrument Serif',serif;font-size:clamp(40px,6vw,72px);font-weight:400;color:var(--ink);line-height:1;letter-spacing:-0.02em;display:flex;align-items:center;gap:12px;}
 .cat-page-title-emoji{display:none;}
 .cat-page-count{font-size:11px;color:var(--mute);font-family:'JetBrains Mono',monospace;margin-top:14px;letter-spacing:0.15em;text-transform:uppercase;}
+.cat-page-desc{font-size:15px;color:var(--mute);line-height:1.6;margin-top:14px;max-width:560px;}
 .cat-accent-bar{display:block;position:absolute;top:0;left:0;right:0;height:3px;z-index:3;opacity:0.72;transition:opacity .18s;}
 .cat-card-ed:hover .cat-accent-bar{opacity:1;}
 .cat-card-ed:hover{border-color:transparent;}
@@ -2235,6 +2236,7 @@ html{scroll-behavior:smooth;}
           <span id="catPageName">Categoría</span>
         </h1>
         <div class="cat-page-count" id="catPageCount"></div>
+        <p class="cat-page-desc" id="catPageDesc"></p>
       </div>
     </div>
     <div class="cat-filters"><div class="container">
@@ -2999,9 +3001,25 @@ function openCatView(catId) {
   }
 
   // ── Textos ──
+  const CAT_DESC = {
+    electronica:      'Encuentra power banks, cargadores rápidos, cables y gadgets electrónicos al mejor precio. Todo lo que necesitas en electrónica con envío a todo Chile.',
+    audio:            'Parlantes, audífonos y equipos de audio de marcas como JBL y Master-G. Sonido premium al mejor precio con despacho rápido a todo Chile.',
+    general:          'Variedad de productos esenciales para el día a día. Todo lo que necesitas en un solo lugar, con los mejores precios y envío a todo Chile.',
+    tecnologia:       'Smartphones, tablets, smartwatches y los gadgets más innovadores del mercado. Tecnología de última generación al alcance de tu bolsillo.',
+    computacion:      'Laptops, periféricos y accesorios de computación para trabajo y gaming. Equipos de calidad con los mejores precios y envío gratis.',
+    hogar:            'Artículos para el hogar, decoración y productos del diario. Haz de tu casa un espacio más cómodo con las mejores marcas disponibles.',
+    juguetes:         'Juguetes, consolas y entretenimiento para todas las edades. Los mejores regalos al mejor precio con despacho rápido a todo Chile.',
+    'salud-belleza':  'Cosméticos, cuidado personal y productos de bienestar. Luce y siéntete mejor con nuestra selección de Salud & Belleza en Maxicompra.',
+    cocina:           'Electrodomésticos, utensilios y accesorios de cocina para el chef en ti. Cocina mejor con los productos más valorados de Maxicompra.',
+    telefonia:        'Smartphones, fundas, cargadores y accesorios para tu teléfono. Todo en telefonía en un solo lugar con envío rápido a Chile.',
+    accesorios:       'Bolsos, mochilas, carteras y accesorios de moda al mejor precio. Complementa tu estilo con nuestra selección exclusiva en Maxicompra.',
+    deportes:         'Ropa deportiva, equipamiento y accesorios para tu deporte favorito. Actívate con los mejores productos y envío a todo Chile.'
+  };
+  const _desc = CAT_DESC[catId] || ('Los mejores productos de ' + cat.name + ' al mejor precio. Envío gratis a todo Chile.');
   document.getElementById('catPageEmoji').textContent = cat.emoji;
   document.getElementById('catPageName').textContent  = cat.name;
   document.getElementById('catPageCrumb').textContent = cat.name;
+  document.getElementById('catPageDesc').textContent  = _desc;
 
   // Render products
   renderCatProducts(catId);
@@ -3015,7 +3033,7 @@ function openCatView(catId) {
   if (_bc) _bc.remove();
   _updateSeoMeta(
     cat.name + ' | ' + _sn,
-    'Los mejores productos de ' + cat.name + ' al mejor precio. Envío gratis a todo Chile.',
+    _desc.slice(0, 155),
     'https://maxicompra.cl' + _catUrl
   );
 }

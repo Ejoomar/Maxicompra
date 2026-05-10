@@ -51,13 +51,16 @@ async function hmacSha256(message, secret) {
   return Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
+function toBase64Url(s) { return s.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
+function fromBase64Url(s) { s = s.replace(/-/g, '+').replace(/_/g, '/'); while (s.length % 4) s += '='; return s; }
+
 async function signToken(payload, secret) {
-  const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
-  const body   = btoa(JSON.stringify(payload));
+  const header = toBase64Url(btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' })));
+  const body   = toBase64Url(btoa(JSON.stringify(payload)));
   const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(secret),
     { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
   const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(`${header}.${body}`));
-  return `${header}.${body}.${btoa(String.fromCharCode(...new Uint8Array(sig)))}`;
+  return `${header}.${body}.${toBase64Url(btoa(String.fromCharCode(...new Uint8Array(sig))))}`;
 }
 
 async function verifyToken(token, secret, env) {
@@ -72,11 +75,11 @@ async function verifyToken(token, secret, env) {
 
     const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(secret),
       { name: 'HMAC', hash: 'SHA-256' }, false, ['verify']);
-    const sigBytes = Uint8Array.from(atob(sig), c => c.charCodeAt(0));
+    const sigBytes = Uint8Array.from(atob(fromBase64Url(sig)), c => c.charCodeAt(0));
     const valid = await crypto.subtle.verify('HMAC', key, sigBytes,
       new TextEncoder().encode(`${header}.${body}`));
     if (!valid) return null;
-    const pl = JSON.parse(atob(body));
+    const pl = JSON.parse(atob(fromBase64Url(body)));
     if (pl.exp && Date.now() > pl.exp) return null;
     return pl;
   } catch { return null; }
@@ -838,28 +841,22 @@ async function handleMPPreference(request, env) {
 async function handleMPWebhook(request, env) {
   if (!env.MP_ACCESS_TOKEN) return new Response('OK', { status: 200 });
 
-  // ── Validate MP signature (requires MP_WEBHOOK_SECRET in dashboard) ──
-  if (env.MP_WEBHOOK_SECRET) {
-    const sig = request.headers.get('x-signature');
-    if (sig) {
-      const url    = new URL(request.url);
-      const dataId = url.searchParams.get('data.id') || url.searchParams.get('id') || '';
-      const parts  = Object.fromEntries(
-        sig.split(',').map(p => { const [k,...v] = p.split('='); return [k.trim(), v.join('=').trim()]; })
-      );
-      const ts = parts.ts;
-      const v1 = parts.v1;
-      if (ts && v1) {
-        const manifest = `id:${dataId};request-date:${ts};`;
-        const expected = await hmacSha256(manifest, env.MP_WEBHOOK_SECRET);
-        if (expected !== v1) return new Response('Unauthorized', { status: 401 });
-      }
-    }
-  }
-
+  // ── Validate MP signature ──
+  const sig = request.headers.get('x-signature');
+  if (!sig) return new Response('Missing signature', { status: 401 });
   const url    = new URL(request.url);
-  const type   = url.searchParams.get('type') || url.searchParams.get('topic');
-  const dataId = url.searchParams.get('data.id') || url.searchParams.get('id');
+  const dataId = url.searchParams.get('data.id') || url.searchParams.get('id') || '';
+  const parts  = Object.fromEntries(
+    sig.split(',').map(p => { const [k,...v] = p.split('='); return [k.trim(), v.join('=').trim()]; })
+  );
+  const ts = parts.ts;
+  const v1 = parts.v1;
+  if (!ts || !v1) return new Response('Malformed signature', { status: 401 });
+  const manifest = `id:${dataId};request-date:${ts};`;
+  const expected = await hmacSha256(manifest, env.MP_WEBHOOK_SECRET);
+  if (expected !== v1) return new Response('Unauthorized', { status: 401 });
+
+  const type = url.searchParams.get('type') || url.searchParams.get('topic');
   if (type !== 'payment' || !dataId) return new Response('OK', { status: 200 });
 
   // ── Webhook deduplication ──

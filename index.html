@@ -2953,6 +2953,8 @@ function goHome() {
   history.pushState({view:'home'}, _n, '/');
   var _bc = document.getElementById('seo-breadcrumb');
   if (_bc) _bc.remove();
+  var _cs = document.getElementById('seo-cat-schema');
+  if (_cs) _cs.remove();
   _updateSeoMeta(
     _n + ' — ' + _t,
     'Los mejores productos de electrónica, hogar y más al mejor precio. Envío gratis a todo Chile.',
@@ -3036,6 +3038,36 @@ function openCatView(catId) {
     _desc.slice(0, 155),
     'https://maxicompra.cl' + _catUrl
   );
+  _injectCatItemList(catId, cat.name, _catUrl);
+}
+
+function _injectCatItemList(catId, catName, catUrl) {
+  var old = document.getElementById('seo-cat-schema');
+  if (old) old.remove();
+  var catProds = getProductList(catId).slice(0, 50);
+  if (!catProds.length) return;
+  var items = catProds.map(function(p, i) {
+    var slug = p.slug || (_toSlug(p.name) + '-' + p.id.slice(-4));
+    return {
+      '@type': 'ListItem',
+      'position': i + 1,
+      'name': p.name,
+      'url': 'https://maxicompra.cl/p/' + slug
+    };
+  });
+  var el = document.createElement('script');
+  el.type = 'application/ld+json';
+  el.id = 'seo-cat-schema';
+  el.textContent = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    'name': catName,
+    'description': document.getElementById('catPageDesc').textContent,
+    'url': 'https://maxicompra.cl' + catUrl,
+    'numberOfItems': catProds.length,
+    'itemListElement': items
+  });
+  document.head.appendChild(el);
 }
 
 function openPDP(id) {
@@ -3066,6 +3098,8 @@ function openPDP(id) {
     'https://maxicompra.cl' + _url,
     _img
   );
+  var _cs2 = document.getElementById('seo-cat-schema');
+  if (_cs2) _cs2.remove();
   var _bcEl = document.getElementById('seo-breadcrumb');
   if (!_bcEl) {
     _bcEl = document.createElement('script');

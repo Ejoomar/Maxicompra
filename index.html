@@ -173,6 +173,37 @@ img{display:block;max-width:100%;}
 /* ═══════════════════════════ PROMO BANNER ═══════════════════════════ */
 .promo-banner-wrap{width:100%;display:none;overflow:hidden;line-height:0;}
 .promo-banner-wrap img{width:100%;display:block;max-height:180px;object-fit:cover;}
+/* ═══════════════════════════ PROMO CAROUSEL ═══════════════════════════ */
+.promo-carousel-section{padding:40px 0;border-bottom:1px solid var(--line);}
+.promo-carousel{position:relative;border-radius:var(--radius-lg);overflow:hidden;min-height:300px;background:var(--ink);}
+.slide{position:absolute;inset:0;opacity:0;transform:translateX(32px);transition:opacity .45s ease,transform .45s ease;pointer-events:none;}
+.slide.active{opacity:1;transform:translateX(0);pointer-events:auto;}
+.slide.exit{opacity:0;transform:translateX(-32px);transition:opacity .45s ease,transform .45s ease;}
+.slide-bg{position:absolute;inset:0;background-size:cover;background-position:center;}
+.slide-overlay{position:absolute;inset:0;}
+.slide-content{position:relative;z-index:2;padding:52px 64px;display:flex;align-items:center;justify-content:space-between;gap:32px;min-height:300px;}
+.slide-text{max-width:540px;}
+.slide-badge{display:inline-block;background:var(--accent);color:#fff;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:4px 12px;border-radius:100px;margin-bottom:16px;}
+.slide-title{font-family:'Instrument Serif',Georgia,serif;font-size:clamp(26px,3.5vw,44px);color:#fff;line-height:1.15;margin-bottom:10px;}
+.slide-sub{font-size:15px;color:rgba(255,255,255,.72);margin-bottom:6px;line-height:1.55;}
+.slide-detail{font-size:13px;color:rgba(255,255,255,.45);margin-bottom:8px;}
+.slide-price-txt{font-size:13px;color:var(--accent);font-weight:700;margin-bottom:20px;letter-spacing:.02em;}
+.slide-cta{border:none;cursor:pointer;padding:13px 28px;border-radius:100px;font-size:13px;font-weight:700;letter-spacing:.03em;transition:opacity .15s,transform .15s;}
+.slide-cta:hover{opacity:.85;transform:translateY(-1px);}
+.slide-side{font-size:88px;opacity:.18;flex-shrink:0;line-height:1;user-select:none;}
+.slide-dots{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);display:flex;gap:7px;z-index:4;}
+.dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.3);cursor:pointer;transition:background .25s,transform .25s,width .25s;border:none;padding:0;}
+.dot.active{background:#fff;width:22px;border-radius:100px;}
+.slide-arrows{position:absolute;top:50%;transform:translateY(-50%);width:100%;display:flex;justify-content:space-between;padding:0 18px;z-index:4;pointer-events:none;}
+.slide-arr{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;cursor:pointer;pointer-events:auto;transition:background .2s;color:#fff;font-size:13px;backdrop-filter:blur(8px);}
+.slide-arr:hover{background:rgba(255,255,255,.22);}
+@media(max-width:768px){
+  .slide-content{padding:36px 24px;flex-direction:column;align-items:flex-start;min-height:260px;}
+  .slide-title{font-size:clamp(22px,6vw,30px);}
+  .slide-side{display:none;}
+  .slide-arrows{display:none;}
+  .promo-carousel{min-height:260px;}
+}
 /* ═══════════════════════════ INFO STRIP ═══════════════════════════ */
 .info-strip-ed{background:var(--surface);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:22px 0;}
 .info-strip-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;}
@@ -2064,6 +2095,12 @@ html{scroll-behavior:smooth;}
         </div>
       </div>
     </section>
+    <!-- Promo Carousel -->
+    <section class="promo-carousel-section">
+      <div class="container">
+        <div class="promo-carousel" id="heroSlider" aria-label="Ofertas y promociones" aria-live="polite"></div>
+      </div>
+    </section>
     <!-- Benefits -->
     <div class="benefits-bar"><div class="container"><div class="benefits-grid">
       <div class="benefit-item">
@@ -2942,6 +2979,9 @@ const DEFAULT_BANNERS = [
   {badge:'🚀 Envío gratis', title:'Envío gratis desde $19.990', sub:'Recibe cómodamente en tu hogar. RM y regiones con despacho rápido.',
    detail:'RM y Regiones · Entrega en 24-48 hrs',
    price:'¡A todo Chile!', btnText:'Comprar ahora', btnColor:'linear-gradient(135deg,#00C853,#00897B)', bg:'', overlay:'linear-gradient(135deg,rgba(10,13,24,.92) 50%,rgba(0,230,118,.15))'},
+  {badge:'🔄 30 días', title:'Devolución sin preguntas', sub:'Cambia o devuelve tu compra hasta 30 días después. Sin burocracia.',
+   detail:'Ley del consumidor · Garantía de satisfacción',
+   price:'Compra con confianza', btnText:'Ver términos', btnColor:'linear-gradient(135deg,#7B2FF7,#5A00CD)', bg:'', overlay:'linear-gradient(135deg,rgba(10,13,24,.92) 50%,rgba(123,47,247,.2))'},
 ];
 if (!banners) { banners = DEFAULT_BANNERS; saveBan(); }
 
@@ -3459,43 +3499,66 @@ function renderFooterCats() {
 }
 
 /* ═════════════════════════════════════
-   HERO SLIDER
+   PROMO CAROUSEL
 ═════════════════════════════════════ */
+var sliderTimer = null;
+
 function renderHeroSlider() {
   const container = document.getElementById('heroSlider');
+  if (!container) return;
+  const safe_bg = s => /^#[0-9a-fA-F]{3,8}$|^var\(--[a-z-]+\)$|^linear-gradient/.test(s||'') ? s : 'var(--grad)';
+  const side_emoji = s => { const m = (s.badge||'').match(/^\p{Emoji}/u); return m ? m[0] : '🛍️'; };
   const slides = banners.map((s, i) => `
-    <div class="slide ${i===0?'active':''}" id="slide-${i}">
-      <div class="slide-bg" style="${s.bg ? `background-image:url(${s.bg})` : `background:var(--card2)`}"></div>
-      <div class="slide-overlay" style="background:${s.overlay||'linear-gradient(135deg,rgba(10,13,24,.92) 50%,rgba(232,23,93,.2))'}"></div>
+    <div class="slide${i===0?' active':''}" id="slide-${i}" role="group" aria-label="Anuncio ${i+1} de ${banners.length}">
+      <div class="slide-bg" style="${s.bg ? 'background-image:url('+JSON.stringify(s.bg)+')' : 'background:var(--ink)'}"></div>
+      <div class="slide-overlay" style="background:${esc(s.overlay||'linear-gradient(135deg,rgba(10,13,24,.92) 50%,rgba(232,23,93,.2))')}"></div>
       <div class="slide-content">
-        <div class="slide-badge">${esc(s.badge||'')}</div>
-        <h2 class="slide-title">${esc(s.title||'Bienvenido')}</h2>
-        <p class="slide-sub">${esc(s.sub||'')}</p>
-        <div class="slide-detail">${esc(s.detail||'')}</div>
-        <div class="slide-price-txt">${esc(s.price||'')}</div>
-        <button class="slide-cta" style="background:${s.btnColor||'var(--grad)'};color:#fff" onclick="(function(){var t=s.btnText||'';if(t.toLowerCase().includes('ofert')){showOffersFilter();return;}if(t.toLowerCase().includes('catálogo')||t.toLowerCase().includes('catalogo')){goHome();return;}document.getElementById('homeProdsSection').scrollIntoView({behavior:'smooth'});})()">${s.btnText||'Ver productos'}</button>
+        <div class="slide-text">
+          <div class="slide-badge">${esc(s.badge||'')}</div>
+          <h2 class="slide-title">${esc(s.title||'Bienvenido')}</h2>
+          <p class="slide-sub">${esc(s.sub||'')}</p>
+          <div class="slide-detail">${esc(s.detail||'')}</div>
+          <div class="slide-price-txt">${esc(s.price||'')}</div>
+          <button class="slide-cta" style="background:${safe_bg(s.btnColor)};color:#fff" onclick="(function(){var t=${JSON.stringify(s.btnText||'')};if(t.toLowerCase().includes('ofert')){showOffersFilter();return;}if(/cat[aá]logo/i.test(t)){goHome();return;}if(t.toLowerCase().includes('term')){openLegal&&openLegal();return;}document.getElementById('homeProdsSection').scrollIntoView({behavior:'smooth'});})()">
+            ${esc(s.btnText||'Ver productos')}
+          </button>
+        </div>
+        <div class="slide-side" aria-hidden="true">${side_emoji(s)}</div>
       </div>
     </div>`).join('');
-  const dots = banners.map((_,i) => `<div class="dot ${i===0?'active':''}" onclick="goSlide(${i})"></div>`).join('');
+  const dots = banners.map((_,i) => `<button class="dot${i===0?' active':''}" onclick="goSlide(${i})" aria-label="Ir a anuncio ${i+1}"></button>`).join('');
   container.innerHTML = slides +
-    `<div class="slide-dots">${dots}</div>` +
-    `<div class="slide-arrows"><div class="slide-arr" onclick="prevSlide()"><i class="fas fa-chevron-left"></i></div><div class="slide-arr" onclick="nextSlide()"><i class="fas fa-chevron-right"></i></div></div>`;
+    `<div class="slide-dots" role="tablist">${dots}</div>` +
+    `<div class="slide-arrows">
+      <button class="slide-arr" onclick="prevSlide()" aria-label="Anuncio anterior"><i class="fas fa-chevron-left"></i></button>
+      <button class="slide-arr" onclick="nextSlide()" aria-label="Siguiente anuncio"><i class="fas fa-chevron-right"></i></button>
+    </div>`;
   sliderIdx = 0;
+  _startSliderTimer();
+  container.addEventListener('mouseenter', _stopSliderTimer);
+  container.addEventListener('mouseleave', _startSliderTimer);
+}
+
+function _startSliderTimer() {
+  _stopSliderTimer();
+  sliderTimer = setInterval(function(){ goSlide(sliderIdx + 1); }, 5000);
+}
+function _stopSliderTimer() {
+  if (sliderTimer) { clearInterval(sliderTimer); sliderTimer = null; }
 }
 
 function goSlide(n) {
-  const s = document.querySelectorAll('.slide');
-  const d = document.querySelectorAll('.dot');
-  if(!s.length) return;
+  const s = document.querySelectorAll('#heroSlider .slide');
+  const d = document.querySelectorAll('#heroSlider .dot');
+  if (!s.length) return;
   s[sliderIdx].classList.remove('active');
   d[sliderIdx].classList.remove('active');
   sliderIdx = (n + s.length) % s.length;
   s[sliderIdx].classList.add('active');
   d[sliderIdx].classList.add('active');
 }
-function nextSlide(){ goSlide(sliderIdx+1); }
-function prevSlide(){ goSlide(sliderIdx-1); }
-// slider removed in editorial redesign
+function nextSlide() { goSlide(sliderIdx + 1); _startSliderTimer(); }
+function prevSlide() { goSlide(sliderIdx - 1); _startSliderTimer(); }
 
 /* ═════════════════════════════════════
    PRODUCT DETAIL PAGE
@@ -5222,7 +5285,7 @@ function _skelCards(n) {
     try { fn(); } catch(e) { console.warn('[Maxicompra] ' + name + ':', e.message); }
   }
   safe(applyCfg,          'applyCfg');
-  // renderHeroSlider removed — editorial hero is static HTML
+  safe(renderHeroSlider,  'renderHeroSlider');
   safe(renderHomeCats,    'renderHomeCats');
   // Update hero price tag with real minimum price from products
   safe(function(){

@@ -380,6 +380,18 @@ a.prod,a.cat-card-ed,a.product-card{text-decoration:none;color:inherit;}
 .not-found-title{font-family:'Instrument Serif',Georgia,serif;font-size:clamp(28px,5vw,42px);font-weight:400;color:var(--ink);margin-top:-32px;margin-bottom:16px;}
 .not-found-desc{font-size:15px;color:var(--mute);max-width:420px;line-height:1.6;margin-bottom:32px;}
 .not-found-actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;}
+/* ═══ REVIEW FORM ═══ */
+.rev-form{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-top:16px;}
+.rev-form h4{font-size:15px;font-weight:600;color:var(--ink);margin-bottom:16px;}
+.rev-star-pick{display:flex;gap:6px;margin-bottom:14px;flex-direction:row-reverse;justify-content:flex-end;}
+.rev-star-pick input{display:none;}
+.rev-star-pick label{font-size:26px;cursor:pointer;color:var(--border);transition:color .1s;}
+.rev-star-pick input:checked ~ label,.rev-star-pick label:hover,.rev-star-pick label:hover ~ label{color:#F59E0B;}
+.rev-form-row{display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap;}
+.rev-form-row input,.rev-form-row textarea,.rev-form input,.rev-form textarea{flex:1;min-width:0;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:14px;color:var(--ink);font-family:inherit;resize:none;}
+.rev-form textarea{width:100%;min-height:80px;display:block;margin-bottom:12px;}
+.rev-admin-del{float:right;background:none;border:none;cursor:pointer;color:var(--mute);font-size:13px;padding:2px 6px;border-radius:4px;transition:color .15s;}
+.rev-admin-del:hover{color:#E8175D;}
 .cat-accent-bar{display:block;position:absolute;top:0;left:0;right:0;height:3px;z-index:3;opacity:0.72;transition:opacity .18s;}
 .cat-card-ed:hover .cat-accent-bar{opacity:1;}
 .cat-card-ed:hover{border-color:transparent;}
@@ -2816,7 +2828,7 @@ html{scroll-behavior:smooth;}
 ═══════════════════════════════════════════════════════════ */
 
 /* ── STORAGE KEYS ── */
-const KP='mx_prods', KC='mx_cart', KW='mx_wish', KCF='mx_cfg', KPW='mx_pw', KB='mx_banners', KCS='mx_cats';
+const KP='mx_prods', KC='mx_cart', KW='mx_wish', KCF='mx_cfg', KPW='mx_pw', KB='mx_banners', KCS='mx_cats', KR='mx_reviews';
 
 /* ── PRODUCTOS POR DEFECTO ── */
 const DEFAULT_PRODUCTS = (function(){ try { return JSON.parse(document.getElementById('ml-data').textContent); } catch(e){ return []; } })();
@@ -2874,6 +2886,7 @@ let wish    = lsGet(KW,  []);
 let config  = lsGet(KCF, {});
 let banners = lsGet(KB,  null);
 let cats    = lsGet(KCS, null);
+let reviewsDB = lsGet(KR, {});
 
 /* ── SAVE HELPERS ── */
 const saveP   = () => lsSet(KP,  products);
@@ -2881,7 +2894,8 @@ const saveC   = () => lsSet(KC,  cart);
 const saveW   = () => lsSet(KW,  wish);
 const saveCfg = () => lsSet(KCF, config);
 const saveBan = () => lsSet(KB,  banners);
-const saveCats= () => lsSet(KCS, cats);
+const saveCats    = () => lsSet(KCS, cats);
+const saveReviews = () => lsSet(KR,  reviewsDB);
 const uid     = () => Date.now().toString(36) + Math.random().toString(36).slice(2,6);
 const fp      = p => '$' + Math.round(p).toLocaleString('es-CL');
 const esc     = s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
@@ -3162,13 +3176,22 @@ function _injectProductSchema(p) {
       seller: {'@type':'Organization', name:'Maxicompra'}
     }
   };
-  if (p.rat && p.rat > 0) {
+  var _prodRevs = reviewsDB[p.id] || [];
+  var _rat, _cnt;
+  if (_prodRevs.length > 0) {
+    _rat = Math.min(5, _prodRevs.reduce(function(a,r){ return a+r.rating; }, 0) / _prodRevs.length);
+    _cnt = _prodRevs.length;
+  } else {
+    _rat = p.rat;
+    _cnt = p.rev && p.rev > 0 ? p.rev : 0;
+  }
+  if (_rat && _rat > 0) {
     schema.aggregateRating = {
       '@type': 'AggregateRating',
-      ratingValue: Math.min(p.rat, 5).toFixed(1),
+      ratingValue: Math.min(_rat, 5).toFixed(1),
       bestRating: '5',
       worstRating: '1',
-      reviewCount: p.rev && p.rev > 0 ? p.rev : 1
+      reviewCount: _cnt > 0 ? _cnt : 1
     };
   }
   // Clean undefined keys
@@ -3626,19 +3649,87 @@ function swPdpTab(t, btn) {
 }
 
 function buildReviews(p) {
-  const rat = Math.min(5, Math.max(0, p.rat||4.5)), cnt = p.rev||0;
+  var stored = (reviewsDB[p.id] || []).slice().reverse(); // newest first
+  var hasStored = stored.length > 0;
+  // Rating summary: use real reviews when available, else fall back to product seed data
+  var rat, cnt;
+  if (hasStored) {
+    var sum = stored.reduce(function(a, r){ return a + r.rating; }, 0);
+    rat = Math.min(5, sum / stored.length);
+    cnt = stored.length;
+  } else {
+    rat = Math.min(5, Math.max(0, p.rat || 4.5));
+    cnt = p.rev || 0;
+  }
   document.getElementById('revAvg').textContent = rat.toFixed(1);
-  document.getElementById('revStars').textContent = '★'.repeat(Math.round(rat))+'☆'.repeat(5-Math.round(rat));
-  document.getElementById('revCount').textContent = `${cnt.toLocaleString('es-CL')} opiniones`;
-  const dist=[.6,.2,.12,.05,.03];
-  document.getElementById('ratBarsWrap').innerHTML = [5,4,3,2,1].map((s,i)=>
-    `<div class="rbar-row"><span class="rl">${s}★</span><div class="rbar-track"><div class="rbar-fill" style="width:${dist[i]*100}%"></div></div><span class="rc">${Math.round(dist[i]*cnt).toLocaleString('es-CL')}</span></div>`
-  ).join('');
-  const names=['María G.','Carlos M.','Valentina R.','Pedro S.','Andrea L.'];
-  const comments=['Excelente producto, llegó rápido y en perfectas condiciones. Lo recomiendo 100%.','Muy buena relación calidad/precio. Justo lo que necesitaba.','El producto llegó antes de lo esperado y funciona perfecto. Muy contento con la compra.','Buen producto, cumple con lo descrito. El envío fue rápido. Volvería a comprar.','Súper recomendado. La calidad es muy buena y el precio es justo. 5 estrellas.'];
-  document.getElementById('reviewsListWrap').innerHTML = cnt > 0
-    ? names.map((n,i) => `<div class="review-card"><div class="rev-head"><div class="rev-user"><div class="rev-av">${n[0]}</div><div><div class="rev-name">${n}</div><div class="rev-date">${['15 Mar 2026','10 Mar 2026','5 Mar 2026','28 Feb 2026','20 Feb 2026'][i]}</div></div></div><div style="color:var(--gold);font-size:14px">★★★★★</div></div><div class="rev-body">${comments[i]}</div></div>`).join('')
-    : '<p style="color:var(--muted);text-align:center;padding:30px">Aún no hay opiniones para este producto.</p>';
+  document.getElementById('revStars').textContent = '★'.repeat(Math.round(rat)) + '☆'.repeat(5 - Math.round(rat));
+  document.getElementById('revCount').textContent = cnt.toLocaleString('es-CL') + ' opiniones';
+  // Distribution bars
+  var dist;
+  if (hasStored) {
+    var buckets = [0,0,0,0,0];
+    stored.forEach(function(r){ if(r.rating>=1&&r.rating<=5) buckets[r.rating-1]++; });
+    dist = [buckets[4], buckets[3], buckets[2], buckets[1], buckets[0]]; // 5★ first
+  } else {
+    dist = [Math.round(cnt*.6), Math.round(cnt*.2), Math.round(cnt*.12), Math.round(cnt*.05), Math.round(cnt*.03)];
+  }
+  var total = dist.reduce(function(a,b){ return a+b; }, 0) || 1;
+  document.getElementById('ratBarsWrap').innerHTML = [5,4,3,2,1].map(function(s,i){
+    return '<div class="rbar-row"><span class="rl">'+s+'★</span><div class="rbar-track"><div class="rbar-fill" style="width:'+Math.round(dist[i]/total*100)+'%"></div></div><span class="rc">'+dist[i].toLocaleString('es-CL')+'</span></div>';
+  }).join('');
+  // Review cards
+  var isAdm = !!(function(){ try{ return sessionStorage.getItem('mx_admin_token'); }catch(e){ return ''; } }());
+  var listHtml;
+  if (hasStored) {
+    listHtml = stored.map(function(r){
+      var stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+      var delBtn = isAdm ? '<button class="rev-admin-del" onclick="deleteReview(\''+p.id+'\',\''+r.id+'\')" title="Eliminar">✕</button>' : '';
+      return '<div class="review-card" id="rev-'+r.id+'">'+delBtn+'<div class="rev-head"><div class="rev-user"><div class="rev-av">'+esc(r.name[0].toUpperCase())+'</div><div><div class="rev-name">'+esc(r.name)+'</div><div class="rev-date">'+esc(r.date)+'</div></div></div><div style="color:#F59E0B;font-size:14px">'+stars+'</div></div><div class="rev-body">'+esc(r.comment)+'</div></div>';
+    }).join('');
+  } else if (cnt > 0) {
+    listHtml = '<p style="color:var(--muted);text-align:center;padding:20px 0">Sé el primero en dejar tu opinión sobre este producto.</p>';
+  } else {
+    listHtml = '<p style="color:var(--muted);text-align:center;padding:20px 0">Aún no hay opiniones. ¡Sé el primero!</p>';
+  }
+  // Review form
+  var formHtml = '<div class="rev-form">'
+    + '<h4>Dejar una opinión</h4>'
+    + '<div class="rev-star-pick">'
+    + [5,4,3,2,1].map(function(n){ return '<input type="radio" name="rev-rating-'+p.id+'" id="rs'+n+'-'+p.id+'" value="'+n+'"><label for="rs'+n+'-'+p.id+'">★</label>'; }).join('')
+    + '</div>'
+    + '<div class="rev-form-row"><input type="text" id="rev-name-'+p.id+'" placeholder="Tu nombre (requerido)" maxlength="60"></div>'
+    + '<textarea id="rev-comment-'+p.id+'" placeholder="Cuéntanos tu experiencia con este producto (mínimo 10 caracteres)" maxlength="600"></textarea>'
+    + '<button class="btn-ed btn-primary-ed" onclick="submitReview(\''+p.id+'\')">Publicar opinión</button>'
+    + '</div>';
+  document.getElementById('reviewsListWrap').innerHTML = listHtml + formHtml;
+}
+
+function submitReview(prodId) {
+  var ratingEl = document.querySelector('input[name="rev-rating-'+prodId+'"]:checked');
+  var nameEl   = document.getElementById('rev-name-'+prodId);
+  var commentEl= document.getElementById('rev-comment-'+prodId);
+  if (!ratingEl)              { showToast('Selecciona una calificación ★'); return; }
+  if (!nameEl.value.trim())   { showToast('Ingresa tu nombre'); return; }
+  if (commentEl.value.trim().length < 10) { showToast('El comentario debe tener al menos 10 caracteres'); return; }
+  var now = new Date();
+  var months = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  var dateStr = now.getDate() + ' ' + months[now.getMonth()] + ' ' + now.getFullYear();
+  var entry = { id: uid(), name: nameEl.value.trim(), rating: parseInt(ratingEl.value), comment: commentEl.value.trim(), date: dateStr };
+  if (!reviewsDB[prodId]) reviewsDB[prodId] = [];
+  reviewsDB[prodId].push(entry);
+  saveReviews();
+  var prod = products.find(function(x){ return x.id === prodId; });
+  if (prod) buildReviews(prod);
+  showToast('¡Gracias por tu opinión! ✓');
+}
+
+function deleteReview(prodId, revId) {
+  if (!reviewsDB[prodId]) return;
+  reviewsDB[prodId] = reviewsDB[prodId].filter(function(r){ return r.id !== revId; });
+  saveReviews();
+  var prod = products.find(function(x){ return x.id === prodId; });
+  if (prod) buildReviews(prod);
+  showToast('Opinión eliminada');
 }
 
 function buildRelated(p) {

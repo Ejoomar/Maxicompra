@@ -255,23 +255,21 @@ img{display:block;max-width:100%;}
 
 /* ═══════════════════════════ NAV ═══════════════════════════ */
 .site-nav{background:var(--bg);border-bottom:1px solid var(--line);position:relative;}
-/* Scroll fade masks */
-.site-nav::before,.site-nav::after{content:'';position:absolute;top:0;bottom:0;width:32px;pointer-events:none;z-index:2;}
-.site-nav::before{left:0;background:linear-gradient(to right,var(--bg),transparent);}
-.site-nav::after{right:0;background:linear-gradient(to left,var(--bg),transparent);}
-.nav-inner{max-width:1360px;margin:auto;padding:0 28px;display:flex;align-items:center;overflow-x:auto;scrollbar-width:none;height:52px;gap:3px;}
+.site-nav::before,.site-nav::after{content:'';position:absolute;top:0;bottom:0;width:36px;pointer-events:none;z-index:2;}
+.site-nav::before{left:0;background:linear-gradient(to right,var(--bg) 40%,transparent);}
+.site-nav::after{right:0;background:linear-gradient(to left,var(--bg) 40%,transparent);}
+.nav-inner{max-width:1360px;margin:auto;padding:0 32px;display:flex;align-items:center;overflow-x:auto;scrollbar-width:none;height:54px;gap:2px;}
 .nav-inner::-webkit-scrollbar{display:none;}
-/* Pill nav items */
-.nav-item{padding:6px 13px;border-radius:99px;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;color:var(--mute);white-space:nowrap;border-bottom:none;margin-bottom:0;transition:background .18s,color .18s,transform .15s;cursor:pointer;letter-spacing:0.01em;background:transparent;flex-shrink:0;}
-.nav-item:hover{color:var(--ink);background:rgba(15,15,20,.06);}
-.nav-item.active{font-weight:600;}
-/* "Todos" special */
-.nav-item.sale{color:var(--pink);}
-.nav-item.sale:hover{color:var(--pink);background:rgba(232,23,93,.08);}
-.nav-item.sale.active{color:var(--pink);background:rgba(232,23,93,.1);}
+.nav-item{padding:6px 14px 6px 8px;border-radius:99px;display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:500;color:var(--mute);white-space:nowrap;border-bottom:none;margin-bottom:0;transition:background .2s,color .2s;cursor:pointer;letter-spacing:.01em;background:transparent;flex-shrink:0;}
+.nav-item:hover{color:var(--ink);background:rgba(15,15,20,.07);}
+.nav-item.active{font-weight:700;color:#fff !important;}
+.nav-item.sale{padding-left:10px;}
+.nav-item.sale:hover{color:var(--pink);background:rgba(232,23,93,.09);}
 .nav-item i{display:none;}
-/* Icon */
-.nv-ico{display:flex;align-items:center;flex-shrink:0;width:20px;height:20px;border-radius:6px;justify-content:center;transition:all .18s;}
+/* Emoji icon bubble */
+.nv-ico{display:flex;align-items:center;justify-content:center;flex-shrink:0;width:24px;height:24px;border-radius:8px;font-size:13px;line-height:1;transition:transform .2s;}
+.nav-item:hover .nv-ico{transform:scale(1.12);}
+.nav-item.active .nv-ico{transform:scale(1.08);}
 .nav-item svg{width:13px;height:13px;}
 
 /* ═══════════════════════════ VIEWS ═══════════════════════════ */
@@ -3367,21 +3365,21 @@ function renderNavBar() {
     general:'#6366F1',accesorios:'#14B8A6',deportes:'#22C55E',cocina:'#F97316',
   };
   const allIcon = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>`;
-  const icoStyle = (col, isActive) =>
-    `background:${isActive ? col+'22' : col+'14'};color:${col};`;
-  const itemStyle = (col, isActive) =>
-    isActive ? `background:${col}14;color:${col};` : '';
+  const isHome = !currentCat && currentView==='home';
 
   nav.innerHTML =
-    `<div class="nav-item sale ${!currentCat && currentView==='home' ? 'active' : ''}" onclick="goHome()">` +
-      `<span class="nv-ico" style="background:rgba(232,23,93,.12);color:var(--pink)">${allIcon}</span>Todos` +
+    `<div class="nav-item sale ${isHome ? 'active' : ''}" onclick="goHome()" style="${isHome ? 'background:var(--pink);' : ''}">` +
+      `<span class="nv-ico" style="background:${isHome ? 'rgba(255,255,255,.2)' : 'rgba(232,23,93,.12)'}">🛍️</span>` +
+      `<span style="color:${isHome ? '#fff' : 'var(--pink)'}">Todos</span>` +
     `</div>` +
     cats.filter(c => activeCats.includes(c.name)).map(c => {
-      const ico     = NV_ICONS[c.id] || '';
-      const col     = NV_ACCENT[c.id] || '#888';
+      const col      = NV_ACCENT[c.id] || '#888';
       const isActive = currentCat === c.id && currentView==='category';
-      return `<div class="nav-item ${isActive ? 'active' : ''}" onclick="openCatView('${c.id}')" style="${itemStyle(col,isActive)}">` +
-        `<span class="nv-ico" style="${icoStyle(col,isActive)}">${ico}</span>${esc(c.name)}` +
+      const emoji    = c.emoji || '📦';
+      return `<div class="nav-item ${isActive ? 'active' : ''}" onclick="openCatView('${c.id}')"` +
+        ` style="${isActive ? `background:${col};` : ''}">` +
+        `<span class="nv-ico" style="background:${isActive ? 'rgba(255,255,255,.18)' : col+'18'};">${emoji}</span>` +
+        `<span style="color:${isActive ? '#fff' : ''}">${esc(c.name)}</span>` +
       `</div>`;
     }).join('');
 }

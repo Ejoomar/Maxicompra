@@ -382,18 +382,30 @@ a.prod,a.cat-card-ed,a.product-card{text-decoration:none;color:inherit;}
 
 /* ═══════════════════════════ CATEGORY PAGE ═══════════════════════════ */
 /* ═══ CATEGORY HERO — CLASSIC ═══ */
-.cat-page-hero{position:relative;overflow:hidden;padding:48px 0 40px;border-bottom:1px solid var(--line);background:var(--surface);}
-.cat-page-bg{position:absolute;inset:0;background-size:cover;background-position:center;}
+.cat-page-hero{position:relative;overflow:hidden;padding:60px 0 56px;border-bottom:1px solid rgba(255,255,255,.08);background:#0f0f14;transition:background .45s ease;}
+.cat-page-bg{position:absolute;inset:0;background-size:cover;background-position:center;transition:transform 8s ease;}
+.cat-page-hero:hover .cat-page-bg{transform:scale(1.04);}
 .cat-page-overlay{position:absolute;inset:0;}
-.cat-page-deco{display:none;}
-.cat-page-content.container{display:flex;flex-direction:column;}
-.cat-page-breadcrumb{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--mute);margin-bottom:20px;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:0.1em;}
+/* Dot grid texture overlay */
+.cat-page-hero::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,rgba(255,255,255,.055) 1px,transparent 1px);background-size:26px 26px;pointer-events:none;z-index:1;}
+/* Accent glow orb */
+.cat-page-glow{position:absolute;right:-80px;top:50%;transform:translateY(-50%);width:520px;height:520px;border-radius:50%;filter:blur(100px);opacity:.2;pointer-events:none;z-index:1;transition:background .45s;}
+/* Big floating emoji */
+.cat-page-deco-emoji{position:absolute;right:clamp(40px,7vw,140px);top:50%;transform:translateY(-50%);font-size:clamp(110px,15vw,190px);line-height:1;pointer-events:none;z-index:1;opacity:.18;filter:drop-shadow(0 12px 40px rgba(0,0,0,.5));user-select:none;}
+.cat-page-content.container{position:relative;z-index:2;display:flex;flex-direction:column;}
+.cat-page-breadcrumb{display:flex;align-items:center;gap:7px;font-size:10px;color:rgba(255,255,255,.38);margin-bottom:20px;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:0.14em;}
 .cat-page-breadcrumb .bc-link{cursor:pointer;transition:color .15s;}
-.cat-page-breadcrumb .bc-link:hover{color:var(--ink);}
-.cat-page-title{font-family:'Instrument Serif',serif;font-size:clamp(40px,6vw,72px);font-weight:400;color:var(--ink);line-height:1;letter-spacing:-0.02em;display:flex;align-items:center;gap:12px;}
+.cat-page-breadcrumb .bc-link:hover{color:rgba(255,255,255,.85);}
+.cat-page-breadcrumb i{opacity:.35;}
+/* Category pill/chip */
+.cat-page-chip{display:inline-flex;align-items:center;gap:7px;padding:5px 14px 5px 10px;border-radius:99px;border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.07);backdrop-filter:blur(10px);font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:rgba(255,255,255,.65);margin-bottom:20px;width:fit-content;}
+.cat-page-chip-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.cat-page-title{font-family:'Instrument Serif',serif;font-size:clamp(48px,7.5vw,86px);font-weight:400;color:#fff;line-height:.92;letter-spacing:-0.03em;margin:0;}
 .cat-page-title-emoji{display:none;}
-.cat-page-count{font-size:11px;color:var(--mute);font-family:'JetBrains Mono',monospace;margin-top:14px;letter-spacing:0.15em;text-transform:uppercase;}
-.cat-page-desc{font-size:15px;color:var(--mute);line-height:1.6;margin-top:14px;max-width:560px;}
+.cat-page-count{display:inline-flex;align-items:center;gap:8px;font-size:11px;color:rgba(255,255,255,.38);font-family:'JetBrains Mono',monospace;margin-top:20px;letter-spacing:0.18em;text-transform:uppercase;}
+.cat-page-count::before{content:'';display:inline-block;width:20px;height:1px;background:rgba(255,255,255,.25);}
+.cat-page-desc{font-size:15px;color:rgba(255,255,255,.5);line-height:1.68;margin-top:14px;max-width:480px;}
+@media(max-width:768px){.cat-page-deco-emoji{right:16px;opacity:.1;font-size:80px;}.cat-page-title{font-size:clamp(36px,10vw,56px);}.cat-page-desc{font-size:13.5px;}}
 /* ═══ 404 VIEW ═══ */
 .not-found-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;padding:60px 24px;text-align:center;}
 .not-found-code{font-family:'Instrument Serif',Georgia,serif;font-size:clamp(100px,20vw,180px);font-weight:400;line-height:1;color:var(--ink);opacity:.08;letter-spacing:-0.04em;user-select:none;}
@@ -2267,6 +2279,8 @@ html{scroll-behavior:smooth;}
     <div class="cat-page-hero" id="catPageHero">
       <div class="cat-page-bg" id="catPageBg"></div>
       <div class="cat-page-overlay" id="catPageOverlay"></div>
+      <div class="cat-page-glow" id="catPageGlow"></div>
+      <div class="cat-page-deco-emoji" id="catPageDecoEmoji" aria-hidden="true">📦</div>
       <div class="cat-page-content container">
         <nav aria-label="Breadcrumb" class="cat-page-breadcrumb">
           <ol itemscope itemtype="https://schema.org/BreadcrumbList" style="list-style:none;display:flex;align-items:center;gap:6px;margin:0;padding:0;">
@@ -2274,17 +2288,18 @@ html{scroll-behavior:smooth;}
               <span class="bc-link" onclick="goHome()" itemprop="item" role="link" tabindex="0"><span itemprop="name">Inicio</span></span>
               <meta itemprop="position" content="1">
             </li>
-            <li aria-hidden="true"><i class="fas fa-chevron-right" style="font-size:9px;opacity:.5"></i></li>
+            <li aria-hidden="true"><i class="fas fa-chevron-right" style="font-size:9px"></i></li>
             <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
               <span id="catPageCrumb" itemprop="name">Categoría</span>
               <meta itemprop="position" content="2">
             </li>
           </ol>
         </nav>
-        <h1 class="cat-page-title">
-          <span class="cat-page-title-emoji" id="catPageEmoji">📦</span>
-          <span id="catPageName">Categoría</span>
-        </h1>
+        <div class="cat-page-chip" id="catPageChip">
+          <span class="cat-page-chip-dot" id="catPageChipDot"></span>
+          <span id="catPageChipLabel">Categoría</span>
+        </div>
+        <h1 class="cat-page-title" id="catPageName">Categoría</h1>
         <div class="cat-page-count" id="catPageCount"></div>
         <p class="cat-page-desc" id="catPageDesc"></p>
       </div>
@@ -3119,18 +3134,30 @@ function openCatView(catId) {
   const bgColor  = CAT_BG[catId]     || '#1a1a2e';
   const accent   = CAT_ACCENT[catId] || '#E8175D';
 
-  // ── Fondo del hero ──
-  const bg = document.getElementById('catPageBg');
-  const overlay = document.getElementById('catPageOverlay');
+  // ── Hero visual ──
+  const hero   = document.getElementById('catPageHero');
+  const bg     = document.getElementById('catPageBg');
+  const overlay= document.getElementById('catPageOverlay');
+  const glow   = document.getElementById('catPageGlow');
+  const deco   = document.getElementById('catPageDecoEmoji');
+  hero.style.background = bgColor;
   if(cat.bg){
-    bg.style.backgroundImage = `url(${cat.bg})`;
-    bg.style.background = '';
-    overlay.style.cssText = 'background:linear-gradient(90deg,rgba(250,250,247,0.92) 40%,rgba(250,250,247,0.6) 100%);';
+    bg.style.backgroundImage = `url('${cat.bg.replace(/'/g,'%27')}')`;
+    overlay.style.cssText = `background:linear-gradient(105deg,${bgColor}F2 38%,${bgColor}99 70%,transparent 100%);`;
   } else {
     bg.style.backgroundImage = '';
-    bg.style.background = '';
-    overlay.style.cssText = `background:linear-gradient(135deg,${accent}0D 0%,transparent 50%);border-left:4px solid ${accent};`;
+    overlay.style.cssText = `background:linear-gradient(105deg,${bgColor} 30%,${bgColor}CC 65%,transparent 100%);`;
   }
+  if(glow) glow.style.background = accent;
+  if(deco) deco.textContent = cat.emoji || '📦';
+
+  // ── Chip / pill ──
+  const chip = document.getElementById('catPageChip');
+  const chipDot = document.getElementById('catPageChipDot');
+  const chipLabel = document.getElementById('catPageChipLabel');
+  if(chip){ chip.style.borderColor = accent+'33'; chip.style.background = accent+'15'; }
+  if(chipDot) chipDot.style.background = accent;
+  if(chipLabel) chipLabel.textContent = cat.name;
 
   // ── Textos ──
   const CAT_DESC = {
@@ -3148,7 +3175,6 @@ function openCatView(catId) {
     deportes:         'Ropa deportiva, equipamiento y accesorios para tu deporte favorito. Actívate con los mejores productos y envío a todo Chile.'
   };
   const _desc = CAT_DESC[catId] || ('Los mejores productos de ' + cat.name + ' al mejor precio. Envío gratis a todo Chile.');
-  document.getElementById('catPageEmoji').textContent = cat.emoji;
   document.getElementById('catPageName').textContent  = cat.name;
   document.getElementById('catPageCrumb').textContent = cat.name;
   document.getElementById('catPageDesc').textContent  = _desc;

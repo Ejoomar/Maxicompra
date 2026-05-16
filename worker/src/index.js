@@ -1009,6 +1009,34 @@ async function handleGetProductBySlug(slug, request, env) {
   return json({ ok: true, product }, 200, request);
 }
 
+async function handleSearchImage(request, env) {
+  const url = new URL(request.url);
+  const q   = (url.searchParams.get('q') || '').trim();
+  if (!q || q.length > 200) return err('Query requerida', 400, request);
+
+  const query   = encodeURIComponent(q.replace(/[^\w\s\-áéíóúüñÁÉÍÓÚÜÑ]/gi, ' ').trim());
+  const mlUrl   = `https://api.mercadolibre.com/sites/MLC/search?q=${query}&limit=3`;
+  const resp    = await fetch(mlUrl, {
+    headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Maxicompra/1.0)' },
+  });
+
+  if (!resp.ok) return json({ ok: false, img: null, status: resp.status }, 200, request);
+
+  const data    = await resp.json();
+  const results = data.results || [];
+  if (!results.length) return json({ ok: false, img: null }, 200, request);
+
+  // Tomar primera imagen con mejor resolución disponible
+  const best    = results.find(r => r.thumbnail) || results[0];
+  const thumb   = best?.thumbnail || '';
+  // Subir resolución: -V.jpg (170px) → -O.jpg (original)
+  const img     = thumb
+    .replace(/-[A-Z]\.jpg$/, '-O.jpg')
+    .replace(/^http:/, 'https:');
+
+  return json({ ok: true, img, title: best?.title || '' }, 200, request);
+}
+
 async function handleSitemap(request, env) {
   const products = await env.CONFIG.get('products:all', 'json') || [];
   const base     = 'https://maxicompra.cl';
@@ -1065,6 +1093,7 @@ export default {
     if (path === '/sitemap.xml'             && method === 'GET')    return handleSitemap(request, env);
     if (path === '/api/health'              && method === 'GET')    return handleHealth(request, env);
     if (path === '/api/products'            && method === 'GET')    return handleGetProducts(request, env);
+    if (path === '/api/search-image'        && method === 'GET')    return handleSearchImage(request, env);
     if (path.match(/^\/api\/product\/slug\/[^/]+$/) && method === 'GET')
       return handleGetProductBySlug(decodeURIComponent(path.split('/')[4]), request, env);
     if (path === '/api/order'               && method === 'POST')   return handleCreateOrder(request, env);

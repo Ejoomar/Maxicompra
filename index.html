@@ -1875,6 +1875,7 @@ html{scroll-behavior:smooth;}
         <div class="adm-toolbar">
           <input class="adm-search" id="pt-search" placeholder="🔍 Buscar producto..." oninput="renderProdTable()">
           <select class="adm-select" id="pt-cat" onchange="renderProdTable()"><option value="">Todas las categorías</option></select>
+          <button class="btn-outline" style="padding:8px 14px;font-size:13px;white-space:nowrap;" onclick="openAutoImgModal()"><i class="fas fa-images"></i> Auto-imágenes ML</button>
           <select class="adm-select" id="pt-bdg" onchange="renderProdTable()"><option value="">Todos los badges</option><option value="hot">🔥 Más Vendido</option><option value="sale">Oferta</option><option value="new">Nuevo</option></select>
         </div>
         <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden">
@@ -1976,6 +1977,58 @@ html{scroll-behavior:smooth;}
 <div class="ord-modal" id="ordModal" onclick="if(event.target===this)closeOrdModal()">
   <div class="ord-modal-box">
     <div id="ordModalContent"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════ AUTO-IMG MODAL ════════════════════════ -->
+<div class="modal-overlay" id="autoImgModal" style="display:none;z-index:800;" onclick="if(event.target===this&&!_aiRunning)closeAutoImgModal()">
+  <div class="modal-box" style="max-width:560px;padding:0;overflow:hidden;">
+    <div style="padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <h3 style="font-size:16px;font-weight:700;color:var(--text);margin:0;">🔍 Buscar imágenes en MercadoLibre</h3>
+        <p id="aiSubtitle" style="font-size:12px;color:var(--muted);margin:4px 0 0;"></p>
+      </div>
+      <button onclick="if(!_aiRunning)closeAutoImgModal()" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:4px;">✕</button>
+    </div>
+    <div style="padding:20px 24px;">
+      <!-- Barra de progreso -->
+      <div style="background:var(--card2);border-radius:8px;height:8px;overflow:hidden;margin-bottom:16px;">
+        <div id="aiProgressBar" style="height:100%;background:linear-gradient(90deg,var(--pink),#F04E38);border-radius:8px;width:0%;transition:width .4s;"></div>
+      </div>
+      <!-- Producto actual -->
+      <div id="aiCurrent" style="display:flex;gap:14px;align-items:center;min-height:72px;padding:12px;background:var(--card2);border-radius:10px;margin-bottom:14px;">
+        <div id="aiThumb" style="width:60px;height:60px;border-radius:8px;background:var(--card);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;font-size:24px;"></div>
+        <div style="flex:1;min-width:0;">
+          <div id="aiProdName" style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Esperando...</div>
+          <div id="aiStatus" style="font-size:12px;color:var(--muted);margin-top:3px;">Listo para iniciar</div>
+        </div>
+      </div>
+      <!-- Contadores -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px;text-align:center;">
+        <div style="background:var(--card2);border-radius:8px;padding:10px 6px;">
+          <div id="aiCountDone" style="font-size:20px;font-weight:800;color:var(--pink);">0</div>
+          <div style="font-size:11px;color:var(--muted);">Encontradas</div>
+        </div>
+        <div style="background:var(--card2);border-radius:8px;padding:10px 6px;">
+          <div id="aiCountSkip" style="font-size:20px;font-weight:800;color:var(--muted);">0</div>
+          <div style="font-size:11px;color:var(--muted);">Sin resultado</div>
+        </div>
+        <div style="background:var(--card2);border-radius:8px;padding:10px 6px;">
+          <div id="aiCountLeft" style="font-size:20px;font-weight:800;color:var(--text);">0</div>
+          <div style="font-size:11px;color:var(--muted);">Pendientes</div>
+        </div>
+      </div>
+      <!-- Botones -->
+      <div style="display:flex;gap:10px;">
+        <button id="aiBtnStart" class="btn-grad" style="flex:1;padding:11px;" onclick="startAutoImg()">
+          <i class="fas fa-play"></i> Iniciar búsqueda
+        </button>
+        <button id="aiBtnStop" class="btn-outline" style="padding:11px 18px;display:none;" onclick="stopAutoImg()">
+          <i class="fas fa-stop"></i> Detener
+        </button>
+      </div>
+      <p id="aiNote" style="font-size:11px;color:var(--muted);text-align:center;margin-top:10px;line-height:1.5;"></p>
+    </div>
   </div>
 </div>
 
@@ -5164,6 +5217,120 @@ function importAll(e){
   r.readAsText(f);e.target.value='';
 }
 function clearProds(){if(!confirm('¿Eliminar TODOS los productos?'))return;products=[];saveP();renderAll();renderProdTable();updStats();showToast('Todos los productos eliminados');}
+/* ══════════════════════════════════════════════
+   AUTO-IMG: busca imágenes en ML via Worker proxy
+══════════════════════════════════════════════ */
+var _aiRunning = false;
+var _aiStop    = false;
+
+function openAutoImgModal() {
+  var sinImg = products.filter(function(p){ return !p.imgs || !p.imgs[0] || !String(p.imgs[0]).startsWith('http'); });
+  document.getElementById('aiSubtitle').textContent = sinImg.length + ' productos sin imagen de ' + products.length + ' total';
+  document.getElementById('aiCountLeft').textContent = sinImg.length;
+  document.getElementById('aiCountDone').textContent = '0';
+  document.getElementById('aiCountSkip').textContent = '0';
+  document.getElementById('aiProgressBar').style.width = '0%';
+  document.getElementById('aiProdName').textContent = 'Listo para iniciar';
+  document.getElementById('aiStatus').textContent = sinImg.length + ' productos pendientes';
+  document.getElementById('aiThumb').innerHTML = '📦';
+  document.getElementById('aiBtnStart').style.display = '';
+  document.getElementById('aiBtnStop').style.display = 'none';
+  document.getElementById('aiNote').textContent = 'Las imágenes se guardan automáticamente y se sincronizan al terminar.';
+  document.getElementById('autoImgModal').style.display = 'flex';
+}
+
+function closeAutoImgModal() {
+  document.getElementById('autoImgModal').style.display = 'none';
+}
+
+async function startAutoImg() {
+  var token = ''; try{ token = sessionStorage.getItem('mx_admin_token') || ''; }catch(e){}
+  if (!token) { showToast('Debes iniciar sesión como admin primero', 'error'); return; }
+
+  var queue = products.filter(function(p){ return !p.imgs || !p.imgs[0] || !String(p.imgs[0]).startsWith('http'); });
+  if (!queue.length) { showToast('Todos los productos ya tienen imagen ✓', 'ok'); return; }
+
+  _aiRunning = true;
+  _aiStop    = false;
+  var done   = 0, skip = 0, total = queue.length;
+
+  document.getElementById('aiBtnStart').style.display = 'none';
+  document.getElementById('aiBtnStop').style.display  = '';
+  document.getElementById('aiNote').textContent = 'Buscando imágenes... no cierres esta ventana.';
+
+  for (var i = 0; i < queue.length; i++) {
+    if (_aiStop) break;
+    var p = queue[i];
+
+    // UI: mostrar producto actual
+    document.getElementById('aiProdName').textContent = p.name;
+    document.getElementById('aiStatus').textContent   = 'Buscando en MercadoLibre...';
+    document.getElementById('aiThumb').innerHTML      = '<div style="width:100%;height:100%;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:20px;">⏳</div>';
+    document.getElementById('aiCountLeft').textContent = (total - i);
+    document.getElementById('aiProgressBar').style.width = Math.round((i / total) * 100) + '%';
+
+    try {
+      var resp = await fetch(API_BASE + '/api/search-image?q=' + encodeURIComponent(p.name));
+      var data = await resp.json();
+
+      if (data.ok && data.img) {
+        // Guardar imagen en el producto
+        var idx = products.findIndex(function(x){ return x.id === p.id; });
+        if (idx >= 0) {
+          products[idx] = Object.assign({}, products[idx], { imgs: [data.img] });
+        }
+        done++;
+        document.getElementById('aiCountDone').textContent = done;
+        document.getElementById('aiStatus').textContent    = '✓ ' + (data.title || 'Encontrada').slice(0, 60);
+        document.getElementById('aiThumb').innerHTML       = '<img src="' + data.img + '" style="width:100%;height:100%;object-fit:contain;border-radius:6px;" onerror="this.parentNode.innerHTML=\'📷\'">';
+      } else {
+        skip++;
+        document.getElementById('aiCountSkip').textContent = skip;
+        document.getElementById('aiStatus').textContent    = '— Sin resultado';
+        document.getElementById('aiThumb').innerHTML       = '❌';
+      }
+    } catch(e) {
+      skip++;
+      document.getElementById('aiCountSkip').textContent = skip;
+      document.getElementById('aiStatus').textContent    = 'Error de red';
+      document.getElementById('aiThumb').innerHTML       = '⚠️';
+    }
+
+    // Guardar en localStorage cada 20 productos
+    if ((i + 1) % 20 === 0) { saveP(); }
+
+    // Pausa entre requests para no saturar la API
+    await new Promise(function(r){ setTimeout(r, 350); });
+  }
+
+  // Guardar todo y sincronizar
+  saveP();
+  renderProdTable();
+  renderAll();
+  _aiRunning = false;
+
+  var finalMsg = _aiStop
+    ? 'Detenido. ' + done + ' imágenes encontradas.'
+    : '¡Listo! ' + done + ' imágenes encontradas, ' + skip + ' sin resultado.';
+
+  document.getElementById('aiProgressBar').style.width = '100%';
+  document.getElementById('aiStatus').textContent = finalMsg;
+  document.getElementById('aiNote').textContent   = done > 0 ? 'Sincronizando con el servidor...' : '';
+  document.getElementById('aiBtnStop').style.display  = 'none';
+  document.getElementById('aiBtnStart').style.display = '';
+  document.getElementById('aiBtnStart').innerHTML     = '<i class="fas fa-check"></i> Listo';
+
+  if (done > 0) {
+    showToast(done + ' imágenes guardadas. Sincronizando...', 'ok');
+    syncAllProductsToKV();
+  }
+}
+
+function stopAutoImg() {
+  _aiStop = true;
+  document.getElementById('aiStatus').textContent = 'Deteniendo...';
+}
+
 function syncAllProductsToKV(){
   var token=''; try{token=sessionStorage.getItem('mx_admin_token')||'';}catch(e){}
   if(!token){showToast('Debes iniciar sesión como admin primero','error');return;}

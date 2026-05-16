@@ -1946,6 +1946,8 @@ html{scroll-behavior:smooth;}
           <div class="adm-card">
             <h4><i class="fas fa-database"></i>Datos & Backup</h4>
             <div class="set-row"><div class="set-info"><h5>Sincronizar con servidor</h5><p>Sube todos los productos al servidor (URLs SEO)</p></div><button class="btn-outline" style="padding:8px 14px;font-size:13px" onclick="syncAllProductsToKV()"><i class="fas fa-cloud-upload-alt"></i> Sincronizar</button></div>
+            <div class="set-row"><div class="set-info"><h5>Importar imágenes ML</h5><p>Carga el archivo mx_matches.json y asigna imágenes a los productos por ID</p></div><label class="btn-grad" style="padding:8px 14px;font-size:13px;cursor:pointer"><i class="fas fa-images"></i> Importar imágenes<input type="file" accept=".json" style="display:none" onchange="importMLImages(event)"></label></div>
+            <div class="set-row"><div class="set-info"><h5>Cargar productos desde servidor</h5><p>Sincroniza localStorage con los 656 productos del KV</p></div><button class="btn-outline" style="padding:8px 14px;font-size:13px" onclick="loadProdsFromKV()"><i class="fas fa-cloud-download-alt"></i> Cargar</button></div>
             <div class="set-row"><div class="set-info"><h5>Exportar todo</h5><p>Productos, configuración y banners en JSON</p></div><button class="btn-outline" style="padding:8px 14px;font-size:13px" onclick="exportAll()"><i class="fas fa-download"></i> Exportar</button></div>
             <div class="set-row"><div class="set-info"><h5>Importar datos</h5><p>Restaura desde un archivo JSON</p></div><label class="btn-outline" style="padding:8px 14px;font-size:13px;cursor:pointer"><i class="fas fa-upload"></i> Importar<input type="file" accept=".json" style="display:none" onchange="importAll(event)"></label></div>
             <div class="set-row"><div class="set-info"><h5>Borrar todos los productos</h5><p>Acción irreversible</p></div><button class="btn-danger" style="padding:8px 14px;font-size:13px" onclick="clearProds()"><i class="fas fa-trash"></i> Borrar</button></div>
@@ -5329,6 +5331,63 @@ async function startAutoImg() {
 function stopAutoImg() {
   _aiStop = true;
   document.getElementById('aiStatus').textContent = 'Deteniendo...';
+}
+
+/* ─── Importar imágenes desde mx_matches.json ─────────────────── */
+function importMLImages(event) {
+  var file = event.target.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var matches = JSON.parse(e.target.result);
+      if (!Array.isArray(matches)) throw new Error('Formato inválido');
+
+      // Índice por ID para lookup O(1)
+      var byId = {};
+      matches.forEach(function(m) { if (m.id) byId[m.id] = m.img; });
+
+      var updated = 0;
+      products = products.map(function(p) {
+        var img = byId[p.id];
+        if (img && (!p.imgs || !p.imgs[0] || !String(p.imgs[0]).startsWith('http'))) {
+          updated++;
+          return Object.assign({}, p, { imgs: [img] });
+        }
+        return p;
+      });
+
+      saveP();
+      renderAll();
+      renderProdTable();
+      updStats();
+      showToast(updated + ' productos actualizados con imágenes. Sincronizando...', 'ok');
+      if (updated > 0) syncAllProductsToKV();
+    } catch(err) {
+      showToast('Error leyendo el archivo: ' + err.message, 'error');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = ''; // reset input
+}
+
+/* ─── Cargar todos los productos desde KV ────────────────────── */
+async function loadProdsFromKV() {
+  showToast('Cargando productos desde el servidor...', 'info');
+  try {
+    var resp = await fetch(API_BASE + '/api/products');
+    var data = await resp.json();
+    var list  = data.products || data;
+    if (!Array.isArray(list) || !list.length) { showToast('No se encontraron productos', 'error'); return; }
+    products = list;
+    saveP();
+    renderAll();
+    renderProdTable();
+    updStats();
+    showToast(list.length + ' productos cargados desde el servidor ✓', 'ok');
+  } catch(err) {
+    showToast('Error al cargar: ' + err.message, 'error');
+  }
 }
 
 function syncAllProductsToKV(){

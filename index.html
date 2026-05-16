@@ -3776,9 +3776,18 @@ function renderHomeCats() {
   };
   // Fotos lifestyle (cubren toda la tarjeta, texto en blanco) para categorías sin foto de producto
   const CAT_COVER_IMGS = {
-    hogar:      'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=500&fit=crop&q=85',
-    accesorios: 'https://images.unsplash.com/photo-1611652022419-a9419f74343d?w=400&h=500&fit=crop&q=85',
-    deportes:   'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400&h=500&fit=crop&q=85',
+    electronica:     'https://images.unsplash.com/photo-1498049794561-7780e7231661?w=400&h=500&fit=crop&q=85',
+    audio:           'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=500&fit=crop&q=85',
+    tecnologia:      'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=400&h=500&fit=crop&q=85',
+    computacion:     'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=500&fit=crop&q=85',
+    telefonia:       'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&h=500&fit=crop&q=85',
+    'salud-belleza': 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&h=500&fit=crop&q=85',
+    juguetes:        'https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=400&h=500&fit=crop&q=85',
+    cocina:          'https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=400&h=500&fit=crop&q=85',
+    general:         'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=400&h=500&fit=crop&q=85',
+    hogar:           'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=500&fit=crop&q=85',
+    accesorios:      'https://images.unsplash.com/photo-1611652022419-a9419f74343d?w=400&h=500&fit=crop&q=85',
+    deportes:        'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400&h=500&fit=crop&q=85',
   };
   grid.innerHTML = cats.map(c => {
     const cnt = products.filter(p=>p.visible!==false && p.cat===c.name).length;
@@ -3793,8 +3802,8 @@ function renderHomeCats() {
     const catIconSvg = CAT_ICONS[c.id] || CAT_ICONS['general'];
     const countLabel = cnt > 0 ? `${cnt} producto${cnt!==1?'s':''}` : '<span style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;opacity:.55">Próximamente</span>';
     if (isCover) {
-      // Modo cover: foto de fondo, gradiente oscuro, texto blanco
-      return `<a class="cat-card-ed cat-card-cover" href="/c/${c.id}" onclick="event.preventDefault();openCatView('${c.id}')" style="background-image:url('${coverImg.replace(/'/g,'%27')}')">
+      // Modo cover: foto de fondo lazy-loaded, gradiente oscuro, texto blanco
+      return `<a class="cat-card-ed cat-card-cover" href="/c/${c.id}" onclick="event.preventDefault();openCatView('${c.id}')" data-bg="${coverImg.replace(/"/g,'&quot;')}">
         <div style="position:relative;z-index:2;">
           <div class="cat-text-ink" style="font-family:'Instrument Serif',serif;font-size:21px;line-height:1.1;letter-spacing:-0.01em;color:var(--ink);">${esc(c.name)}</div>
           <div class="cat-count-ink" style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:${accentColor};display:flex;align-items:center;gap:5px;margin-top:6px;font-weight:600;">${countLabel}</div>
@@ -3814,6 +3823,17 @@ function renderHomeCats() {
       </div>
     </a>`;
   }).join('');
+  // Lazy-load imágenes cover: IntersectionObserver carga el background-image solo cuando la tarjeta es visible
+  const io = new IntersectionObserver((entries, obs) => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      const el = e.target;
+      const bg = el.dataset.bg;
+      if (bg) { el.style.backgroundImage = `url('${bg}')`; delete el.dataset.bg; }
+      obs.unobserve(el);
+    });
+  }, { rootMargin: '200px' });
+  grid.querySelectorAll('.cat-card-cover[data-bg]').forEach(el => io.observe(el));
   // Mark grid as rendered so CSS animation doesn't re-fire on next call
   setTimeout(()=>grid.classList.add('cats-rendered'),600);
 }

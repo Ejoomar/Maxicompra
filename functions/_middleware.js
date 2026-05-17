@@ -196,12 +196,16 @@ ${baseHead({ title, desc, canonical, schema })}
 
 export async function onRequest(context) {
   const ua = context.request.headers.get('user-agent') || '';
+  const url = new URL(context.request.url);
+  const path = url.pathname;
+
+  // Usuarios normales en rutas SPA → servir index.html directamente
+  if (!BOT_UA.test(ua) && (path.startsWith('/p/') || path.startsWith('/c/'))) {
+    return context.env.ASSETS.fetch(new Request(new URL('/', context.request.url).toString(), context.request));
+  }
 
   // Solo interceptar requests de bots reconocidos
   if (!BOT_UA.test(ua)) return context.next();
-
-  const url = new URL(context.request.url);
-  const path = url.pathname;
 
   /* Producto: /p/{slug} */
   if (path.startsWith('/p/')) {

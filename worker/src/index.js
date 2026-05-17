@@ -404,7 +404,12 @@ async function handleAdminLogin(request, env) {
   // Support both plain SHA-256 (legacy) and HMAC-SHA256 salted with JWT_SECRET (new)
   const plainHash  = await sha256(body.password);
   const saltedHash = await hmacSha256(body.password, env.JWT_SECRET);
-  const isValid    = plainHash === env.ADMIN_PASSWORD_HASH || saltedHash === env.ADMIN_PASSWORD_HASH;
+
+  // KV override (set via change-password endpoint) takes priority over env secret
+  const kvPwHash = await env.CONFIG.get('config:admin_password_override');
+  const isValid = kvPwHash
+    ? (plainHash === kvPwHash || saltedHash === kvPwHash)
+    : (plainHash === env.ADMIN_PASSWORD_HASH || saltedHash === env.ADMIN_PASSWORD_HASH);
 
   if (!isValid) return err('Credenciales incorrectas', 401, request);
 
@@ -429,6 +434,24 @@ async function handleAdminLogout(request, env) {
     await env.CONFIG.put(`blacklist:${tokenId}`, '1', { expirationTtl: ttl });
   }
   return json({ ok: true, message: 'Sesión cerrada correctamente' }, 200, request);
+}
+
+// POST /api/admin/change-password
+async function handleChangePassword(request, env) {
+  const auth = await requireAuth(request, env);
+  if (!auth) return err('No autorizado', 401, request);
+
+  let body;
+  try { body = await request.json(); } catch { return err('JSON inválido', 400, request); }
+  if (!body.password || typeof body.password !== 'string' || body.password.length < 4)
+    return err('Contraseña muy corta (mínimo 4 caracteres)', 400, request);
+  if (body.password.length > 200)
+    return err('Contraseña demasiado larga', 400, request);
+
+  // Store HMAC-SHA256 hash in KV (persists across deployments)
+  const hashed = await hmacSha256(body.password, env.JWT_SECRET);
+  await env.CONFIG.put('config:admin_password_override', hashed);
+  return json({ ok: true }, 200, request);
 }
 
 // GET /api/admin/orders
@@ -1152,8 +1175,9 @@ export default {
     if (path === '/api/newsletter'          && method === 'POST')   return handleNewsletter(request, env);
 
     // Auth
-    if (path === '/api/admin/login'         && method === 'POST')   return handleAdminLogin(request, env);
-    if (path === '/api/admin/logout'        && method === 'POST')   return handleAdminLogout(request, env);
+    if (path === '/api/admin/login'           && method === 'POST')   return handleAdminLogin(request, env);
+    if (path === '/api/admin/logout'          && method === 'POST')   return handleAdminLogout(request, env);
+    if (path === '/api/admin/change-password' && method === 'POST')   return handleChangePassword(request, env);
 
     // Admin routes
     if (path === '/api/admin/orders'        && method === 'GET')    return handleListOrders(request, env);

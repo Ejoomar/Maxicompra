@@ -4961,7 +4961,7 @@ function dropBannerImg(e, i) {
   if (file && file.type.startsWith('image/')) { const fakeInput={files:[file]}; setBannerImg({files:[file]},i); }
 }
 function removeBannerImg(i) { banners[i].bg=''; loadBannerEditor(); }
-function saveBanners() { saveBan(); renderHeroSlider(); showToast('Banners guardados ✓'); closeAdmin(); }
+function saveBanners() { saveBan(); renderHeroSlider(); showToast('Banners guardados ✓'); }
 
 /* ═════════════════════════════════════
    CATEGORY EDITOR
@@ -5245,7 +5245,29 @@ function swTab(t){
   if(t==='orders')loadOrders();
   if(window.innerWidth<=768)closeAdmSidebar();
 }
-function changePw(){const np=document.getElementById('npw').value,cp=document.getElementById('cpw').value;if(!np||np.length<4){showToast('Mínimo 4 caracteres','error');return;}if(np!==cp){showToast('Las contraseñas no coinciden','error');return;}lsSet(KPW,np);document.getElementById('npw').value='';document.getElementById('cpw').value='';showToast('Contraseña actualizada ✓');}
+function changePw(){
+  var np=document.getElementById('npw').value,cp=document.getElementById('cpw').value;
+  if(!np||np.length<4){showToast('Mínimo 4 caracteres','error');return;}
+  if(np!==cp){showToast('Las contraseñas no coinciden','error');return;}
+  var token=sessionStorage.getItem('mx_admin_token');
+  if(!token){showToast('Sesión expirada — vuelve a ingresar','error');return;}
+  fetch(API_BASE+'/api/admin/change-password',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+    body:JSON.stringify({password:np})
+  })
+  .then(function(r){return r.json();})
+  .then(function(d){
+    if(d&&d.ok){
+      document.getElementById('npw').value='';
+      document.getElementById('cpw').value='';
+      showToast('Contraseña actualizada ✓');
+    } else {
+      showToast(d&&d.error||'No se pudo cambiar la contraseña','error');
+    }
+  })
+  .catch(function(){showToast('Error de conexión','error');});
+}
 function exportAll(){const blob=new Blob([JSON.stringify({products,config,banners,cats,exported:new Date().toISOString()},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`maxicompra-backup-${Date.now()}.json`;a.click();showToast('Datos exportados ✓');}
 function importAll(e){
   const f=e.target.files[0];if(!f)return;
@@ -5602,7 +5624,7 @@ function syncAllProductsToKV(){
 /* ═════════════════════════════════════
    ADMIN — PEDIDOS
 ═════════════════════════════════════ */
-var _ordStatusLabels = {pending:'⏳ Pendiente',paid:'✅ Pagado',shipped:'🚚 Enviado',delivered:'🎉 Entregado',cancelled:'❌ Cancelado'};
+var _ordStatusLabels = {pending:'⏳ Pendiente',payment_pending:'🔄 Pago en proceso',payment_failed:'❌ Pago fallido',paid:'✅ Pagado',shipped:'🚚 Enviado',delivered:'🎉 Entregado',cancelled:'❌ Cancelado'};
 var _ordPayLabels    = {mp:'Mercado Pago',transfer:'Transferencia',cash:'Efectivo',webpay:'Webpay'};
 var _ordPayIcons     = {mp:'💙',transfer:'🏦',cash:'💵',webpay:'💳'};
 
@@ -5742,6 +5764,9 @@ function renderOrdDetail(o,box){
   var createdAt=o.createdAt?new Date(o.createdAt).toLocaleString('es-CL',{dateStyle:'medium',timeStyle:'short'}):'—';
   var total='$'+Math.round(o.total||0).toLocaleString('es-CL');
   var storeWa=(gc('phone')||'+56977462964').replace(/\D/g,'');
+  var custPhone=(o.customer&&o.customer.phone||'').replace(/\D/g,'');
+  if(custPhone&&custPhone.length===9)custPhone='56'+custPhone; // añade prefijo CL si falta
+  var contactWa=custPhone||storeWa; // usa teléfono del cliente; fallback a la tienda
   var itemsHtml=(o.items||[]).map(function(i){
     return '<div class="ord-item-row">'+
       (i.img?'<img class="ord-item-img" src="'+esc(i.img)+'" onerror="this.style.display=\'none\'" alt="">':'')+
@@ -5770,7 +5795,7 @@ function renderOrdDetail(o,box){
     '<div class="ord-items-list">'+itemsHtml+'</div>'+
     _ordStatusBtns(o)+
     '<div class="ord-modal-foot">'+
-      '<a href="https://wa.me/'+storeWa+'?text='+waMsg+'" target="_blank" rel="noopener" class="btn-grad" style="padding:10px 20px;font-size:13px;text-decoration:none;border-radius:8px"><i class="fab fa-whatsapp"></i> Contactar cliente</a>'+
+      '<a href="https://wa.me/'+contactWa+'?text='+waMsg+'" target="_blank" rel="noopener" class="btn-grad" style="padding:10px 20px;font-size:13px;text-decoration:none;border-radius:8px"><i class="fab fa-whatsapp"></i> Contactar cliente</a>'+
       '<button onclick="closeOrdModal()" class="btn-outline" style="padding:10px 20px;font-size:13px">Cerrar</button>'+
     '</div>';
 }

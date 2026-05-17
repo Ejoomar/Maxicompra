@@ -279,19 +279,21 @@ img{display:block;max-width:100%;}
 /* ═══════════════════════════ NAV ═══════════════════════════ */
 .site-nav{background:#0c0c12;border-bottom:1px solid rgba(255,255,255,.07);position:relative;}
 .site-nav::before,.site-nav::after{content:'';position:absolute;top:0;bottom:0;width:40px;pointer-events:none;z-index:2;}
-.site-nav::before{left:0;background:linear-gradient(to right,#0c0c12 50%,transparent);}
-.site-nav::after{right:0;background:linear-gradient(to left,#0c0c12 50%,transparent);}
-.nav-inner{max-width:1360px;margin:auto;padding:0 32px;display:flex;align-items:center;overflow-x:auto;scrollbar-width:none;height:50px;gap:2px;}
+.site-nav::before{left:0;background:linear-gradient(to right,#0c0c12 60%,transparent);}
+.site-nav::after{right:0;background:linear-gradient(to left,#0c0c12 60%,transparent);}
+.nav-inner{max-width:1360px;margin:auto;padding:0 28px;display:flex;align-items:center;overflow-x:auto;scrollbar-width:none;height:56px;gap:0;}
 .nav-inner::-webkit-scrollbar{display:none;}
-.nav-item{padding:5px 13px 5px 8px;border-radius:99px;display:flex;align-items:center;gap:7px;font-size:12px;font-weight:500;color:rgba(255,255,255,.42);white-space:nowrap;border-bottom:none;margin-bottom:0;transition:background .18s,color .18s;cursor:pointer;letter-spacing:.02em;background:transparent;flex-shrink:0;}
-.nav-item:hover{color:rgba(255,255,255,.85);background:rgba(255,255,255,.07);}
-.nav-item.active{font-weight:700;color:#fff;}
-.nav-item.sale:hover{color:#fff;background:rgba(232,23,93,.25);}
+.nav-item{padding:0 14px;height:56px;border-radius:0;display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:500;color:rgba(255,255,255,.45);white-space:nowrap;border-bottom:2px solid transparent;transition:color .2s,border-color .2s,background .2s;cursor:pointer;letter-spacing:.015em;background:transparent;flex-shrink:0;position:relative;}
+.nav-item:hover{color:rgba(255,255,255,.85);background:rgba(255,255,255,.05);}
+.nav-item.active{font-weight:600;color:#fff;background:rgba(255,255,255,.06);}
+.nav-item.sale{padding:0 16px;}
+.nav-item.sale.active{background:#E8175D;border-color:transparent;border-radius:99px;margin:0 6px;height:36px;padding:0 16px;}
+.nav-item.sale:hover:not(.active){color:#fff;background:rgba(232,23,93,.2);}
 .nav-item i{display:none;}
-.nv-ico{display:flex;align-items:center;justify-content:center;flex-shrink:0;width:22px;height:22px;border-radius:7px;font-size:12px;line-height:1;transition:transform .18s;}
-.nav-item:hover .nv-ico{transform:scale(1.1);}
+.nv-ico{display:flex;align-items:center;justify-content:center;flex-shrink:0;width:24px;height:24px;border-radius:6px;font-size:13px;line-height:1;transition:transform .2s,background .2s;}
+.nav-item:hover .nv-ico{transform:scale(1.08);}
 .nav-item.active .nv-ico{transform:scale(1.05);}
-.nav-item svg{width:12px;height:12px;}
+.nav-item svg{width:14px;height:14px;}
 
 /* ═══════════════════════════ VIEWS ═══════════════════════════ */
 .view{display:none;}
@@ -1876,6 +1878,7 @@ html{scroll-behavior:smooth;}
           <input class="adm-search" id="pt-search" placeholder="🔍 Buscar producto..." oninput="renderProdTable()">
           <select class="adm-select" id="pt-cat" onchange="renderProdTable()"><option value="">Todas las categorías</option></select>
           <button class="btn-outline" style="padding:8px 14px;font-size:13px;white-space:nowrap;" onclick="openAutoImgModal()"><i class="fas fa-images"></i> Auto-imágenes ML</button>
+          <button class="btn-outline" style="padding:8px 14px;font-size:13px;white-space:nowrap;" onclick="openBackfillModal()"><i class="fas fa-layer-group"></i> Obtener todas las fotos</button>
           <select class="adm-select" id="pt-bdg" onchange="renderProdTable()"><option value="">Todos los badges</option><option value="hot">🔥 Más Vendido</option><option value="sale">Oferta</option><option value="new">Nuevo</option></select>
         </div>
         <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden">
@@ -2030,6 +2033,57 @@ html{scroll-behavior:smooth;}
         </button>
       </div>
       <p id="aiNote" style="font-size:11px;color:var(--muted);text-align:center;margin-top:10px;line-height:1.5;"></p>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════ BACKFILL IMGS MODAL ════════════════════════ -->
+<div class="modal-overlay" id="backfillModal" style="display:none;z-index:800;" onclick="if(event.target===this&&!_bfRunning)closeBackfillModal()">
+  <div class="modal-box" style="max-width:560px;padding:0;overflow:hidden;">
+    <div style="padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <h3 style="font-size:16px;font-weight:700;color:var(--text);margin:0;"><i class="fas fa-layer-group"></i> Obtener todas las fotos desde ML</h3>
+        <p id="bfSubtitle" style="font-size:12px;color:var(--muted);margin:4px 0 0;"></p>
+      </div>
+      <button onclick="if(!_bfRunning)closeBackfillModal()" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:4px;">✕</button>
+    </div>
+    <div style="padding:20px 24px;">
+      <!-- Producto actual -->
+      <div style="display:flex;gap:14px;align-items:center;background:var(--card2);border-radius:10px;padding:14px;margin-bottom:16px;">
+        <div id="bfThumb" style="width:64px;height:64px;border-radius:8px;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;overflow:hidden;">📦</div>
+        <div style="flex:1;min-width:0;">
+          <div id="bfProdName" style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Listo para iniciar</div>
+          <div id="bfStatus" style="font-size:12px;color:var(--muted);margin-top:3px;"></div>
+          <div style="margin-top:8px;background:var(--border);border-radius:99px;height:4px;overflow:hidden;">
+            <div id="bfProgressBar" style="height:100%;width:0%;background:var(--accent);border-radius:99px;transition:width .3s;"></div>
+          </div>
+        </div>
+      </div>
+      <!-- Estadísticas -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;text-align:center;">
+        <div style="background:var(--card2);border-radius:8px;padding:10px 6px;">
+          <div id="bfCountDone" style="font-size:20px;font-weight:800;color:#22C55E;">0</div>
+          <div style="font-size:11px;color:var(--muted);">Actualizados</div>
+        </div>
+        <div style="background:var(--card2);border-radius:8px;padding:10px 6px;">
+          <div id="bfCountSkip" style="font-size:20px;font-weight:800;color:var(--muted);">0</div>
+          <div style="font-size:11px;color:var(--muted);">Sin resultado</div>
+        </div>
+        <div style="background:var(--card2);border-radius:8px;padding:10px 6px;">
+          <div id="bfCountLeft" style="font-size:20px;font-weight:800;color:var(--text);">0</div>
+          <div style="font-size:11px;color:var(--muted);">Pendientes</div>
+        </div>
+      </div>
+      <!-- Botones -->
+      <div style="display:flex;gap:10px;">
+        <button id="bfBtnStart" class="btn-grad" style="flex:1;padding:11px;" onclick="startBackfillImgs()">
+          <i class="fas fa-play"></i> Iniciar backfill
+        </button>
+        <button id="bfBtnStop" class="btn-outline" style="padding:11px 18px;display:none;" onclick="stopBackfillImgs()">
+          <i class="fas fa-stop"></i> Detener
+        </button>
+      </div>
+      <p id="bfNote" style="font-size:11px;color:var(--muted);text-align:center;margin-top:10px;line-height:1.5;">Busca múltiples imágenes por producto en MercadoLibre (productos con menos de 3 fotos).</p>
     </div>
   </div>
 </div>
@@ -3464,41 +3518,40 @@ function renderNavBar() {
   const activeCats = [...new Set(products.filter(p=>p.visible!==false).map(p=>p.cat).filter(Boolean))];
   const nav = document.getElementById('navBar');
   const NV_ICONS = {
-    electronica:`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 8a4 4 0 0 1 4-4h12a4 4 0 0 1 4 4v8a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8Z"/><path d="M12 8v4m-3-2h6"/></svg>`,
-    audio:`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18a3 3 0 1 1-6 0V9a9 9 0 1 1 18 0v9a3 3 0 1 1-6 0"/></svg>`,
-    tecnologia:`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>`,
-    computacion:`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16v10H4z"/><path d="M2 20h20"/></svg>`,
-    telefonia:`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M10 18h4"/></svg>`,
-    'salud-belleza':`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-8-5-8-11a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 6-8 11-10 11Z"/></svg>`,
-    hogar:`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
-    juguetes:`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 6v12M8 6v12M16 6v12"/></svg>`,
-    general:`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>`,
-    accesorios:`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2v6a3 3 0 0 0 6 0V2M6 2h12M6 20h12"/></svg>`,
-    deportes:`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M4.9 4.9 19.1 19.1M4.9 19.1 19.1 4.9" opacity=".4"/></svg>`,
-    cocina:`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11V5a2 2 0 0 1 2-2h2v8M7 3v8M3 11h18v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>`,
+    electronica:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 8a4 4 0 0 1 4-4h12a4 4 0 0 1 4 4v8a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8Z"/><path d="M12 8v4m-3-2h6"/></svg>`,
+    audio:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 18a3 3 0 1 1-6 0V9a9 9 0 1 1 18 0v9a3 3 0 1 1-6 0"/></svg>`,
+    tecnologia:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>`,
+    computacion:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16v10H4z"/><path d="M2 20h20"/></svg>`,
+    telefonia:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M10 18h4"/></svg>`,
+    'salud-belleza':`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-8-5-8-11a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 6-8 11-10 11Z"/></svg>`,
+    hogar:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
+    juguetes:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 6v12M8 6v12M16 6v12"/></svg>`,
+    general:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>`,
+    accesorios:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2v6a3 3 0 0 0 6 0V2M6 2h12M6 20h12"/></svg>`,
+    deportes:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M4.9 4.9 19.1 19.1M4.9 19.1 19.1 4.9" opacity=".4"/></svg>`,
+    cocina:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11V5a2 2 0 0 1 2-2h2v8M7 3v8M3 11h18v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>`,
   };
   const NV_ACCENT = {
     electronica:'#3B82F6',audio:'#8B5CF6',tecnologia:'#06B6D4',computacion:'#0EA5E9',
     telefonia:'#10B981','salud-belleza':'#EC4899',hogar:'#F59E0B',juguetes:'#EF4444',
     general:'#6366F1',accesorios:'#14B8A6',deportes:'#22C55E',cocina:'#F97316',
   };
-  const allIcon = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>`;
+  const allIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>`;
   const isHome = !currentCat && currentView==='home';
 
   nav.innerHTML =
-    `<div class="nav-item sale ${isHome ? 'active' : ''}" onclick="goHome()"` +
-      ` style="${isHome ? 'background:var(--pink);color:#fff;' : 'color:rgba(255,255,255,.55);'}">` +
-      `<span class="nv-ico" style="background:rgba(232,23,93,.3);font-size:13px;">🛍️</span>Todos` +
+    `<div class="nav-item sale ${isHome ? 'active' : ''}" onclick="goHome()">` +
+      `<span class="nv-ico" style="background:rgba(232,23,93,.25);">${allIcon}</span>Todos` +
     `</div>` +
     cats.filter(c => activeCats.includes(c.name)).map(c => {
       const col      = NV_ACCENT[c.id] || '#888';
       const isActive = currentCat === c.id && currentView==='category';
-      const emoji    = c.emoji || '📦';
-      const itemBg   = isActive ? col : 'transparent';
-      const icoBg    = isActive ? 'rgba(255,255,255,.2)' : col+'38';
+      const icon     = NV_ICONS[c.id] || `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/></svg>`;
+      const icoBg    = isActive ? col+'30' : col+'18';
+      const icoClr   = isActive ? col : 'rgba(255,255,255,.5)';
       return `<div class="nav-item ${isActive ? 'active' : ''}" onclick="openCatView('${c.id}')"` +
-        ` style="background:${itemBg};">` +
-        `<span class="nv-ico" style="background:${icoBg};">${emoji}</span>${esc(c.name)}` +
+        ` style="${isActive ? `border-bottom-color:${col};` : ''}">` +
+        `<span class="nv-ico" style="background:${icoBg};color:${icoClr};">${icon}</span>${esc(c.name)}` +
       `</div>`;
     }).join('');
 }
@@ -5331,6 +5384,124 @@ async function startAutoImg() {
 function stopAutoImg() {
   _aiStop = true;
   document.getElementById('aiStatus').textContent = 'Deteniendo...';
+}
+
+/* ══════════════════════════════════════════════
+   BACKFILL IMGS: obtiene TODAS las fotos desde ML
+   (productos con < 3 imágenes)
+══════════════════════════════════════════════ */
+var _bfRunning = false;
+var _bfStop    = false;
+
+function openBackfillModal() {
+  var queue = products.filter(function(p){ return !p.imgs || p.imgs.filter(function(u){ return u && String(u).startsWith('http'); }).length < 3; });
+  document.getElementById('bfSubtitle').textContent = queue.length + ' productos con menos de 3 imágenes de ' + products.length + ' total';
+  document.getElementById('bfCountLeft').textContent = queue.length;
+  document.getElementById('bfCountDone').textContent = '0';
+  document.getElementById('bfCountSkip').textContent = '0';
+  document.getElementById('bfProgressBar').style.width = '0%';
+  document.getElementById('bfProdName').textContent = 'Listo para iniciar';
+  document.getElementById('bfStatus').textContent = queue.length + ' productos pendientes';
+  document.getElementById('bfThumb').innerHTML = '📦';
+  document.getElementById('bfBtnStart').style.display = '';
+  document.getElementById('bfBtnStart').innerHTML = '<i class="fas fa-play"></i> Iniciar backfill';
+  document.getElementById('bfBtnStop').style.display = 'none';
+  document.getElementById('bfNote').textContent = 'Busca múltiples imágenes por producto en MercadoLibre (productos con menos de 3 fotos).';
+  document.getElementById('backfillModal').style.display = 'flex';
+}
+
+function closeBackfillModal() {
+  document.getElementById('backfillModal').style.display = 'none';
+}
+
+async function startBackfillImgs() {
+  var token = ''; try{ token = sessionStorage.getItem('mx_admin_token') || ''; }catch(e){}
+  if (!token) { showToast('Debes iniciar sesión como admin primero', 'error'); return; }
+
+  var queue = products.filter(function(p){
+    return !p.imgs || p.imgs.filter(function(u){ return u && String(u).startsWith('http'); }).length < 3;
+  });
+  if (!queue.length) { showToast('Todos los productos ya tienen 3+ imágenes ✓', 'ok'); return; }
+
+  _bfRunning = true;
+  _bfStop    = false;
+  var done   = 0, skip = 0, total = queue.length;
+
+  document.getElementById('bfBtnStart').style.display = 'none';
+  document.getElementById('bfBtnStop').style.display  = '';
+  document.getElementById('bfNote').textContent = 'Obteniendo imágenes... no cierres esta ventana.';
+
+  for (var i = 0; i < queue.length; i++) {
+    if (_bfStop) break;
+    var p = queue[i];
+
+    document.getElementById('bfProdName').textContent = p.name;
+    document.getElementById('bfStatus').textContent   = 'Buscando en MercadoLibre...';
+    document.getElementById('bfThumb').innerHTML      = '<div style="width:100%;height:100%;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:20px;">⏳</div>';
+    document.getElementById('bfCountLeft').textContent = (total - i);
+    document.getElementById('bfProgressBar').style.width = Math.round((i / total) * 100) + '%';
+
+    try {
+      var resp = await fetch(API_BASE + '/api/search-images-multi?q=' + encodeURIComponent(p.name));
+      var data = await resp.json();
+
+      if (data.ok && data.imgs && data.imgs.length) {
+        var idx = products.findIndex(function(x){ return x.id === p.id; });
+        if (idx >= 0) {
+          // Combinar imágenes existentes (http) con las nuevas, sin duplicados
+          var existing = (products[idx].imgs || []).filter(function(u){ return u && String(u).startsWith('http'); });
+          var merged = existing.slice();
+          data.imgs.forEach(function(u) {
+            if (u && !merged.includes(u)) merged.push(u);
+          });
+          products[idx] = Object.assign({}, products[idx], { imgs: merged });
+        }
+        done++;
+        document.getElementById('bfCountDone').textContent = done;
+        document.getElementById('bfStatus').textContent    = '✓ ' + data.imgs.length + ' fotos — ' + (data.title || '').slice(0, 50);
+        document.getElementById('bfThumb').innerHTML       = '<img src="' + data.imgs[0] + '" style="width:100%;height:100%;object-fit:contain;border-radius:6px;" onerror="this.parentNode.innerHTML=\'📷\'">';
+      } else {
+        skip++;
+        document.getElementById('bfCountSkip').textContent = skip;
+        document.getElementById('bfStatus').textContent    = '— Sin resultado';
+        document.getElementById('bfThumb').innerHTML       = '❌';
+      }
+    } catch(e) {
+      skip++;
+      document.getElementById('bfCountSkip').textContent = skip;
+      document.getElementById('bfStatus').textContent    = 'Error de red';
+      document.getElementById('bfThumb').innerHTML       = '⚠️';
+    }
+
+    if ((i + 1) % 20 === 0) { saveP(); }
+    await new Promise(function(r){ setTimeout(r, 400); });
+  }
+
+  saveP();
+  renderProdTable();
+  renderAll();
+  _bfRunning = false;
+
+  var finalMsg = _bfStop
+    ? 'Detenido. ' + done + ' productos actualizados.'
+    : '¡Listo! ' + done + ' productos actualizados, ' + skip + ' sin resultado.';
+
+  document.getElementById('bfProgressBar').style.width = '100%';
+  document.getElementById('bfStatus').textContent = finalMsg;
+  document.getElementById('bfNote').textContent   = done > 0 ? 'Sincronizando con el servidor...' : '';
+  document.getElementById('bfBtnStop').style.display  = 'none';
+  document.getElementById('bfBtnStart').style.display = '';
+  document.getElementById('bfBtnStart').innerHTML     = '<i class="fas fa-check"></i> Listo';
+
+  if (done > 0) {
+    showToast(done + ' productos con imágenes actualizadas. Sincronizando...', 'ok');
+    syncAllProductsToKV();
+  }
+}
+
+function stopBackfillImgs() {
+  _bfStop = true;
+  document.getElementById('bfStatus').textContent = 'Deteniendo...';
 }
 
 /* ─── Importar imágenes desde mx_matches.json ─────────────────── */

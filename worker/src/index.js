@@ -1037,6 +1037,51 @@ async function handleSearchImage(request, env) {
   return json({ ok: true, img, title: best?.title || '' }, 200, request);
 }
 
+async function handleSearchImagesMulti(request, env) {
+  const url = new URL(request.url);
+  const q   = (url.searchParams.get('q') || '').trim();
+  if (!q || q.length > 200) return err('Query requerida', 400, request);
+
+  const query   = encodeURIComponent(q.replace(/[^\w\s\-áéíóúüñÁÉÍÓÚÜÑ]/gi, ' ').trim());
+  const mlUrl   = `https://api.mercadolibre.com/sites/MLC/search?q=${query}&limit=3`;
+  const resp    = await fetch(mlUrl, {
+    headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Maxicompra/1.0)' },
+  });
+
+  if (!resp.ok) return json({ ok: false, imgs: [], status: resp.status }, 200, request);
+
+  const data    = await resp.json();
+  const results = data.results || [];
+  if (!results.length) return json({ ok: false, imgs: [] }, 200, request);
+
+  const best = results.find(r => r.thumbnail) || results[0];
+  const mlId = best?.id;
+  if (!mlId) return json({ ok: false, imgs: [] }, 200, request);
+
+  // Obtener detalle del ítem para extraer todas las pictures
+  const detailResp = await fetch(`https://api.mercadolibre.com/items/${mlId}`, {
+    headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Maxicompra/1.0)' },
+  });
+
+  if (!detailResp.ok) {
+    // Fallback: devolver solo el thumbnail en alta resolución
+    const thumb = (best?.thumbnail || '').replace(/-[A-Z]\.jpg$/, '-O.jpg').replace(/^http:/, 'https:');
+    return json({ ok: true, imgs: thumb ? [thumb] : [], title: best?.title || '' }, 200, request);
+  }
+
+  const detail = await detailResp.json();
+  const pictures = (detail.pictures || [])
+    .map(pic => (pic.url || pic.secure_url || '').replace(/^http:/, 'https:').replace(/-[A-Z]\.jpg$/, '-O.jpg'))
+    .filter(u => u.startsWith('https://'));
+
+  if (!pictures.length) {
+    const thumb = (best?.thumbnail || '').replace(/-[A-Z]\.jpg$/, '-O.jpg').replace(/^http:/, 'https:');
+    return json({ ok: true, imgs: thumb ? [thumb] : [], title: best?.title || '' }, 200, request);
+  }
+
+  return json({ ok: true, imgs: pictures, title: detail.title || best?.title || '' }, 200, request);
+}
+
 async function handleSitemap(request, env) {
   const products = await env.CONFIG.get('products:all', 'json') || [];
   const base     = 'https://maxicompra.cl';
@@ -1094,6 +1139,7 @@ export default {
     if (path === '/api/health'              && method === 'GET')    return handleHealth(request, env);
     if (path === '/api/products'            && method === 'GET')    return handleGetProducts(request, env);
     if (path === '/api/search-image'        && method === 'GET')    return handleSearchImage(request, env);
+    if (path === '/api/search-images-multi' && method === 'GET')    return handleSearchImagesMulti(request, env);
     if (path.match(/^\/api\/product\/slug\/[^/]+$/) && method === 'GET')
       return handleGetProductBySlug(decodeURIComponent(path.split('/')[4]), request, env);
     if (path === '/api/order'               && method === 'POST')   return handleCreateOrder(request, env);

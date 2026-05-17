@@ -5130,14 +5130,17 @@ function saveProd(){
   if(editId){ const idx=products.findIndex(p=>p.id===editId); if(idx!==-1)products[idx]=prod; }
   else products.unshift(prod);
   saveP(); renderAll(); closeProdModal(); updStats(); showToast(editId?'Producto actualizado ✓':'Producto agregado ✓');
-  // Sync to Worker KV (fire-and-forget)
+  // Sync to Worker KV (fire-and-forget) — strip base64 imgs antes de enviar
   (function(p){
     var token=''; try{token=sessionStorage.getItem('mx_admin_token')||'';}catch(e){}
     if(!token) return;
+    var prodKV = Object.assign({}, p, {
+      imgs: (p.imgs||[]).filter(function(u){ return typeof u==='string' && u.startsWith('http'); })
+    });
     fetch(API_BASE+'/api/admin/product',{
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
-      body:JSON.stringify(p)
+      body:JSON.stringify(prodKV)
     }).catch(function(){});
   })(prod);
 }
@@ -6349,8 +6352,15 @@ var API_BASE = 'https://maxicompra-api.elflaco0800.workers.dev';
       var kvById = {};
       d.products.forEach(function(p){ kvById[p.id] = p; });
       var existingIds = new Set(products.map(function(p){ return p.id; }));
-      // Override existing products with KV versions
-      products = products.map(function(p){ return kvById[p.id] || p; });
+      // Merge KV into local — preservar imgs locales (pueden ser base64 recién subidas)
+      products = products.map(function(p){
+        var kv = kvById[p.id];
+        if (!kv) return p;
+        var localImgs = p.imgs && p.imgs.length ? p.imgs : null;
+        var merged = Object.assign({}, kv);
+        if (localImgs) merged.imgs = localImgs; // no pisar imágenes locales
+        return merged;
+      });
       // Agregar productos nuevos del KV que no están en el caché local
       d.products.forEach(function(p){
         if(!existingIds.has(p.id)) products.push(p);

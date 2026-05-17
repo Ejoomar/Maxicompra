@@ -825,6 +825,7 @@ a.prod,a.cat-card-ed,a.product-card{text-decoration:none;color:inherit;}
 
 #adminPanel{display:none;position:fixed;inset:0;z-index:2000;background:var(--navy);flex-direction:column;}
 #adminPanel.open{display:flex;}
+body.admin-open{overflow:hidden;}
 .adm-header{background:var(--surface);border-bottom:2px solid var(--border);padding:0 32px;height:64px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
 .adm-title-row{display:flex;align-items:center;gap:14px;}
 .adm-title{font-family:'Instrument Serif',Georgia,serif;font-size:18px;font-weight:800;color:var(--white);}
@@ -5200,7 +5201,7 @@ function openAdmin(){
 }
 function closePw(){document.getElementById('pwScreen').classList.remove('open');}
 (function(){function _chkHash(){if(location.hash==='#__admin'){history.replaceState(null,'',location.pathname+location.search);openAdmin();}}window.addEventListener('hashchange',_chkHash);if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',_chkHash);}else{_chkHash();}})();
-function _openAdminPanel(){closePw();document.getElementById('adminPanel').classList.add('open');swTab('dashboard');updStats();renderProdTable();updCatFilter();loadConfig();loadBannerEditor();loadCatEditor();}
+function _openAdminPanel(){closePw();document.getElementById('adminPanel').classList.add('open');document.body.classList.add('admin-open');swTab('dashboard');updStats();renderProdTable();updCatFilter();loadConfig();loadBannerEditor();loadCatEditor();}
 function chkPw(){
   var v=document.getElementById('pwInput').value;
   if(!v){document.getElementById('pwError').textContent='Ingresa una contraseña';document.getElementById('pwError').classList.add('show');return;}
@@ -5218,7 +5219,7 @@ function chkPw(){
     document.getElementById('pwError').textContent='Error de conexión — intenta de nuevo';document.getElementById('pwError').classList.add('show');
   });
 }
-function closeAdmin(){document.getElementById('adminPanel').classList.remove('open');closeAdmSidebar();}
+function closeAdmin(){document.getElementById('adminPanel').classList.remove('open');document.body.classList.remove('admin-open');closeAdmSidebar();}
 function toggleAdmSidebar(){
   const s=document.getElementById('admSidebar');
   const o=document.getElementById('admMobOverlay');

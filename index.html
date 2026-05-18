@@ -1602,6 +1602,27 @@ html{scroll-behavior:smooth;}
 .ord-status.shipped{background:rgba(0,190,255,.12);color:#006B9C;}
 .ord-status.delivered{background:rgba(0,200,100,.1);color:#006633;}
 .ord-status.cancelled{background:rgba(232,23,93,.1);color:var(--pink);}
+.ord-status.payment_pending{background:rgba(59,130,246,.13);color:#1d4ed8;}
+.ord-status.payment_failed{background:rgba(239,68,68,.13);color:#b91c1c;}
+/* ── ORD FILTER SELECT ── */
+.ord-status-filter{height:36px;padding:0 10px;border:1.5px solid var(--border);border-radius:7px;background:var(--surface);color:var(--ink);font-size:12px;font-family:inherit;outline:none;cursor:pointer;transition:border-color .2s;}
+.ord-status-filter:focus{border-color:var(--accent);}
+/* ── ORD SUMMARY CARDS ── */
+.ord-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+.ord-sum-card{background:var(--card);border:1.5px solid var(--border);border-radius:10px;padding:14px 18px;display:flex;align-items:center;gap:12px;}
+.ord-sum-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.ord-sum-icon.green{background:rgba(16,185,129,.15);color:#10b981;}
+.ord-sum-icon.amber{background:rgba(245,158,11,.15);color:#f59e0b;}
+.ord-sum-icon.blue{background:rgba(59,130,246,.13);color:#3b82f6;}
+.ord-sum-icon.red{background:rgba(239,68,68,.13);color:#ef4444;}
+.ord-sum-body{min-width:0;}
+.ord-sum-val{font-size:20px;font-weight:800;color:var(--text);line-height:1.1;}
+.ord-sum-val.income{color:#10b981;}
+.ord-sum-label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:2px;}
+.ord-pay-pills{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;}
+.ord-pay-pill{font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;background:rgba(16,185,129,.1);color:#10b981;border:1px solid rgba(16,185,129,.2);}
+@media(max-width:768px){.ord-summary{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:480px){.ord-summary{grid-template-columns:1fr;}}
 .ord-empty{text-align:center;padding:64px 20px;color:var(--muted);}
 .ord-empty i{font-size:44px;margin-bottom:14px;display:block;opacity:.25;}
 .ord-empty p{font-size:14px;}
@@ -2012,6 +2033,16 @@ html{scroll-behavior:smooth;}
             <input type="search" id="ordSearch" class="ord-search-inp" placeholder="Buscar cliente, #pedido…" onkeydown="if(event.key==='Enter')searchOrders()">
             <button class="ord-search-btn" onclick="searchOrders()"><i class="fas fa-search"></i> Buscar</button>
             <button class="ord-refresh-btn" onclick="loadOrders()" title="Actualizar"><i class="fas fa-sync-alt"></i></button>
+            <select id="ordStatusFilter" class="ord-status-filter" onchange="filterOrders()" title="Filtrar por estado">
+              <option value="">Todos los estados</option>
+              <option value="pending">⏳ Pendiente</option>
+              <option value="payment_pending">🔄 Pago en proceso</option>
+              <option value="payment_failed">❌ Pago fallido</option>
+              <option value="paid">✅ Pagado</option>
+              <option value="shipped">🚚 Enviado</option>
+              <option value="delivered">🎉 Entregado</option>
+              <option value="cancelled">🚫 Cancelado</option>
+            </select>
           </div>
         </div>
         <div id="ordList"><div class="ord-empty"><i class="fas fa-inbox"></i><p>Cargando pedidos…</p></div></div>
@@ -5855,6 +5886,8 @@ var _ordStatusLabels = {pending:'⏳ Pendiente',payment_pending:'🔄 Pago en pr
 var _ordPayLabels    = {mp:'Mercado Pago',transfer:'Transferencia',cash:'Efectivo',webpay:'Webpay'};
 var _ordPayIcons     = {mp:'💙',transfer:'🏦',cash:'💵',webpay:'💳'};
 
+var _ordDataCache = [];
+
 function loadOrders(){
   var di = document.getElementById('ordDate');
   if(!di) return;
@@ -5864,15 +5897,27 @@ function loadOrders(){
   if(!token){ document.getElementById('ordList').innerHTML='<div class="ord-empty"><i class="fas fa-lock"></i><p>Sesión expirada — vuelve a iniciar sesión</p></div>'; return; }
   var container = document.getElementById('ordList');
   container.innerHTML='<div class="ord-empty"><i class="fas fa-spinner fa-spin"></i><p>Cargando pedidos…</p></div>';
+  var sf=document.getElementById('ordStatusFilter');
+  if(sf) sf.value=''; // reset filter on new date load
   fetch(API_BASE+'/api/admin/orders?date='+di.value, {headers:{'Authorization':'Bearer '+token}})
   .then(function(r){return r.json();})
   .then(function(d){
     if(!d.ok){container.innerHTML='<div class="ord-empty"><i class="fas fa-exclamation-circle"></i><p>Error al cargar: '+(d.error||'desconocido')+'</p></div>';return;}
-    renderOrdersTable(d.orders, container);
+    _ordDataCache = d.orders||[];
+    renderOrdersTable(_ordDataCache, container);
     var badge=document.getElementById('ordersBadge');
     if(badge){badge.textContent=d.total;badge.style.display=d.total>0?'':'none';}
   })
   .catch(function(){container.innerHTML='<div class="ord-empty"><i class="fas fa-wifi-slash"></i><p>Sin conexión con el servidor</p></div>';});
+}
+
+function filterOrders(){
+  var sf=document.getElementById('ordStatusFilter');
+  var status=sf?sf.value:'';
+  var list=status?_ordDataCache.filter(function(o){return (o.status||'pending')===status;}):_ordDataCache;
+  var container=document.getElementById('ordList');
+  if(!container)return;
+  renderOrdersTable(list, container, !!status); // skipSummary when filtering
 }
 
 function searchOrders(){
@@ -5888,7 +5933,8 @@ function searchOrders(){
   .then(function(r){return r.json();})
   .then(function(d){
     if(!d.ok){container.innerHTML='<div class="ord-empty"><i class="fas fa-search"></i><p>Sin resultados</p></div>';return;}
-    renderOrdersTable(d.orders,container);
+    _ordDataCache=d.orders||[];
+    renderOrdersTable(_ordDataCache,container,true); // no daily summary in global search
     if(d.total>0) showToast(d.total+' resultado(s) encontrado(s)');
   })
   .catch(function(){container.innerHTML='<div class="ord-empty"><i class="fas fa-wifi-slash"></i><p>Error de conexión</p></div>';});
@@ -5903,9 +5949,61 @@ function changeOrdDate(delta){
   loadOrders();
 }
 
-function renderOrdersTable(orders,container){
+function _renderOrdSummary(orders){
+  var INCOME_ST={paid:1,shipped:1,delivered:1};
+  var income=0,pending=0,cancelled=0,total=orders.length;
+  var payTotals={};
+  orders.forEach(function(o){
+    var st=o.status||'pending';
+    var amt=Math.round(o.total||0);
+    if(INCOME_ST[st]){
+      income+=amt;
+      var pm=o.payment||'other';
+      payTotals[pm]=(payTotals[pm]||0)+amt;
+    }
+    if(st==='pending'||st==='payment_pending') pending++;
+    if(st==='cancelled'||st==='payment_failed') cancelled++;
+  });
+  var payPills=Object.keys(payTotals).map(function(pm){
+    return '<span class="ord-pay-pill">'+(_ordPayIcons[pm]||'💳')+' $'+payTotals[pm].toLocaleString('es-CL')+'</span>';
+  }).join('');
+  return '<div class="ord-summary">'+
+    '<div class="ord-sum-card">'+
+      '<div class="ord-sum-icon green"><i class="fas fa-dollar-sign"></i></div>'+
+      '<div class="ord-sum-body">'+
+        '<div class="ord-sum-val income">$'+income.toLocaleString('es-CL')+'</div>'+
+        '<div class="ord-sum-label">Ingresos del día</div>'+
+        (payPills?'<div class="ord-pay-pills">'+payPills+'</div>':'')+
+      '</div>'+
+    '</div>'+
+    '<div class="ord-sum-card">'+
+      '<div class="ord-sum-icon blue"><i class="fas fa-shopping-bag"></i></div>'+
+      '<div class="ord-sum-body">'+
+        '<div class="ord-sum-val">'+total+'</div>'+
+        '<div class="ord-sum-label">Pedidos totales</div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="ord-sum-card">'+
+      '<div class="ord-sum-icon amber"><i class="fas fa-clock"></i></div>'+
+      '<div class="ord-sum-body">'+
+        '<div class="ord-sum-val">'+pending+'</div>'+
+        '<div class="ord-sum-label">Pendientes / En proceso</div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="ord-sum-card">'+
+      '<div class="ord-sum-icon red"><i class="fas fa-times-circle"></i></div>'+
+      '<div class="ord-sum-body">'+
+        '<div class="ord-sum-val">'+cancelled+'</div>'+
+        '<div class="ord-sum-label">Cancelados / Fallidos</div>'+
+      '</div>'+
+    '</div>'+
+  '</div>';
+}
+
+function renderOrdersTable(orders,container,skipSummary){
   if(!orders||!orders.length){
-    container.innerHTML='<div class="ord-empty"><i class="fas fa-inbox"></i><p>No hay pedidos para esta fecha</p></div>';
+    var summaryHtml=(!skipSummary&&_ordDataCache.length)?_renderOrdSummary(_ordDataCache):'';
+    container.innerHTML=summaryHtml+'<div class="ord-empty"><i class="fas fa-inbox"></i><p>No hay pedidos'+(skipSummary?'':' para esta fecha')+'</p></div>';
     return;
   }
   orders.sort(function(a,b){return new Date(b.createdAt)-new Date(a.createdAt);});
@@ -5925,7 +6023,9 @@ function renderOrdersTable(orders,container){
       '<td><button class="btn-outline" style="padding:5px 12px;font-size:12px;white-space:nowrap" onclick="openOrdDetail(\''+esc(o.id)+'\')"><i class="fas fa-eye"></i> Ver</button></td>'+
     '</tr>';
   }).join('');
-  container.innerHTML='<div class="ord-table-wrap"><table class="ord-table">'+
+  var summaryHtml=skipSummary?'':_renderOrdSummary(_ordDataCache.length?_ordDataCache:orders);
+  container.innerHTML=summaryHtml+
+    '<div class="ord-table-wrap"><table class="ord-table">'+
     '<thead><tr><th>#Pedido</th><th>Cliente</th><th>Total</th><th>Pago</th><th>Estado</th><th>Hora</th><th></th></tr></thead>'+
     '<tbody>'+rows+'</tbody>'+
   '</table></div>';

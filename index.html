@@ -1121,12 +1121,31 @@ body.admin-open{overflow:hidden;}
   .prod-form-grid,.cat-editor-grid,.settings-grid{grid-template-columns:1fr!important;}
   /* Admin tab title */
   .adm-tab-title{font-size:18px;}
+  /* Dashboard quick-actions: 2×2 en mobile */
+  .adm-quick-grid{grid-template-columns:repeat(2,1fr)!important;}
+  /* Producto tabla: scroll horizontal (override overflow:hidden inline) */
+  #prodTableWrap{overflow-x:auto!important;overflow-y:visible!important;}
+  /* Toolbar: ocultar botones pesados en mobile */
+  .adm-tb-hide{display:none!important;}
+  /* iOS zoom prevention: font-size < 16px dispara zoom en Safari */
+  .adm-main input:not([type=checkbox]):not([type=radio]),.adm-main select,.adm-main textarea{font-size:16px!important;}
+  /* Orders status filter: ocupa fila completa */
+  .ord-status-filter{flex:1 1 100%!important;width:100%!important;}
+  /* Store config interior: 1 columna */
+  .tab-store-inner{grid-template-columns:1fr!important;}
+  /* Orders detail grid: 1 columna */
+  .ord-detail-grid{grid-template-columns:1fr!important;}
+  /* adm-main sin overflow-x para no competir con prodTableWrap */
+  .adm-main{overflow-x:hidden;}
 }
 @media(max-width:480px){
   .adm-header{padding:0 12px;}
   .adm-main{padding:12px 10px;}
   .stats-grid{grid-template-columns:1fr 1fr!important;}
   .adm-mob-toggle{width:36px;height:36px;}
+  /* Header buttons: solo ícono en pantallas muy pequeñas */
+  .adm-btn-label{display:none!important;}
+  .adm-header-btns .btn-grad,.adm-header-btns .btn-danger{padding:8px 11px!important;min-width:38px!important;justify-content:center!important;}
 }
 /* ═══════════════════════════ WHATSAPP FLOTANTE ═══════════════════════════ */
 .wa-wrap{position:fixed;bottom:86px;left:28px;z-index:400;display:flex;flex-direction:column;align-items:flex-start;gap:8px;}
@@ -1888,9 +1907,9 @@ html{scroll-behavior:smooth;}
       <span class="tag tag-pink" style="font-size:10px;display:none;" id="admDesktopTag">Admin</span>
     </div>
     <div class="adm-header-btns">
-      <button class="btn-outline" style="padding:8px 16px;font-size:13px" onclick="openProductModal()"><i class="fas fa-plus"></i> Nuevo Producto</button>
-      <button class="btn-grad" style="padding:8px 16px;font-size:13px" onclick="closeAdmin()"><i class="fas fa-store"></i> Ver Tienda</button>
-      <button class="btn-danger" style="padding:8px 16px;font-size:13px" onclick="closeAdmin()"><i class="fas fa-sign-out-alt"></i> Salir</button>
+      <button class="btn-outline" style="padding:8px 16px;font-size:13px" onclick="openProductModal()"><i class="fas fa-plus"></i><span class="adm-btn-label"> Nuevo Producto</span></button>
+      <button class="btn-grad" style="padding:8px 16px;font-size:13px" onclick="closeAdmin()"><i class="fas fa-store"></i><span class="adm-btn-label"> Ver Tienda</span></button>
+      <button class="btn-danger" style="padding:8px 16px;font-size:13px" onclick="closeAdmin()"><i class="fas fa-sign-out-alt"></i><span class="adm-btn-label"> Salir</span></button>
     </div>
   </div>
   <div class="adm-body">
@@ -1922,11 +1941,11 @@ html{scroll-behavior:smooth;}
         </div>
         <div class="adm-card">
           <h4><i class="fas fa-rocket"></i>Inicio rápido</h4>
-          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
-            <button class="btn-outline" style="padding:14px;justify-content:center;font-size:13px" onclick="openProductModal()"><i class="fas fa-plus-circle" style="color:var(--green)"></i> Nuevo Producto</button>
-            <button class="btn-outline" style="padding:14px;justify-content:center;font-size:13px" onclick="swTab('banners')"><i class="fas fa-image" style="color:var(--pink)"></i> Editar Banners</button>
-            <button class="btn-outline" style="padding:14px;justify-content:center;font-size:13px" onclick="swTab('categories')"><i class="fas fa-th-large" style="color:var(--cyan)"></i> Categorías</button>
-            <button class="btn-outline" style="padding:14px;justify-content:center;font-size:13px" onclick="swTab('store')"><i class="fas fa-edit" style="color:var(--orange)"></i> Mi Tienda</button>
+          <div class="adm-quick-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+            <button class="btn-outline" style="padding:14px;justify-content:center;font-size:13px;flex-direction:column;gap:6px;text-align:center" onclick="openProductModal()"><i class="fas fa-plus-circle" style="color:var(--green);font-size:18px"></i><span>Nuevo Producto</span></button>
+            <button class="btn-outline" style="padding:14px;justify-content:center;font-size:13px;flex-direction:column;gap:6px;text-align:center" onclick="swTab('banners')"><i class="fas fa-image" style="color:var(--pink);font-size:18px"></i><span>Banners</span></button>
+            <button class="btn-outline" style="padding:14px;justify-content:center;font-size:13px;flex-direction:column;gap:6px;text-align:center" onclick="swTab('categories')"><i class="fas fa-th-large" style="color:var(--cyan);font-size:18px"></i><span>Categorías</span></button>
+            <button class="btn-outline" style="padding:14px;justify-content:center;font-size:13px;flex-direction:column;gap:6px;text-align:center" onclick="swTab('store')"><i class="fas fa-edit" style="color:var(--orange);font-size:18px"></i><span>Mi Tienda</span></button>
           </div>
         </div>
       </div>
@@ -1940,8 +1959,8 @@ html{scroll-behavior:smooth;}
         <div class="adm-toolbar">
           <input class="adm-search" id="pt-search" placeholder="🔍 Buscar producto..." oninput="renderProdTable()">
           <select class="adm-select" id="pt-cat" onchange="renderProdTable()"><option value="">Todas las categorías</option></select>
-          <button class="btn-outline" style="padding:8px 14px;font-size:13px;white-space:nowrap;" onclick="openAutoImgModal()"><i class="fas fa-images"></i> Auto-imágenes ML</button>
-          <button class="btn-outline" style="padding:8px 14px;font-size:13px;white-space:nowrap;" onclick="openBackfillModal()"><i class="fas fa-layer-group"></i> Obtener todas las fotos</button>
+          <button class="btn-outline adm-tb-hide" style="padding:8px 14px;font-size:13px;white-space:nowrap;" onclick="openAutoImgModal()"><i class="fas fa-images"></i> Auto-imágenes ML</button>
+          <button class="btn-outline adm-tb-hide" style="padding:8px 14px;font-size:13px;white-space:nowrap;" onclick="openBackfillModal()"><i class="fas fa-layer-group"></i> Obtener todas las fotos</button>
           <select class="adm-select" id="pt-bdg" onchange="renderProdTable()"><option value="">Todos los badges</option><option value="hot">🔥 Más Vendido</option><option value="sale">Oferta</option><option value="new">Nuevo</option></select>
           <button class="btn-outline" id="ptColToggleBtn" style="display:none;padding:8px 14px;font-size:13px;white-space:nowrap" onclick="toggleExtraCols()"><i class="fas fa-columns"></i> Más columnas</button>
         </div>
@@ -1974,7 +1993,7 @@ html{scroll-behavior:smooth;}
       <!-- STORE CONFIG -->
       <div class="adm-tab" id="tab-store">
         <h2 class="adm-tab-title">Configuración de la Tienda</h2>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <div class="tab-store-inner" style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
           <div class="adm-card">
             <h4><i class="fas fa-store"></i>Datos de la Tienda</h4>
             <div class="form-group" style="margin-bottom:12px"><label class="form-label">Nombre de la tienda</label><input class="form-input" id="cfg-name" placeholder="Maxicompra"></div>
@@ -5459,7 +5478,15 @@ function openAdmin(){
 }
 function closePw(){document.getElementById('pwScreen').classList.remove('open');}
 (function(){function _chkHash(){if(location.hash==='#__admin'){history.replaceState(null,'',location.pathname+location.search);openAdmin();}}window.addEventListener('hashchange',_chkHash);if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',_chkHash);}else{_chkHash();}})();
-function _openAdminPanel(){closePw();document.getElementById('adminPanel').classList.add('open');document.body.classList.add('admin-open');swTab('dashboard');updStats();renderProdTable();updCatFilter();loadConfig();loadBannerEditor();loadCatEditor();}
+function _openAdminPanel(){
+  closePw();
+  document.getElementById('adminPanel').classList.add('open');
+  document.body.classList.add('admin-open');
+  // Empujar estado al historial para que el back-button cierre el panel
+  history.pushState({view:'admin',tab:'dashboard'}, '', window.location.pathname);
+  swTab('dashboard');
+  updStats();renderProdTable();updCatFilter();loadConfig();loadBannerEditor();loadCatEditor();
+}
 function chkPw(){
   var v=document.getElementById('pwInput').value;
   if(!v){document.getElementById('pwError').textContent='Ingresa una contraseña';document.getElementById('pwError').classList.add('show');return;}
@@ -5502,6 +5529,13 @@ function swTab(t){
   if(t==='store')loadConfig();
   if(t==='orders')loadOrders();
   if(window.innerWidth<=768)closeAdmSidebar();
+  // Scroll al inicio del contenido al cambiar tab (especialmente en mobile)
+  var main=document.querySelector('.adm-main');
+  if(main) main.scrollTo(0,0);
+  // Actualizar estado del historial para que el back button sepa que estamos en admin
+  if(document.getElementById('adminPanel').classList.contains('open')){
+    history.replaceState({view:'admin',tab:t}, '', window.location.pathname);
+  }
 }
 function changePw(){
   var np=document.getElementById('npw').value,cp=document.getElementById('cpw').value;
@@ -6539,6 +6573,12 @@ if(window.location.hash !== '#__admin') history.replaceState({view:'home'}, '', 
 window.addEventListener('popstate', function(e){
   var state = e.state || {};
   var path  = window.location.pathname;
+  // Si el panel admin está abierto, el back button lo cierra (no navega a la tienda)
+  var adminPnl = document.getElementById('adminPanel');
+  if(adminPnl && adminPnl.classList.contains('open')){
+    closeAdmin();
+    return;
+  }
   // Close overlays first
   var ckOv = document.getElementById('ckOverlay');
   if(ckOv && ckOv.classList.contains('open')){ closeCheckout(); return; }

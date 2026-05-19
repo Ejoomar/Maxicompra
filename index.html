@@ -3151,6 +3151,7 @@ html{scroll-behavior:smooth;}
           <i class="fab fa-whatsapp"></i> Consultar pedido
         </button>
       </div>
+      <button onclick="(function(){var ov=document.getElementById('ckOverlay');if(ov)ov.classList.remove('open');goHome();})()" style="margin-top:20px;background:var(--ink);color:var(--bg);border:none;border-radius:var(--radius);padding:12px 24px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:8px;transition:background .15s;"><i class="fas fa-arrow-right"></i> Seguir comprando</button>
     </div>
   </div>
 </div>
@@ -4455,6 +4456,10 @@ function addToCart(id){
   }
 }
 function addToCartN(id, qty=1, silent=false) {
+  if(sessionStorage.getItem('mx_mp_pending')){
+    if(typeof showToast==='function') showToast('Tienes un pago en proceso. Complétalo antes de agregar más productos.','warn');
+    return false;
+  }
   const p = products.find(x=>x.id===id); if(!p) return;
   const ex = cart.find(x=>x.id===id);
   if (ex) ex.qty += qty; else cart.push({id:p.id, name:p.name, price:p.price, img:p.imgs&&p.imgs[0]||null, brand:p.brand, qty});
@@ -7020,43 +7025,77 @@ var API_BASE = 'https://maxicompra-api.elflaco0800.workers.dev';
       }, 4000);
 
     } else if(payment==='failure' || payment==='cancel'){
-      // Recuperar datos guardados y reabrir el checkout para reintentar
-      try {
-        var saved = JSON.parse(sessionStorage.getItem('mx_mp_pending')||'null');
-        if(saved){
-          // Repoblar formulario con datos guardados
-          var f = function(id,v){ var el=document.getElementById(id); if(el&&v) el.value=v; };
-          f('ck-fname', saved.name); f('ck-email', saved.email);
-          f('ck-phone', saved.phone); f('ck-addr',  saved.addr);
-          f('ck-city',  saved.city);
-          var reg=document.getElementById('ck-region');
-          if(reg && saved.region) reg.value=saved.region;
-        }
-      } catch(e){}
-      // Mostrar banner de error dentro del checkout
-      setTimeout(function(){
-        var existing = document.getElementById('mp-retry-banner');
-        if(!existing){
-          var banner = document.createElement('div');
-          banner.id = 'mp-retry-banner';
-          banner.style.cssText='background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#f87171;display:flex;align-items:center;gap:10px;';
-          banner.innerHTML='<i class="fas fa-exclamation-circle" style="font-size:16px;flex-shrink:0"></i><span><strong>Pago cancelado o rechazado.</strong> Puedes reintentar con Mercado Pago o elegir otro método de pago.</span>';
-          var form = document.getElementById('ckForm');
-          if(form) form.insertBefore(banner, form.firstChild);
-        }
-        // Reabrir checkout con carrito intacto
-        if(cart && cart.length > 0){
-          document.getElementById('ckForm').style.display='';
-          document.getElementById('ckSummary').style.display='';
-          document.getElementById('ckSuccess').style.display='none';
-          document.getElementById('ckOverlay').classList.add('open');
-        } else {
-          showToast('Pago cancelado. Agrega productos al carrito para reintentar.','error');
-        }
-      }, 400);
+      // Si orderId no existe (URL manipulada), advertir y no abrir checkout
+      if(!orderId){
+        showToast && showToast('URL inválida. No se pudo verificar el estado del pago.','warn');
+        return;
+      }
+      // Extraer lógica de reapertura en función local para no duplicarla
+      function _abrirCheckoutPorFalla(){
+        try {
+          var saved = JSON.parse(sessionStorage.getItem('mx_mp_pending')||'null');
+          if(saved){
+            var f = function(id,v){ var el=document.getElementById(id); if(el&&v) el.value=v; };
+            f('ck-fname', saved.name); f('ck-email', saved.email);
+            f('ck-phone', saved.phone); f('ck-addr',  saved.addr);
+            f('ck-city',  saved.city);
+            var reg=document.getElementById('ck-region');
+            if(reg && saved.region) reg.value=saved.region;
+          }
+        } catch(e){}
+        setTimeout(function(){
+          var existing = document.getElementById('mp-retry-banner');
+          if(!existing){
+            var banner = document.createElement('div');
+            banner.id = 'mp-retry-banner';
+            banner.style.cssText='background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#f87171;display:flex;align-items:center;gap:10px;';
+            banner.innerHTML='<i class="fas fa-exclamation-circle" style="font-size:16px;flex-shrink:0"></i><span><strong>Pago cancelado o rechazado.</strong> Puedes reintentar con Mercado Pago o elegir otro método de pago.</span>';
+            var form = document.getElementById('ckForm');
+            if(form) form.insertBefore(banner, form.firstChild);
+          }
+          if(cart && cart.length > 0){
+            document.getElementById('ckForm').style.display='';
+            document.getElementById('ckSummary').style.display='';
+            document.getElementById('ckSuccess').style.display='none';
+            document.getElementById('ckOverlay').classList.add('open');
+          } else {
+            showToast('Pago cancelado. Agrega productos al carrito para reintentar.','error');
+          }
+        }, 400);
+      }
+      // Verificar estado real de la orden antes de reabrir checkout
+      // MP a veces redirige a failure aunque el cobro fue exitoso (Khipu, transferencias, race conditions)
+      fetch(API_BASE + '/api/order/' + encodeURIComponent(orderId))
+        .then(function(r){ return r.ok ? r.json() : Promise.reject(r.status); })
+        .then(function(d){
+          var st = d.order && d.order.status;
+          var yaPagado = st==='paid'||st==='payment_pending'||st==='shipped'||st==='delivered';
+          if(yaPagado){
+            // Cobrado aunque MP dijo failure → tratar como éxito
+            cart=[]; saveC(); updCartBadge(); renderCart();
+            try{ sessionStorage.removeItem('mx_mp_pending'); }catch(e){}
+            var el=document.getElementById('ckOrderNum');
+            if(el) el.textContent='#'+orderId;
+            ['ckForm','ckSummary'].forEach(function(id){
+              var e=document.getElementById(id); if(e) e.style.display='none';
+            });
+            var sc=document.getElementById('ckSuccess');
+            if(sc) sc.style.display='block';
+            var ov=document.getElementById('ckOverlay');
+            if(ov) ov.classList.add('open');
+            showToast && showToast('Tu pago fue procesado. ¡Gracias!','ok');
+          } else {
+            // Genuinamente fallido → ejecutar reapertura original
+            _abrirCheckoutPorFalla();
+          }
+        })
+        .catch(function(){
+          showToast && showToast('Verifica tu tarjeta antes de reintentar. Es posible que el pago ya haya sido procesado.','warn');
+          _abrirCheckoutPorFalla();
+        });
 
-    } else if(payment==='pending'){
-      showToast('Pago en proceso de acreditación. Te notificaremos por email.','info');
+      // pending se trata igual que success: carrito vacío + polling IPN
+      // auto_return:'all' solo redirige aquí cuando el movimiento de dinero ya inició
     }
   });
 })();

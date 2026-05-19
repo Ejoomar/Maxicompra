@@ -862,6 +862,10 @@ async function handleMPPreference(request, env) {
 
 // POST /api/payment/webhook  (also accepts GET from MP ping)
 async function handleMPWebhook(request, env) {
+  if(!env.MP_WEBHOOK_SECRET){
+    console.error('[MP Webhook] MP_WEBHOOK_SECRET no está configurado en el Worker');
+    return new Response(JSON.stringify({error:'Webhook secret not configured'}),{status:500,headers:{'Content-Type':'application/json'}});
+  }
   if (!env.MP_ACCESS_TOKEN) return new Response('OK', { status: 200 });
 
   // ── Validate MP signature ──

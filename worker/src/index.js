@@ -51,13 +51,16 @@ async function hmacSha256(message, secret) {
   return Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
+function toBase64Url(s) { return s.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
+function fromBase64Url(s) { s = s.replace(/-/g, '+').replace(/_/g, '/'); while (s.length % 4) s += '='; return s; }
+
 async function signToken(payload, secret) {
-  const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
-  const body   = btoa(JSON.stringify(payload));
+  const header = toBase64Url(btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' })));
+  const body   = toBase64Url(btoa(JSON.stringify(payload)));
   const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(secret),
     { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
   const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(`${header}.${body}`));
-  return `${header}.${body}.${btoa(String.fromCharCode(...new Uint8Array(sig)))}`;
+  return `${header}.${body}.${toBase64Url(btoa(String.fromCharCode(...new Uint8Array(sig))))}`;
 }
 
 async function verifyToken(token, secret, env) {
@@ -72,11 +75,11 @@ async function verifyToken(token, secret, env) {
 
     const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(secret),
       { name: 'HMAC', hash: 'SHA-256' }, false, ['verify']);
-    const sigBytes = Uint8Array.from(atob(sig), c => c.charCodeAt(0));
+    const sigBytes = Uint8Array.from(atob(fromBase64Url(sig)), c => c.charCodeAt(0));
     const valid = await crypto.subtle.verify('HMAC', key, sigBytes,
       new TextEncoder().encode(`${header}.${body}`));
     if (!valid) return null;
-    const pl = JSON.parse(atob(body));
+    const pl = JSON.parse(atob(fromBase64Url(body)));
     if (pl.exp && Date.now() > pl.exp) return null;
     return pl;
   } catch { return null; }
@@ -232,7 +235,7 @@ function emailShipped(order) {
     <p style="color:#555;font-size:14px">Pedido <strong>#${order.id}</strong></p>
     <p style="color:#555;font-size:14px">Llegará en <strong>24-48 horas hábiles</strong> a:</p>
     <p style="color:#333;font-weight:600;font-size:15px">${order.customer.address||'—'}</p>
-    <p style="color:#555;font-size:13px;margin-top:16px">¿Preguntas? Escríbenos por WhatsApp: <a href="https://wa.me/56958498763" style="color:#3b82f6">+56 9 5849 8763</a></p>
+    <p style="color:#555;font-size:13px;margin-top:16px">¿Preguntas? Escríbenos por WhatsApp: <a href="https://wa.me/56977462964" style="color:#3b82f6">+56 9 5849 8763</a></p>
   `);
 }
 
@@ -241,7 +244,7 @@ function emailDelivered(order) {
     <p style="color:#333">Hola <strong>${order.customer.name}</strong>, confirmamos la entrega de tu pedido.</p>
     <p style="color:#555;font-size:14px">Pedido <strong>#${order.id}</strong></p>
     <p style="color:#555;font-size:14px">¡Esperamos que estés feliz con tu compra! Si tienes algún problema, contáctanos dentro de 7 días.</p>
-    <p style="color:#555;font-size:13px">WhatsApp: <a href="https://wa.me/56958498763" style="color:#22c55e">+56 9 5849 8763</a></p>
+    <p style="color:#555;font-size:13px">WhatsApp: <a href="https://wa.me/56977462964" style="color:#22c55e">+56 9 5849 8763</a></p>
   `);
 }
 
@@ -251,7 +254,7 @@ function emailCancelled(order) {
     <p style="color:#555;font-size:14px">Total de la orden: $${Number(order.total).toLocaleString('es-CL')}</p>
     <p style="color:#555;font-size:14px">Si realizaste un pago y no iniciaste la cancelación, contáctanos de inmediato.</p>
     <div style="background:#fef2f2;border-radius:8px;padding:14px;margin-top:16px">
-      <p style="color:#dc2626;margin:0;font-size:14px">WhatsApp: <a href="https://wa.me/56958498763" style="color:#dc2626">+56 9 5849 8763</a></p>
+      <p style="color:#dc2626;margin:0;font-size:14px">WhatsApp: <a href="https://wa.me/56977462964" style="color:#dc2626">+56 9 5849 8763</a></p>
     </div>
   `);
 }
@@ -263,7 +266,7 @@ function emailPaymentPending(order) {
     <p style="color:#555;font-size:14px">Tu pago está siendo procesado por ${payNames[order.payment]||order.payment}. Esto puede tardar algunos minutos.</p>
     <p style="color:#555;font-size:14px">Total: <strong>$${Number(order.total).toLocaleString('es-CL')}</strong></p>
     <div style="background:#fefce8;border:1px solid #fde047;border-radius:8px;padding:14px;margin-top:16px">
-      <p style="color:#854d0e;margin:0;font-size:14px">⏳ Te notificaremos por email una vez que se confirme el pago. Si tienes dudas, escríbenos: <a href="https://wa.me/56958498763" style="color:#854d0e">+56 9 5849 8763</a></p>
+      <p style="color:#854d0e;margin:0;font-size:14px">⏳ Te notificaremos por email una vez que se confirme el pago. Si tienes dudas, escríbenos: <a href="https://wa.me/56977462964" style="color:#854d0e">+56 9 5849 8763</a></p>
     </div>
   `);
 }
@@ -273,7 +276,7 @@ function emailPaymentFailed(order) {
     <p style="color:#333">Hola <strong>${order.customer.name}</strong>, tu pago para el pedido <strong>#${order.id}</strong> no fue aprobado.</p>
     <p style="color:#555;font-size:14px">Puedes intentar nuevamente con otra tarjeta o elige otro método de pago.</p>
     <div style="background:#fef3c7;border-radius:8px;padding:14px;margin-top:16px">
-      <p style="color:#92400e;margin:0;font-size:14px">⚠️ Tu pedido sigue reservado. Contáctanos para coordinar: <a href="https://wa.me/56958498763" style="color:#92400e">+56 9 5849 8763</a></p>
+      <p style="color:#92400e;margin:0;font-size:14px">⚠️ Tu pedido sigue reservado. Contáctanos para coordinar: <a href="https://wa.me/56977462964" style="color:#92400e">+56 9 5849 8763</a></p>
     </div>
   `);
 }
@@ -355,7 +358,7 @@ async function handleCreateOrder(request, env) {
   const waMsg = encodeURIComponent(
     `*🛒 Nuevo pedido ${orderId}*\n\n${itemsText}\n\n*Total: $${Number(total).toLocaleString('es-CL')}*\n\nCliente: ${customer.name}\nTel: ${customer.phone}\nPago: ${payment}`
   );
-  const waUrl = `https://wa.me/${env.WHATSAPP_NUMBER||'56958498763'}?text=${waMsg}`;
+  const waUrl = `https://wa.me/${env.WHATSAPP_NUMBER||'56977462964'}?text=${waMsg}`;
 
   if (customer.email) {
     sendEmail(env, {
@@ -401,7 +404,12 @@ async function handleAdminLogin(request, env) {
   // Support both plain SHA-256 (legacy) and HMAC-SHA256 salted with JWT_SECRET (new)
   const plainHash  = await sha256(body.password);
   const saltedHash = await hmacSha256(body.password, env.JWT_SECRET);
-  const isValid    = plainHash === env.ADMIN_PASSWORD_HASH || saltedHash === env.ADMIN_PASSWORD_HASH;
+
+  // KV override (set via change-password endpoint) takes priority over env secret
+  const kvPwHash = await env.CONFIG.get('config:admin_password_override');
+  const isValid = kvPwHash
+    ? (plainHash === kvPwHash || saltedHash === kvPwHash)
+    : (plainHash === env.ADMIN_PASSWORD_HASH || saltedHash === env.ADMIN_PASSWORD_HASH);
 
   if (!isValid) return err('Credenciales incorrectas', 401, request);
 
@@ -426,6 +434,24 @@ async function handleAdminLogout(request, env) {
     await env.CONFIG.put(`blacklist:${tokenId}`, '1', { expirationTtl: ttl });
   }
   return json({ ok: true, message: 'Sesión cerrada correctamente' }, 200, request);
+}
+
+// POST /api/admin/change-password
+async function handleChangePassword(request, env) {
+  const auth = await requireAuth(request, env);
+  if (!auth) return err('No autorizado', 401, request);
+
+  let body;
+  try { body = await request.json(); } catch { return err('JSON inválido', 400, request); }
+  if (!body.password || typeof body.password !== 'string' || body.password.length < 4)
+    return err('Contraseña muy corta (mínimo 4 caracteres)', 400, request);
+  if (body.password.length > 200)
+    return err('Contraseña demasiado larga', 400, request);
+
+  // Store HMAC-SHA256 hash in KV (persists across deployments)
+  const hashed = await hmacSha256(body.password, env.JWT_SECRET);
+  await env.CONFIG.put('config:admin_password_override', hashed);
+  return json({ ok: true }, 200, request);
 }
 
 // GET /api/admin/orders
@@ -836,30 +862,28 @@ async function handleMPPreference(request, env) {
 
 // POST /api/payment/webhook  (also accepts GET from MP ping)
 async function handleMPWebhook(request, env) {
+  if(!env.MP_WEBHOOK_SECRET){
+    console.error('[MP Webhook] MP_WEBHOOK_SECRET no está configurado en el Worker');
+    return new Response(JSON.stringify({error:'Webhook secret not configured'}),{status:500,headers:{'Content-Type':'application/json'}});
+  }
   if (!env.MP_ACCESS_TOKEN) return new Response('OK', { status: 200 });
 
-  // ── Validate MP signature (requires MP_WEBHOOK_SECRET in dashboard) ──
-  if (env.MP_WEBHOOK_SECRET) {
-    const sig = request.headers.get('x-signature');
-    if (sig) {
-      const url    = new URL(request.url);
-      const dataId = url.searchParams.get('data.id') || url.searchParams.get('id') || '';
-      const parts  = Object.fromEntries(
-        sig.split(',').map(p => { const [k,...v] = p.split('='); return [k.trim(), v.join('=').trim()]; })
-      );
-      const ts = parts.ts;
-      const v1 = parts.v1;
-      if (ts && v1) {
-        const manifest = `id:${dataId};request-date:${ts};`;
-        const expected = await hmacSha256(manifest, env.MP_WEBHOOK_SECRET);
-        if (expected !== v1) return new Response('Unauthorized', { status: 401 });
-      }
-    }
-  }
-
+  // ── Validate MP signature ──
+  const sig = request.headers.get('x-signature');
+  if (!sig) return new Response('Missing signature', { status: 401 });
   const url    = new URL(request.url);
-  const type   = url.searchParams.get('type') || url.searchParams.get('topic');
-  const dataId = url.searchParams.get('data.id') || url.searchParams.get('id');
+  const dataId = url.searchParams.get('data.id') || url.searchParams.get('id') || '';
+  const parts  = Object.fromEntries(
+    sig.split(',').map(p => { const [k,...v] = p.split('='); return [k.trim(), v.join('=').trim()]; })
+  );
+  const ts = parts.ts;
+  const v1 = parts.v1;
+  if (!ts || !v1) return new Response('Malformed signature', { status: 401 });
+  const manifest = `id:${dataId};request-date:${ts};`;
+  const expected = await hmacSha256(manifest, env.MP_WEBHOOK_SECRET);
+  if (expected !== v1) return new Response('Unauthorized', { status: 401 });
+
+  const type = url.searchParams.get('type') || url.searchParams.get('topic');
   if (type !== 'payment' || !dataId) return new Response('OK', { status: 200 });
 
   // ── Webhook deduplication ──
@@ -946,33 +970,174 @@ async function handleAdminListProducts(request, env) {
   return json({ ok: true, products }, 200, request);
 }
 
+function _toSlug(str) {
+  return (str || '').toLowerCase()
+    .replace(/[áàäâ]/g, 'a').replace(/[éèëê]/g, 'e').replace(/[íìïî]/g, 'i')
+    .replace(/[óòöô]/g, 'o').replace(/[úùüû]/g, 'u').replace(/ñ/g, 'n')
+    .replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-')
+    .slice(0, 60).replace(/^-|-$/, '');
+}
+
 async function handleUpsertProduct(request, env) {
   const auth = await requireAuth(request, env);
   if (!auth) return err('No autorizado', 401, request);
+
   let body;
   try { body = await request.json(); } catch { return err('JSON inválido', 400, request); }
-  if (!body?.name || !body?.price) return err('name y price son obligatorios', 400, request);
+
+  const name  = String(body?.name  || '').trim().slice(0, 200);
+  const price = Math.max(0, Number(body?.price || 0));
+  if (!name || !price) return err('name y price son obligatorios', 400, request);
+
+  const id   = String(body.id || `PROD-${Date.now()}`);
+  const slug = body.slug || (_toSlug(name) + '-' + id.slice(-4));
+
+  // Store full SPA product object — preserve all fields (imgs, cat, desc, hot, etc.)
+  const product = { ...body, id, name, price, slug, updatedAt: new Date().toISOString() };
 
   const products = await env.CONFIG.get('products:all', 'json') || [];
-  const product = {
-    id: body.id || `PROD-${Date.now()}`,
-    name:          String(body.name          || '').trim().slice(0, 200),
-    brand:         String(body.brand         || '').trim().slice(0, 100),
-    category:      String(body.category      || '').trim().slice(0, 100),
-    price:         Math.max(0, Number(body.price)),
-    originalPrice: body.originalPrice ? Math.max(0, Number(body.originalPrice)) : undefined,
-    image:         String(body.image         || '').trim().slice(0, 500),
-    description:   String(body.description   || '').trim().slice(0, 1000),
-    stock:         body.stock !== undefined ? Number(body.stock) : -1,
-    updatedAt:     new Date().toISOString(),
-  };
-
-  const idx = products.findIndex(p => p.id === product.id);
+  const idx = products.findIndex(p => p.id === id);
   if (idx >= 0) products[idx] = product;
   else products.unshift(product);
 
   await env.CONFIG.put('products:all', JSON.stringify(products));
   return json({ ok: true, product }, 200, request);
+}
+
+async function handleBulkUpsertProducts(request, env) {
+  const auth = await requireAuth(request, env);
+  if (!auth) return err('No autorizado', 401, request);
+  let body;
+  try { body = await request.json(); } catch { return err('JSON inválido', 400, request); }
+  if (!Array.isArray(body?.products)) return err('Se espera { products: [...] }', 400, request);
+  const products = body.products.map(p => {
+    const id   = String(p.id || `PROD-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+    const name = String(p.name || '').trim().slice(0, 200);
+    const slug = p.slug || (_toSlug(name) + '-' + id.slice(-4));
+    // Strip base64/blob images — KV only stores HTTP URLs
+    const imgs = Array.isArray(p.imgs)
+      ? p.imgs.filter(u => typeof u === 'string' && (u.startsWith('http://') || u.startsWith('https://')))
+      : [];
+    return { ...p, id, name, slug, imgs };
+  });
+  try {
+    await env.CONFIG.put('products:all', JSON.stringify(products));
+  } catch (e) {
+    return err('Error guardando en KV: ' + e.message, 500, request);
+  }
+  return json({ ok: true, count: products.length }, 200, request);
+}
+
+async function handleGetProductBySlug(slug, request, env) {
+  if (!slug || slug.length > 100) return err('Slug inválido', 400, request);
+  const products = await env.CONFIG.get('products:all', 'json') || [];
+  const product  = products.find(p => p.slug === slug && p.visible !== false);
+  if (!product) return err('Producto no encontrado', 404, request);
+  return json({ ok: true, product }, 200, request);
+}
+
+async function handleSearchImage(request, env) {
+  const url = new URL(request.url);
+  const q   = (url.searchParams.get('q') || '').trim();
+  if (!q || q.length > 200) return err('Query requerida', 400, request);
+
+  const query   = encodeURIComponent(q.replace(/[^\w\s\-áéíóúüñÁÉÍÓÚÜÑ]/gi, ' ').trim());
+  const mlUrl   = `https://api.mercadolibre.com/sites/MLC/search?q=${query}&limit=3`;
+  const resp    = await fetch(mlUrl, {
+    headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Maxicompra/1.0)' },
+  });
+
+  if (!resp.ok) return json({ ok: false, img: null, status: resp.status }, 200, request);
+
+  const data    = await resp.json();
+  const results = data.results || [];
+  if (!results.length) return json({ ok: false, img: null }, 200, request);
+
+  // Tomar primera imagen con mejor resolución disponible
+  const best    = results.find(r => r.thumbnail) || results[0];
+  const thumb   = best?.thumbnail || '';
+  // Subir resolución: -V.jpg (170px) → -O.jpg (original)
+  const img     = thumb
+    .replace(/-[A-Z]\.jpg$/, '-O.jpg')
+    .replace(/^http:/, 'https:');
+
+  return json({ ok: true, img, title: best?.title || '' }, 200, request);
+}
+
+async function handleSearchImagesMulti(request, env) {
+  const url = new URL(request.url);
+  const q   = (url.searchParams.get('q') || '').trim();
+  if (!q || q.length > 200) return err('Query requerida', 400, request);
+
+  const query   = encodeURIComponent(q.replace(/[^\w\s\-áéíóúüñÁÉÍÓÚÜÑ]/gi, ' ').trim());
+  const mlUrl   = `https://api.mercadolibre.com/sites/MLC/search?q=${query}&limit=3`;
+  const resp    = await fetch(mlUrl, {
+    headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Maxicompra/1.0)' },
+  });
+
+  if (!resp.ok) return json({ ok: false, imgs: [], status: resp.status }, 200, request);
+
+  const data    = await resp.json();
+  const results = data.results || [];
+  if (!results.length) return json({ ok: false, imgs: [] }, 200, request);
+
+  const best = results.find(r => r.thumbnail) || results[0];
+  const mlId = best?.id;
+  if (!mlId) return json({ ok: false, imgs: [] }, 200, request);
+
+  // Obtener detalle del ítem para extraer todas las pictures
+  const detailResp = await fetch(`https://api.mercadolibre.com/items/${mlId}`, {
+    headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Maxicompra/1.0)' },
+  });
+
+  if (!detailResp.ok) {
+    // Fallback: devolver solo el thumbnail en alta resolución
+    const thumb = (best?.thumbnail || '').replace(/-[A-Z]\.jpg$/, '-O.jpg').replace(/^http:/, 'https:');
+    return json({ ok: true, imgs: thumb ? [thumb] : [], title: best?.title || '' }, 200, request);
+  }
+
+  const detail = await detailResp.json();
+  const pictures = (detail.pictures || [])
+    .map(pic => (pic.url || pic.secure_url || '').replace(/^http:/, 'https:').replace(/-[A-Z]\.jpg$/, '-O.jpg'))
+    .filter(u => u.startsWith('https://'));
+
+  if (!pictures.length) {
+    const thumb = (best?.thumbnail || '').replace(/-[A-Z]\.jpg$/, '-O.jpg').replace(/^http:/, 'https:');
+    return json({ ok: true, imgs: thumb ? [thumb] : [], title: best?.title || '' }, 200, request);
+  }
+
+  return json({ ok: true, imgs: pictures, title: detail.title || best?.title || '' }, 200, request);
+}
+
+async function handleSitemap(request, env) {
+  const products = await env.CONFIG.get('products:all', 'json') || [];
+  const base     = 'https://maxicompra.cl';
+  const today    = new Date().toISOString().slice(0, 10);
+
+  const catIds = [...new Set(
+    products.filter(p => p.visible !== false && (p.cat || p.category))
+            .map(p => p.cat || p.category)
+  )];
+
+  const catUrls = catIds.map(cat =>
+    `  <url>\n    <loc>${base}/c/${_toSlug(cat)}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>daily</changefreq>\n    <priority>0.7</priority>\n  </url>`
+  ).join('\n');
+
+  const productUrls = products
+    .filter(p => p.visible !== false && p.slug)
+    .map(p =>
+      `  <url>\n    <loc>${base}/p/${p.slug}</loc>\n    <lastmod>${(p.updatedAt || today).slice(0, 10)}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n  </url>`
+    ).join('\n');
+
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url>\n    <loc>${base}/</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>daily</changefreq>\n    <priority>1.0</priority>\n  </url>\n${catUrls}\n${productUrls}\n</urlset>`;
+
+  return new Response(xml, {
+    headers: {
+      'Content-Type': 'application/xml; charset=utf-8',
+      'Cache-Control': 'public, max-age=3600',
+      ...corsHeaders(request),
+    },
+  });
 }
 
 async function handleDeleteProduct(request, id, env) {
@@ -997,8 +1162,13 @@ export default {
     }
 
     // Public routes
+    if (path === '/sitemap.xml'             && method === 'GET')    return handleSitemap(request, env);
     if (path === '/api/health'              && method === 'GET')    return handleHealth(request, env);
     if (path === '/api/products'            && method === 'GET')    return handleGetProducts(request, env);
+    if (path === '/api/search-image'        && method === 'GET')    return handleSearchImage(request, env);
+    if (path === '/api/search-images-multi' && method === 'GET')    return handleSearchImagesMulti(request, env);
+    if (path.match(/^\/api\/product\/slug\/[^/]+$/) && method === 'GET')
+      return handleGetProductBySlug(decodeURIComponent(path.split('/')[4]), request, env);
     if (path === '/api/order'               && method === 'POST')   return handleCreateOrder(request, env);
     if (path.startsWith('/api/order/')      && method === 'GET')    return handleGetOrder(path.split('/')[3], request, env);
     if (path.match(/^\/api\/order\/[^/]+\/comprobante$/) && method === 'POST')
@@ -1009,8 +1179,9 @@ export default {
     if (path === '/api/newsletter'          && method === 'POST')   return handleNewsletter(request, env);
 
     // Auth
-    if (path === '/api/admin/login'         && method === 'POST')   return handleAdminLogin(request, env);
-    if (path === '/api/admin/logout'        && method === 'POST')   return handleAdminLogout(request, env);
+    if (path === '/api/admin/login'           && method === 'POST')   return handleAdminLogin(request, env);
+    if (path === '/api/admin/logout'          && method === 'POST')   return handleAdminLogout(request, env);
+    if (path === '/api/admin/change-password' && method === 'POST')   return handleChangePassword(request, env);
 
     // Admin routes
     if (path === '/api/admin/orders'        && method === 'GET')    return handleListOrders(request, env);
@@ -1026,7 +1197,8 @@ export default {
     if (path.match(/^\/api\/admin\/order\/[^/]+$/) && method === 'GET')
       return handleGetOrderAdmin(path.split('/')[4], request, env);
     if (path === '/api/admin/products'      && method === 'GET')    return handleAdminListProducts(request, env);
-    if (path === '/api/admin/product'       && method === 'POST')   return handleUpsertProduct(request, env);
+    if (path === '/api/admin/product'        && method === 'POST')   return handleUpsertProduct(request, env);
+    if (path === '/api/admin/products/bulk' && method === 'POST')   return handleBulkUpsertProducts(request, env);
     if (path.match(/^\/api\/admin\/product\/[^/]+$/) && method === 'DELETE')
       return handleDeleteProduct(request, path.split('/')[4], env);
 

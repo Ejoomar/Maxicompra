@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -152,14 +152,14 @@ img{display:block;max-width:100%;}
 .btn-outline:hover{border-color:var(--pink);color:var(--pink);}
 .btn-danger{background:transparent;border:1.5px solid rgba(255,68,68,.4);color:var(--red);border-radius:8px;font-weight:600;font-family:inherit;transition:all .2s;display:inline-flex;align-items:center;gap:7px;}
 .btn-danger:hover{background:rgba(255,68,68,.1);}
-.tag{padding:3px 9px;border-radius:6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
+.tag{padding:3px 9px;border-radius:4px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
 .tag-pink{background:rgba(232,23,93,.14);border:1px solid rgba(232,23,93,.3);color:var(--pink);}
 .tag-hot{background:rgba(255,152,0,.14);border:1px solid rgba(255,152,0,.3);color:var(--orange);}
 .tag-new{background:rgba(0,198,255,.14);border:1px solid rgba(0,198,255,.3);color:var(--cyan);}
 .tag-off{background:rgba(227,23,109,.10);border:1px solid rgba(227,23,109,.25);color:var(--accent);}
 .tag-sale{background:var(--grad);color:#fff;}
 .badge-count{background:var(--pink);color:#fff;border-radius:10px;padding:2px 7px;font-size:11px;font-weight:700;}
-.section-title{font-family:'Instrument Serif',Georgia,serif;font-size:48px;line-height:1;letter-spacing:-0.02em;color:var(--ink);}
+.section-title{font-family:'Instrument Serif',Georgia,serif;font-size:clamp(30px,4.5vw,46px);line-height:1;letter-spacing:-0.04em;color:var(--ink);}
 .section-title .acc{color:var(--accent);font-style:italic;}
 .section-title em{color:var(--accent);font-style:italic;}
 .see-all{font-size:13px;color:var(--ink);display:inline-flex;align-items:center;gap:6px;border-bottom:1px solid var(--ink);padding-bottom:2px;transition:gap .15s;cursor:pointer;}
@@ -285,7 +285,7 @@ img{display:block;max-width:100%;}
 .nav-inner::-webkit-scrollbar{display:none;}
 /* Base item — stacked layout: .nv-ico on top, text node below */
 .nav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:0 14px;min-width:68px;height:56px;border-radius:10px;cursor:pointer;flex-shrink:0;position:relative;background:transparent;border-bottom:2px solid transparent;white-space:nowrap;font-family:'Inter',sans-serif;font-size:9.5px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:rgba(255,255,255,.35);transition:color .2s,background .22s,transform .18s;}
-.nav-item:hover{background:rgba(255,255,255,.055);color:rgba(255,255,255,.8);transform:translateY(-1px);}
+.nav-item:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.88);transform:translateY(-1px);transition:all .18s;}
 .nav-item:hover .nv-ico{transform:scale(1.12);filter:brightness(1.5);}
 .nav-item.active{color:#fff;background:rgba(255,255,255,.07);transform:none;font-weight:700;}
 .nav-item.active .nv-ico{transform:scale(1.08);filter:brightness(1.8);}
@@ -393,7 +393,7 @@ img{display:block;max-width:100%;}
 .prod:hover{border-color:var(--ink-2);transform:translateY(-3px);}
 .prod:hover .prod-img-el{transform:scale(1.04);}
 a.prod,a.cat-card-ed,a.product-card{text-decoration:none;color:inherit;}
-.product-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden;transition:all .18s;cursor:pointer;position:relative;}
+.product-card{background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden;transition:all .18s;cursor:pointer;position:relative;}
 .product-card:hover{border-color:var(--ink-2);transform:translateY(-3px);}
 .pc-img-wrap{background:#fff;height:185px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
 .pc-img-wrap img{width:100%;height:100%;object-fit:contain;padding:12px;transition:transform .3s;}
@@ -697,7 +697,7 @@ a.prod,a.cat-card-ed,a.product-card{text-decoration:none;color:inherit;}
 /* ═══════════════════════════ FOOTER ═══════════════════════════ */
 .site-footer,.footer-ed{background:var(--ink);color:var(--bg);padding:80px 0 32px;}
 .footer-top-ed{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:60px;padding-bottom:60px;border-bottom:1px solid rgba(250,250,247,0.12);}
-.footer-logo-ed{font-family:'Instrument Serif',serif;font-size:52px;font-style:italic;letter-spacing:-0.03em;line-height:0.9;color:var(--bg);margin-bottom:20px;}
+.footer-logo-ed{font-family:'Instrument Serif',serif;font-size:58px;font-style:italic;letter-spacing:-0.04em;line-height:0.88;color:var(--bg);margin-bottom:24px;opacity:.92;}
 .footer-tagline-ed{color:rgba(250,250,247,0.6);font-size:14px;line-height:1.65;margin:20px 0 28px;max-width:340px;}
 .footer-social-ed{display:flex;gap:8px;}
 .footer-social-ed a{width:36px;height:36px;border:1px solid rgba(250,250,247,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;color:rgba(250,250,247,0.8);transition:all .15s;font-size:15px;}
@@ -842,12 +842,12 @@ body.admin-open{overflow:hidden;}
 .adm-tab.active{display:block;}
 .adm-tab-title{font-family:'Instrument Serif',Georgia,serif;font-size:22px;font-weight:800;color:var(--white);margin-bottom:20px;}
 .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px;}
-.stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px 20px;}
 .stat-icon{float:right;width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;}
 .stat-label{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;}
 .stat-val{font-family:'Instrument Serif',Georgia,serif;font-size:28px;font-weight:800;color:var(--white);}
 .stat-sub{font-size:12px;color:var(--green);margin-top:4px;}
-.adm-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:22px;}
+.adm-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:22px;border-left:3px solid rgba(232,23,93,.35);}
 .adm-card h4{font-family:'Instrument Serif',Georgia,serif;font-size:15px;font-weight:700;color:var(--white);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
 .adm-card h4 i{color:var(--pink);}
 
@@ -1615,7 +1615,7 @@ html{scroll-behavior:smooth;}
 .ord-table td{padding:12px 14px;border-bottom:1px solid var(--border);vertical-align:middle;}
 .ord-table tbody tr:last-child td{border-bottom:none;}
 .ord-table tbody tr:hover td{background:var(--bg-2);}
-.ord-status{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11.5px;font-weight:700;white-space:nowrap;}
+.ord-status{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:4px;font-size:11px;font-weight:700;white-space:nowrap;letter-spacing:.02em;}
 .ord-status.pending{background:rgba(255,152,0,.15);color:#E06000;}
 .ord-status.paid{background:rgba(0,180,80,.12);color:#007A3D;}
 .ord-status.shipped{background:rgba(0,190,255,.12);color:#006B9C;}
@@ -1628,7 +1628,7 @@ html{scroll-behavior:smooth;}
 .ord-status-filter:focus{border-color:var(--accent);}
 /* ── ORD SUMMARY CARDS ── */
 .ord-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
-.ord-sum-card{background:var(--card);border:1.5px solid var(--border);border-radius:10px;padding:14px 18px;display:flex;align-items:center;gap:12px;}
+.ord-sum-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 18px;display:flex;align-items:center;gap:12px;border-left:3px solid rgba(232,23,93,.3);}
 .ord-sum-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
 .ord-sum-icon.green{background:rgba(16,185,129,.15);color:#10b981;}
 .ord-sum-icon.amber{background:rgba(245,158,11,.15);color:#f59e0b;}
@@ -1879,8 +1879,8 @@ html{scroll-behavior:smooth;}
 <div class="pw-screen" id="pwScreen">
   <div class="pw-box">
     <svg width="54" height="54" viewBox="0 0 40 40" fill="none"><defs><linearGradient id="lg0" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#F04E38"/><stop offset="100%" stop-color="#E3176D"/></linearGradient></defs><path d="M6 12 L20 24 L34 12" stroke="url(#lg0)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M6 22 L20 34 L34 22" stroke="url(#lg0)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.7"/></svg>
-    <h2>Panel de Administración</h2>
-    <p id="pwMsg">Ingresa la contraseña para acceder</p>
+    <h2>Maxicompra Admin</h2>
+    <p id="pwMsg">Ingresa tu contraseña para continuar</p>
     <input class="pw-input" id="pwInput" type="password" placeholder="••••••" onkeydown="if(event.key==='Enter')chkPw()">
     <p class="pw-error" id="pwError">Contraseña incorrecta</p>
     <button class="btn-grad pw-submit" id="pwSubmitBtn" onclick="chkPw()" style="padding:14px 24px;font-size:15px;font-weight:700;width:100%;justify-content:center;margin-bottom:12px;border-radius:9px"><i class="fas fa-unlock-alt"></i> Acceder al Panel</button>
@@ -1932,9 +1932,9 @@ html{scroll-behavior:smooth;}
 
       <!-- DASHBOARD -->
       <div class="adm-tab active" id="tab-dashboard">
-        <div style="margin-bottom:24px"><h2 class="adm-tab-title" style="margin-bottom:4px">¡Bienvenido! 👋</h2><p style="color:var(--muted);font-size:14px">Panel de control de tu tienda Maxicompra</p></div>
+        <div style="margin-bottom:24px"><h2 class="adm-tab-title" style="margin-bottom:4px">Hola, Edgar 👋</h2><p style="color:var(--muted);font-size:14px">Acá administras todo de Maxicompra — productos, pedidos y config de la tienda.</p></div>
         <div class="stats-grid">
-          <div class="stat-card"><div class="stat-icon" style="background:rgba(232,23,93,.1);color:var(--pink)"><i class="fas fa-box"></i></div><div class="stat-label">Productos</div><div class="stat-val" id="st-prod">0</div><div class="stat-sub"><i class="fas fa-arrow-up"></i> Activos en tienda</div></div>
+          <div class="stat-card"><div class="stat-icon" style="background:rgba(232,23,93,.1);color:var(--pink)"><i class="fas fa-box"></i></div><div class="stat-label">Productos</div><div class="stat-val" id="st-prod">0</div><div class="stat-sub"><i class="fas fa-check-circle"></i> Visibles en tienda</div></div>
           <div class="stat-card"><div class="stat-icon" style="background:rgba(0,230,118,.1);color:var(--green)"><i class="fas fa-tags"></i></div><div class="stat-label">Categorías</div><div class="stat-val" id="st-cat">0</div><div class="stat-sub"><i class="fas fa-layer-group"></i> Con productos</div></div>
           <div class="stat-card"><div class="stat-icon" style="background:rgba(255,152,0,.1);color:var(--orange)"><i class="fas fa-fire"></i></div><div class="stat-label">Más Vendidos</div><div class="stat-val" id="st-hot">0</div><div class="stat-sub"><i class="fas fa-star"></i> Badges activos</div></div>
           <div class="stat-card"><div class="stat-icon" style="background:rgba(0,198,255,.1);color:var(--cyan)"><i class="fas fa-images"></i></div><div class="stat-label">Con Imágenes</div><div class="stat-val" id="st-img">0</div><div class="stat-sub"><i class="fas fa-check"></i> Fotos cargadas</div></div>
@@ -1953,7 +1953,7 @@ html{scroll-behavior:smooth;}
       <!-- PRODUCTS -->
       <div class="adm-tab" id="tab-products">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
-          <h2 class="adm-tab-title" style="margin:0">Gestión de Productos</h2>
+          <h2 class="adm-tab-title" style="margin:0">Catálogo de Productos</h2>
           <button class="btn-grad" style="padding:9px 18px;font-size:13px" onclick="openProductModal()"><i class="fas fa-plus"></i> Nuevo Producto</button>
         </div>
         <div class="adm-toolbar">
@@ -1972,7 +1972,7 @@ html{scroll-behavior:smooth;}
       <!-- BANNERS EDITOR -->
       <div class="adm-tab" id="tab-banners">
         <h2 class="adm-tab-title">Banners del Slider Principal</h2>
-        <p style="color:var(--muted);font-size:14px;margin-bottom:24px">Personaliza las 3 diapositivas del banner de inicio. Sube imágenes de fondo, cambia textos y colores del botón.</p>
+        <p style="color:var(--muted);font-size:14px;margin-bottom:24px">Arma el slider de inicio: sube imágenes, edita el texto de cada slide y elige el color del botón CTA.</p>
         <div class="banner-slides-list" id="bannerEditorList"></div>
         <div style="margin-top:20px;display:flex;justify-content:flex-end;gap:10px">
           <button class="btn-outline" style="padding:10px 20px;font-size:13px" onclick="loadBannerEditor()"><i class="fas fa-undo"></i> Restaurar</button>
@@ -1983,7 +1983,7 @@ html{scroll-behavior:smooth;}
       <!-- CATEGORIES EDITOR -->
       <div class="adm-tab" id="tab-categories">
         <h2 class="adm-tab-title">Gestión de Categorías</h2>
-        <p style="color:var(--muted);font-size:14px;margin-bottom:24px">Edita el nombre, ícono, color e imagen de portada de cada categoría. Los cambios se reflejan en la tienda y la navegación.</p>
+        <p style="color:var(--muted);font-size:14px;margin-bottom:24px">Personaliza cada sección de tu tienda: nombre, ícono, color e imagen de portada. Los cambios se aplican en tiempo real.</p>
         <div class="cat-editor-grid" id="catEditorGrid"></div>
         <div style="margin-top:20px;display:flex;justify-content:flex-end;gap:10px">
           <button class="btn-grad" style="padding:10px 20px;font-size:13px" onclick="saveCategories()"><i class="fas fa-save"></i> Guardar Categorías</button>
@@ -1997,9 +1997,9 @@ html{scroll-behavior:smooth;}
           <div class="adm-card">
             <h4><i class="fas fa-store"></i>Datos de la Tienda</h4>
             <div class="form-group" style="margin-bottom:12px"><label class="form-label">Nombre de la tienda</label><input class="form-input" id="cfg-name" placeholder="Maxicompra"></div>
-            <div class="form-group" style="margin-bottom:12px"><label class="form-label">Tagline</label><input class="form-input" id="cfg-tag" placeholder="Tu tienda de electrónica"></div>
-            <div class="form-group" style="margin-bottom:12px"><label class="form-label">Teléfono</label><input class="form-input" id="cfg-phone" placeholder="+56 2 2345 6789"></div>
-            <div class="form-group" style="margin-bottom:12px"><label class="form-label">Email</label><input class="form-input" id="cfg-email" placeholder="contacto@maxicompra.cl"></div>
+            <div class="form-group" style="margin-bottom:12px"><label class="form-label">Tagline</label><input class="form-input" id="cfg-tag" placeholder="Electrónica y más, al precio justo"></div>
+            <div class="form-group" style="margin-bottom:12px"><label class="form-label">Teléfono</label><input class="form-input" id="cfg-phone" placeholder="+56977462964"></div>
+            <div class="form-group" style="margin-bottom:12px"><label class="form-label">Email</label><input class="form-input" id="cfg-email" placeholder="maxicompra.cl@gmail.com"></div>
             <div class="form-group"><label class="form-label">Descripción footer</label><textarea class="form-textarea" id="cfg-desc" rows="3"></textarea></div>
           </div>
           <div class="adm-card">
@@ -2008,7 +2008,7 @@ html{scroll-behavior:smooth;}
             <div class="form-group" style="margin-bottom:12px"><label class="form-label">Costo envío RM</label><input class="form-input" id="cfg-shrm" placeholder="$2.990"></div>
             <div class="form-group" style="margin-bottom:12px"><label class="form-label">Costo envío regiones</label><input class="form-input" id="cfg-shreg" placeholder="$4.990"></div>
             <div class="form-group" style="margin-bottom:12px"><label class="form-label">Cuotas sin interés</label><input class="form-input" id="cfg-cuotas" placeholder="12"></div>
-            <div class="form-group" style="margin-bottom:12px"><label class="form-label">Texto del banner superior</label><textarea class="form-textarea" id="cfg-banner" rows="3" placeholder="Ej: Envío gratis desde $19.990 | 12 cuotas sin interés"></textarea></div>
+            <div class="form-group" style="margin-bottom:12px"><label class="form-label">Texto del banner superior</label><textarea class="form-textarea" id="cfg-banner" rows="3" placeholder="Envío gratis desde $29.990 · Pagá en 12 cuotas · Más de 600 productos"></textarea></div>
             <div class="form-group" style="margin-bottom:12px"><label class="form-label">URL imagen promocional (banner foto)</label><input class="form-input" id="cfg-promo-img" placeholder="https://...imagen.jpg" oninput="this.value=this.value.trim()"></div>
             <div class="form-group"><label class="form-label">Dirección (se muestra en la tira de info)</label><input class="form-input" id="cfg-addr" placeholder="Ej: Av. Providencia 1234, Santiago"></div>
           </div>
@@ -2789,7 +2789,7 @@ html{scroll-behavior:smooth;}
           </svg>
           <div class="footer-logo-wordmark">Maxicompra</div>
         </div>
-        <p class="footer-tagline-ed" id="f-desc">Tu tienda online de confianza. Los mejores productos al mejor precio. Envíos a todo Chile.</p>
+        <p class="footer-tagline-ed" id="f-desc">Más de 600 productos en electrónica, hogar y accesorios. Despacho a todo Chile, pago en cuotas.</p>
         <div class="footer-social-ed">
           <a href="https://wa.me/56977462964" target="_blank" rel="noopener" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
           <a href="https://www.instagram.com/maxicompra.cl/" target="_blank" rel="noopener" title="Instagram"><i class="fab fa-instagram"></i></a>
@@ -3433,20 +3433,20 @@ function openCatView(catId) {
 
   // ── Textos ──
   const CAT_DESC = {
-    electronica:      'Encuentra power banks, cargadores rápidos, cables y gadgets electrónicos al mejor precio. Todo lo que necesitas en electrónica con envío a todo Chile.',
-    audio:            'Parlantes, audífonos y equipos de audio de marcas como JBL y Master-G. Sonido premium al mejor precio con despacho rápido a todo Chile.',
-    general:          'Variedad de productos esenciales para el día a día. Todo lo que necesitas en un solo lugar, con los mejores precios y envío a todo Chile.',
-    tecnologia:       'Smartphones, tablets, smartwatches y los gadgets más innovadores del mercado. Tecnología de última generación al alcance de tu bolsillo.',
-    computacion:      'Laptops, periféricos y accesorios de computación para trabajo y gaming. Equipos de calidad con los mejores precios y envío gratis.',
-    hogar:            'Artículos para el hogar, decoración y productos del diario. Haz de tu casa un espacio más cómodo con las mejores marcas disponibles.',
-    juguetes:         'Juguetes, consolas y entretenimiento para todas las edades. Los mejores regalos al mejor precio con despacho rápido a todo Chile.',
-    'salud-belleza':  'Cosméticos, cuidado personal y productos de bienestar. Luce y siéntete mejor con nuestra selección de Salud & Belleza en Maxicompra.',
-    cocina:           'Electrodomésticos, utensilios y accesorios de cocina para el chef en ti. Cocina mejor con los productos más valorados de Maxicompra.',
-    telefonia:        'Smartphones, fundas, cargadores y accesorios para tu teléfono. Todo en telefonía en un solo lugar con envío rápido a Chile.',
-    accesorios:       'Bolsos, mochilas, carteras y accesorios de moda al mejor precio. Complementa tu estilo con nuestra selección exclusiva en Maxicompra.',
-    deportes:         'Ropa deportiva, equipamiento y accesorios para tu deporte favorito. Actívate con los mejores productos y envío a todo Chile.'
+    electronica:      'Power banks, cargadores rápidos, cables USB-C y gadgets que hacen la diferencia. Revisa nuestro catálogo — hay más de lo que crees.',
+    audio:            'Parlantes JBL, audífonos inalámbricos, soundbars y más. Buscamos lo que suena bien sin que te pese el bolsillo.',
+    general:          'Productos prácticos que sirven de verdad. Si no lo encontraste en otra categoría, probablemente está acá.',
+    tecnologia:       'Smartwatches, tablets, drones y gadgets que recién llegaron. Tecnología nueva sin lista de espera ni sobreprecio.',
+    computacion:      'Teclados, mouses, sillas gamer, fundas para laptop y todo lo que le falta a tu setup. Sin drama, con despacho.',
+    hogar:            'Aspiradoras robot, purificadores de aire, organizadores y cosas que hacen la casa funcionar mejor. Útil primero, bonito también.',
+    juguetes:         'Juguetes STEM, figuras de colección, juegos de mesa y regalos para distintas edades. Sin armar sin instrucciones imposibles.',
+    'salud-belleza':  'Depiladores, masajeadores, cremas y cuidado personal que realmente usas. Cuídate sin gastar demás.',
+    cocina:           'Freidoras de aire, ollas eléctricas, cuchillos y gadgets de cocina que sí sirven. Para los que cocinan y para los que quieren empezar.',
+    telefonia:        'Fundas, cargadores inalámbricos, auriculares y accesorios para tu celular. Todo compatible, todo con stock real.',
+    accesorios:       'Mochilas, carteras, cinturones y accesorios que combinan con lo que ya tienes. Sin tallas raras ni envíos de 30 días.',
+    deportes:         'Ropa técnica, pesas, colchonetas y accesorios para entrenar donde quieras. Actívate sin excusas ni sobreprecio.'
   };
-  const _desc = CAT_DESC[catId] || ('Los mejores productos de ' + cat.name + ' al mejor precio. Envío gratis a todo Chile.');
+  const _desc = CAT_DESC[catId] || ('Explora nuestra selección de ' + cat.name + '. Despacho a todo Chile con seguimiento en tiempo real.');
   document.getElementById('catPageName').textContent  = cat.name;
   document.getElementById('catPageCrumb').textContent = cat.name;
   document.getElementById('catPageDesc').textContent  = _desc;
@@ -4331,7 +4331,7 @@ function submitReview(prodId) {
   saveReviews();
   var prod = products.find(function(x){ return x.id === prodId; });
   if (prod) buildReviews(prod);
-  showToast('¡Gracias por tu opinión! ✓');
+  showToast('¡Opinión publicada! Gracias por ayudar a otros compradores ✓');
 }
 
 function deleteReview(prodId, revId) {
@@ -4359,7 +4359,7 @@ function buildRelated(p) {
           </div>
         </a>`;
       }).join('')
-    : '<p style="color:var(--muted)">No hay productos relacionados.</p>';
+    : '<p style="color:var(--muted)">Pronto habrá más productos en esta categoría.</p>';
 }
 
 function chgPdpQty(d) {
@@ -4394,7 +4394,7 @@ function shareP(net) {
   const urls = { facebook:`https://facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, twitter:`https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`, whatsapp:`https://wa.me/?text=${encodeURIComponent(title+' - '+url)}` };
   if (urls[net]) window.open(urls[net],'_blank','width=600,height=400');
 }
-function copyLink() { navigator.clipboard.writeText(window.location.href).then(()=>showToast('Enlace copiado ✓')); }
+function copyLink() { navigator.clipboard.writeText(window.location.href).then(()=>showToast('Enlace copiado — compártelo donde quieras ✓')); }
 function openZoom(src) { document.getElementById('zoomImg').src=src; document.getElementById('zoomOv').classList.add('open'); }
 function closeZoom() { document.getElementById('zoomOv').classList.remove('open'); }
 function updPdpCartBdg() { /* badge removido — carro visible en header */ }
@@ -4418,7 +4418,7 @@ function addToCartN(id, qty=1, silent=false) {
   const ex = cart.find(x=>x.id===id);
   if (ex) ex.qty += qty; else cart.push({id:p.id, name:p.name, price:p.price, img:p.imgs&&p.imgs[0]||null, brand:p.brand, qty});
   saveC(); updCartBadge(); renderCart();
-  if(!silent) showToast('¡Agregado al carro!');
+  if(!silent) showToast('¡Listo, está en tu carro! 🛒');
   const btn = document.getElementById('pcbtn-'+id);
   if (btn) { btn.classList.add('added'); btn.innerHTML='<i class="fas fa-check"></i> ¡Agregado!'; setTimeout(()=>{btn.classList.remove('added');btn.innerHTML='<i class="fas fa-shopping-cart"></i> Agregar al carro';},2000); }
 }
@@ -4677,13 +4677,13 @@ function _launchMPCheckout(orderId, email, totalNum, waUrl, name, phone, addr, c
     } else {
       // MP no disponible → completar pedido por WhatsApp igual
       if(btn){btn.disabled=false; btn.innerHTML='<i class="fas fa-wallet"></i> Pagar con Mercado Pago';}
-      showToast('Mercado Pago no disponible ahora. Tu pedido fue registrado — coordinaremos el pago.','warning');
+      showToast('MP tiene un problema técnico momentáneo. Tu pedido quedó registrado — te contactamos al tiro por WhatsApp.','warning');
       _launchOrderWA(orderId, waUrl, false, false);
     }
   })
   .catch(function(){
     if(btn){btn.disabled=false; btn.innerHTML='<i class="fas fa-wallet"></i> Pagar con Mercado Pago';}
-    showToast('Sin conexión con MP. Tu pedido fue registrado — lo coordinamos por WhatsApp.','warning');
+    showToast('Sin conexión con Mercado Pago. Tu pedido quedó guardado — lo coordinamos por WhatsApp sin problema.','warning');
     _launchOrderWA(orderId, waUrl, false, false);
   });
 }
@@ -4850,7 +4850,7 @@ function qvGoFull(){
 /* ═════════════════════════════════════
    WISHLIST
 ═════════════════════════════════════ */
-function togWishId(id) { if(wish.includes(id))wish=wish.filter(x=>x!==id);else{wish.push(id);showToast('Agregado a favoritos','wish');} saveW(); document.getElementById('wishCount').textContent=wish.length; renderHomeProducts(document.getElementById('searchInp').value); if(currentView==='category')renderCatProducts(currentCat); }
+function togWishId(id) { if(wish.includes(id))wish=wish.filter(x=>x!==id);else{wish.push(id);showToast('Guardado en favoritos ❤️','wish');} saveW(); document.getElementById('wishCount').textContent=wish.length; renderHomeProducts(document.getElementById('searchInp').value); if(currentView==='category')renderCatProducts(currentCat); }
 
 /* ── WISHLIST PANEL JS ── */
 function openWish(){
@@ -4943,7 +4943,7 @@ function loadConfig() {
 }
 function saveConfig() {
   config = {name:document.getElementById('cfg-name').value.trim()||DCFG.name,tag:document.getElementById('cfg-tag').value.trim()||DCFG.tag,phone:document.getElementById('cfg-phone').value.trim()||DCFG.phone,email:document.getElementById('cfg-email').value.trim()||DCFG.email,desc:document.getElementById('cfg-desc').value.trim()||DCFG.desc,fship:document.getElementById('cfg-fship').value.trim()||DCFG.fship,shrm:document.getElementById('cfg-shrm').value.trim()||DCFG.shrm,shreg:document.getElementById('cfg-shreg').value.trim()||DCFG.shreg,cuotas:document.getElementById('cfg-cuotas').value.trim()||DCFG.cuotas,banner:document.getElementById('cfg-banner').value.trim()||DCFG.banner,promoImg:document.getElementById('cfg-promo-img').value.trim(),addr:document.getElementById('cfg-addr').value.trim()||DCFG.addr};
-  saveCfg(); applyCfg(); showToast('Configuración guardada ✓');
+  saveCfg(); applyCfg(); showToast('Cambios guardados y aplicados ✓');
 }
 function _setEl(id, txt) { const e=document.getElementById(id); if(e) e.textContent=txt; }
 function _setHtml(id, h) { const e=document.getElementById(id); if(e) e.innerHTML=h; }
@@ -5054,7 +5054,7 @@ function dropBannerImg(e, i) {
   if (file && file.type.startsWith('image/')) { const fakeInput={files:[file]}; setBannerImg({files:[file]},i); }
 }
 function removeBannerImg(i) { banners[i].bg=''; loadBannerEditor(); }
-function saveBanners() { saveBan(); renderHeroSlider(); showToast('Banners guardados ✓'); }
+function saveBanners() { saveBan(); renderHeroSlider(); showToast('Banners actualizados — el slider ya refleja los cambios ✓'); }
 
 /* ═════════════════════════════════════
    CATEGORY EDITOR
@@ -5092,7 +5092,7 @@ function setCatImg(input, i) {
   });
 }
 function dropCatImg(e, i) { e.preventDefault();e.currentTarget.classList.remove('drag');const f=e.dataTransfer.files[0];if(f&&f.type.startsWith('image/')){const inp={files:[f]};setCatImg(inp,i);} }
-function saveCategories() { saveCats(); renderHomeCats(); renderNavBar(); renderFooterCats(); showToast('Categorías guardadas ✓'); }
+function saveCategories() { saveCats(); renderHomeCats(); renderNavBar(); renderFooterCats(); showToast('Categorías guardadas y actualizadas en la tienda ✓'); }
 
 /* ═════════════════════════════════════
    PRODUCT MODAL
@@ -5241,7 +5241,7 @@ function saveProd(){
 function deleteProd(id){
   if(!confirm('¿Eliminar este producto?'))return;
   products=products.filter(p=>p.id!==id);
-  saveP(); renderAll(); renderProdTable(); updStats(); showToast('Eliminado');
+  saveP(); renderAll(); renderProdTable(); updStats(); showToast('Producto eliminado del catálogo');
   // Sync delete to Worker KV (fire-and-forget)
   var token=''; try{token=sessionStorage.getItem('mx_admin_token')||'';}catch(e){}
   if(token) fetch(API_BASE+'/api/admin/product/'+encodeURIComponent(id),{
@@ -5249,7 +5249,7 @@ function deleteProd(id){
     headers:{'Authorization':'Bearer '+token}
   }).catch(function(){});
 }
-function dupProd(id){ const p=products.find(x=>x.id===id);if(!p)return; products.unshift({...p,id:uid(),name:p.name+' (copia)'}); saveP(); renderAll(); renderProdTable(); updStats(); showToast('Duplicado ✓'); }
+function dupProd(id){ const p=products.find(x=>x.id===id);if(!p)return; products.unshift({...p,id:uid(),name:p.name+' (copia)'}); saveP(); renderAll(); renderProdTable(); updStats(); showToast('Producto duplicado — aparece al inicio de la tabla ✓'); }
 function renderAll(){ renderHomeProducts(document.getElementById('searchInp').value||''); renderHomeCats(); renderNavBar(); renderFooterCats(); }
 
 /* ═════════════════════════════════════
@@ -5310,7 +5310,7 @@ function renderProdTable(){
   }
 
   if(!list.length){
-    tb.innerHTML='<tr><td colspan="10"><div class="empty-table"><i class="fas fa-box-open"></i><p>No hay productos</p></div></td></tr>';
+    tb.innerHTML='<tr><td colspan="10"><div class="empty-table"><i class="fas fa-box-open"></i><p>Ningún producto coincide con el filtro activo</p><p style="font-size:12px;margin-top:6px;opacity:.6">Prueba cambiando la búsqueda o limpia los filtros</p></div></td></tr>';
     return;
   }
 
@@ -5352,7 +5352,7 @@ function toggleVisible(id,checked){
   if(idx===-1)return;
   products[idx]=Object.assign({},products[idx],{visible:checked});
   saveP();renderProdTable();_syncProdToKV(products[idx]);
-  showToast(checked?'Producto visible ✓':'Producto oculto');
+  showToast(checked?'Producto publicado en la tienda ✓':'Producto ocultado — no aparece en la tienda');
 }
 function editStockInline(id,el){
   var p=products.find(function(x){return x.id===id;});
@@ -5553,14 +5553,14 @@ function changePw(){
     if(d&&d.ok){
       document.getElementById('npw').value='';
       document.getElementById('cpw').value='';
-      showToast('Contraseña actualizada ✓');
+      showToast('Contraseña cambiada correctamente ✓ — úsala en el próximo inicio de sesión');
     } else {
       showToast(d&&d.error||'No se pudo cambiar la contraseña','error');
     }
   })
   .catch(function(){showToast('Error de conexión','error');});
 }
-function exportAll(){const blob=new Blob([JSON.stringify({products,config,banners,cats,exported:new Date().toISOString()},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`maxicompra-backup-${Date.now()}.json`;a.click();showToast('Datos exportados ✓');}
+function exportAll(){const blob=new Blob([JSON.stringify({products,config,banners,cats,exported:new Date().toISOString()},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`maxicompra-backup-${Date.now()}.json`;a.click();showToast('Backup guardado en tu carpeta de descargas ✓');}
 function importAll(e){
   const f=e.target.files[0];if(!f)return;
   const r=new FileReader();
@@ -5594,7 +5594,7 @@ function importAll(e){
   };
   r.readAsText(f);e.target.value='';
 }
-function clearProds(){if(!confirm('¿Eliminar TODOS los productos?'))return;products=[];saveP();renderAll();renderProdTable();updStats();showToast('Todos los productos eliminados');}
+function clearProds(){if(!confirm('¿Eliminar TODOS los productos del catálogo? Esta acción no se puede deshacer.'))return;products=[];saveP();renderAll();renderProdTable();updStats();showToast('Catálogo vaciado — recuerda hacer una copia de respaldo la próxima vez');}
 /* ══════════════════════════════════════════════
    AUTO-IMG: busca imágenes en ML via Worker proxy
 ══════════════════════════════════════════════ */
@@ -5626,7 +5626,7 @@ async function startAutoImg() {
   if (!token) { showToast('Debes iniciar sesión como admin primero', 'error'); return; }
 
   var queue = products.filter(function(p){ return !p.imgs || !p.imgs[0] || !String(p.imgs[0]).startsWith('http'); });
-  if (!queue.length) { showToast('Todos los productos ya tienen imagen ✓', 'ok'); return; }
+  if (!queue.length) { showToast('Todos los productos ya tienen imagen asignada ✓', 'ok'); return; }
 
   _aiRunning = true;
   _aiStop    = false;
@@ -5744,7 +5744,7 @@ async function startBackfillImgs() {
   var queue = products.filter(function(p){
     return !p.imgs || p.imgs.filter(function(u){ return u && String(u).startsWith('http'); }).length < 3;
   });
-  if (!queue.length) { showToast('Todos los productos ya tienen 3+ imágenes ✓', 'ok'); return; }
+  if (!queue.length) { showToast('Todos los productos ya tienen galería completa ✓', 'ok'); return; }
 
   _bfRunning = true;
   _bfStop    = false;
@@ -5867,12 +5867,12 @@ function importMLImages(event) {
 
 /* ─── Cargar todos los productos desde KV ────────────────────── */
 async function loadProdsFromKV() {
-  showToast('Cargando productos desde el servidor...', 'info');
+  showToast('Sincronizando catálogo desde el servidor...', 'info');
   try {
     var resp = await fetch(API_BASE + '/api/products');
     var data = await resp.json();
     var list  = data.products || data;
-    if (!Array.isArray(list) || !list.length) { showToast('No se encontraron productos', 'error'); return; }
+    if (!Array.isArray(list) || !list.length) { showToast('El servidor no devolvió productos — verifica que el KV tenga datos', 'error'); return; }
     products = list;
     saveP();
     renderAll();

@@ -1943,7 +1943,7 @@ html{scroll-behavior:smooth;}
 
       <!-- DASHBOARD -->
       <div class="adm-tab active" id="tab-dashboard">
-        <div style="margin-bottom:24px"><h2 class="adm-tab-title" style="margin-bottom:4px">Hola, Edgar 👋</h2><p style="color:var(--muted);font-size:14px">Acá administras todo de Maxicompra — productos, pedidos y config de la tienda.</p></div>
+        <div style="margin-bottom:24px"><h2 class="adm-tab-title" style="margin-bottom:4px">Panel Maxicompra</h2><p style="color:var(--muted);font-size:14px">Productos, pedidos y configuración de la tienda — todo desde acá.</p></div>
         <div class="stats-grid">
           <div class="stat-card"><div class="stat-icon" style="background:rgba(232,23,93,.1);color:var(--pink)"><i class="fas fa-box"></i></div><div class="stat-label">Productos</div><div class="stat-val" id="st-prod">0</div><div class="stat-sub"><i class="fas fa-check-circle"></i> Visibles en tienda</div></div>
           <div class="stat-card"><div class="stat-icon" style="background:rgba(0,230,118,.1);color:var(--green)"><i class="fas fa-tags"></i></div><div class="stat-label">Categorías</div><div class="stat-val" id="st-cat">0</div><div class="stat-sub"><i class="fas fa-layer-group"></i> Con productos</div></div>
@@ -1983,7 +1983,7 @@ html{scroll-behavior:smooth;}
       <!-- BANNERS EDITOR -->
       <div class="adm-tab" id="tab-banners">
         <h2 class="adm-tab-title">Banners del Slider Principal</h2>
-        <p style="color:var(--muted);font-size:14px;margin-bottom:24px">Arma el slider de inicio: sube imágenes, edita el texto de cada slide y elige el color del botón CTA.</p>
+        <p style="color:var(--muted);font-size:14px;margin-bottom:24px">Configura el slider principal: imagen de fondo, titular, descripción y color del botón. Los cambios se guardan y aplican al instante.</p>
         <div class="banner-slides-list" id="bannerEditorList"></div>
         <div style="margin-top:20px;display:flex;justify-content:flex-end;gap:10px">
           <button class="btn-outline" style="padding:10px 20px;font-size:13px" onclick="loadBannerEditor()"><i class="fas fa-undo"></i> Restaurar</button>
@@ -1994,7 +1994,7 @@ html{scroll-behavior:smooth;}
       <!-- CATEGORIES EDITOR -->
       <div class="adm-tab" id="tab-categories">
         <h2 class="adm-tab-title">Gestión de Categorías</h2>
-        <p style="color:var(--muted);font-size:14px;margin-bottom:24px">Personaliza cada sección de tu tienda: nombre, ícono, color e imagen de portada. Los cambios se aplican en tiempo real.</p>
+        <p style="color:var(--muted);font-size:14px;margin-bottom:24px">Edita nombre, ícono, color e imagen de cada categoría. Solo se muestran las que tienen productos activos.</p>
         <div class="cat-editor-grid" id="catEditorGrid"></div>
         <div style="margin-top:20px;display:flex;justify-content:flex-end;gap:10px">
           <button class="btn-grad" style="padding:10px 20px;font-size:13px" onclick="saveCategories()"><i class="fas fa-save"></i> Guardar Categorías</button>
@@ -2003,7 +2003,7 @@ html{scroll-behavior:smooth;}
 
       <!-- STORE CONFIG -->
       <div class="adm-tab" id="tab-store">
-        <h2 class="adm-tab-title">Configuración de la Tienda</h2>
+        <h2 class="adm-tab-title">Datos de la tienda</h2>
         <div class="tab-store-inner" style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
           <div class="adm-card">
             <h4><i class="fas fa-store"></i>Datos de la Tienda</h4>
@@ -2032,7 +2032,7 @@ html{scroll-behavior:smooth;}
 
       <!-- SETTINGS -->
       <div class="adm-tab" id="tab-settings">
-        <h2 class="adm-tab-title">Ajustes del Sistema</h2>
+        <h2 class="adm-tab-title">Configuración</h2>
         <div class="settings-grid">
           <div class="adm-card">
             <h4><i class="fas fa-lock"></i>Seguridad</h4>
@@ -2743,8 +2743,8 @@ html{scroll-behavior:smooth;}
   <div class="view" id="view-404">
     <div class="not-found-wrap">
       <div class="not-found-code">404</div>
-      <h1 class="not-found-title">Página no encontrada</h1>
-      <p class="not-found-desc" id="notFoundDesc">El producto o categoría que buscas no existe o fue eliminado.</p>
+      <h1 class="not-found-title">Esta página no existe</h1>
+      <p class="not-found-desc" id="notFoundDesc">Puede que el producto se haya agotado o la URL esté mal. Igual tenemos más de 600 productos esperándote.</p>
       <div class="not-found-actions">
         <button class="btn-ed btn-primary-ed" onclick="goHome()">Ir al inicio</button>
         <button class="btn-ed btn-ghost-ed" onclick="goHome();setTimeout(function(){document.getElementById('searchInp')&&document.getElementById('searchInp').focus()},300)">Buscar productos</button>
@@ -2812,7 +2812,7 @@ html{scroll-behavior:smooth;}
           </svg>
           <div class="footer-logo-wordmark">Maxicompra</div>
         </div>
-        <p class="footer-tagline-ed" id="f-desc">Más de 600 productos en electrónica, hogar y accesorios. Despacho a todo Chile, pago en cuotas.</p>
+        <p class="footer-tagline-ed" id="f-desc">Electrónica, hogar y accesorios con despacho a todo Chile. Pagás en cuotas y te lo llevamos al día siguiente.</p>
         <div class="footer-social-ed">
           <a href="https://wa.me/56977462964" target="_blank" rel="noopener" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
           <a href="https://www.instagram.com/maxicompra.cl/" target="_blank" rel="noopener" title="Instagram"><i class="fab fa-instagram"></i></a>
@@ -2822,10 +2822,10 @@ html{scroll-behavior:smooth;}
       </div>
       <div class="footer-col-ed"><h5>Categorías</h5><ul id="footerCats"></ul></div>
       <div class="footer-col-ed"><h5>Ayuda</h5><ul>
-        <li><a onclick="openFAQ('compras')">Servicio al cliente</a></li>
+        <li><a onclick="openFAQ('compras')">Cómo comprar</a></li>
         <li><a onclick="openFAQ('compras')">Preguntas frecuentes</a></li>
-        <li><a onclick="openFAQ('despacho')">¿Dónde está mi pedido?</a></li>
-        <li><a onclick="openFAQ('devoluciones')">Cambios y devoluciones</a></li>
+        <li><a onclick="openFAQ('despacho')">Seguimiento de pedido</a></li>
+        <li><a onclick="openFAQ('devoluciones')">Cambios y garantía</a></li>
       </ul></div>
       <div class="footer-col-ed"><h5>Legal</h5><ul>
         <li><a onclick="openLegal('terms')">Términos y condiciones</a></li>
@@ -2843,7 +2843,7 @@ html{scroll-behavior:smooth;}
         </svg>
         <div>
           <div class="pay-strip-wordmark" id="f-brand">Maxicompra</div>
-          <div class="pay-strip-copy" id="f-copy">© 2026 — Todos los derechos reservados</div>
+          <div class="pay-strip-copy" id="f-copy">© 2026 Maxicompra · Hecho en Chile</div>
         </div>
       </div>
       <div class="pay-cards">

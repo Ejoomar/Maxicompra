@@ -6455,11 +6455,13 @@ function _renderSuggest(q){
   }).join('')+(hasFuzzy?'<div style="padding:6px 14px;font-size:11px;color:var(--muted);border-top:1px solid var(--border)">Mostrando resultados aproximados</div>':'')+'<div class="ss-see-all" onclick="_commitSearch()">Ver los '+total+' resultados →</div>';
   var wrap=document.getElementById('searchBarWrap');
   if(wrap){
-    var r=wrap.getBoundingClientRect();
-    box.style.top=(r.bottom+6)+'px';
-    box.style.left=r.left+'px';
-    box.style.width=r.width+'px';
-    box.style.maxHeight=Math.min(360,window.innerHeight-r.bottom-16)+'px';
+    var wrapR=wrap.getBoundingClientRect();
+    var hdr=document.querySelector('.site-header');
+    var topY=hdr?hdr.getBoundingClientRect().bottom+4:wrapR.bottom+6;
+    box.style.top=topY+'px';
+    box.style.left=wrapR.left+'px';
+    box.style.width=wrapR.width+'px';
+    box.style.maxHeight=Math.min(360,window.innerHeight-topY-16)+'px';
   }
   box.style.display='block';
 }

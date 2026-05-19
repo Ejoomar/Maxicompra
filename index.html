@@ -4474,7 +4474,7 @@ function updCartBadge() { const t=cart.reduce((s,i)=>s+i.qty,0); document.getEle
 function renderCart() {
   const b=document.getElementById('cartBody'), f=document.getElementById('cartFoot');
   const clearBtn = document.getElementById('clearCartBtn');
-  if (!cart.length) { b.innerHTML='<div class="empty-cart"><i class="fas fa-shopping-cart"></i><p>Tu carro está vacío</p></div>'; f.style.display='none'; if(clearBtn) clearBtn.style.display='none'; return; }
+  if (!cart.length) { b.innerHTML='<div class="empty-cart"><i class="fas fa-shopping-cart"></i><p>Tu carro está vacío</p></div>'; f.style.display='none'; if(clearBtn) clearBtn.style.display='none'; _updShipBar(); return; }
   if(clearBtn) clearBtn.style.display='block';
   f.style.display = 'block';
   b.innerHTML = cart.map(i => `

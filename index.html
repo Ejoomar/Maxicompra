@@ -682,6 +682,7 @@ a.prod,a.cat-card-ed,a.product-card{text-decoration:none;color:inherit;}
 .banner-text h3{font-family:'Instrument Serif',serif;font-size:24px;color:#fff;margin-bottom:6px;}
 .banner-text p{font-size:13px;color:rgba(255,255,255,0.7);margin-bottom:14px;line-height:1.5;}
 .banner-emoji-side{font-size:72px;opacity:0.5;position:relative;z-index:2;}
+.banner-num-side{font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-size:68px;font-weight:400;line-height:1;letter-spacing:-.03em;opacity:.22;color:#fff;position:relative;z-index:2;align-self:center;user-select:none;pointer-events:none;white-space:nowrap;}
 
 /* ═══════════════════════════ NEWSLETTER ═══════════════════════════ */
 .newsletter-section{background:var(--bg-2);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:80px 0;}
@@ -735,6 +736,16 @@ a.prod,a.cat-card-ed,a.product-card{text-decoration:none;color:inherit;}
 .cart-head{padding:28px 32px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;}
 .cart-head h3{font-family:'Instrument Serif',serif;font-size:32px;letter-spacing:-0.01em;color:var(--ink);}
 .cart-body{flex:1;overflow-y:auto;padding:20px 32px;display:flex;flex-direction:column;gap:16px;}
+/* Cart — barra progreso envío gratis */
+.cart-ship-prog{padding:10px 32px 0;overflow:hidden;}
+.csp-msg{font-size:11.5px;color:var(--mute);margin-bottom:7px;line-height:1.4;}
+.csp-msg strong{color:var(--ink);font-weight:600;}
+.csp-track{height:2px;background:var(--line);border-radius:2px;margin-bottom:10px;}
+.csp-fill{height:100%;background:var(--grad);border-radius:2px;transition:width .4s ease;}
+.csp-done{font-size:11.5px;color:var(--good);font-weight:600;display:flex;align-items:center;gap:6px;padding-bottom:10px;}
+@media(max-width:768px){.cart-ship-prog{padding:8px 20px 0;}}
+/* Bestsellers section */
+.bestsellers-section{border-bottom:1px solid var(--line);}
 .cart-item{display:grid;grid-template-columns:72px 1fr auto;gap:14px;padding-bottom:16px;border-bottom:1px solid var(--line);align-items:start;}
 .ci-thumb{width:72px;height:72px;background:#fff;border-radius:var(--radius);object-fit:contain;padding:4px;}
 .ci-no-img{width:72px;height:72px;border-radius:var(--radius);background:var(--bg-2);display:flex;align-items:center;justify-content:center;font-size:26px;}
@@ -2452,6 +2463,18 @@ html{scroll-behavior:smooth;}
         </div>
       </div>
     </section>
+    <!-- Más vendidos (populated by JS) -->
+    <section class="section bestsellers-section" id="homeBestSellersSection" style="display:none">
+      <div class="container">
+        <div class="sec-head-ed" style="margin-bottom:28px;">
+          <div>
+            <div class="sec-label-ed">Lo más pedido</div>
+            <h2 class="section-title">Más <em>vendidos</em></h2>
+          </div>
+        </div>
+        <div class="products-grid" id="homeBestSellersGrid"></div>
+      </div>
+    </section>
     <!-- Featured Products -->
     <section class="section" id="homeProdsSection">
       <div class="container">
@@ -2497,27 +2520,27 @@ html{scroll-behavior:smooth;}
       <div class="banners-grid" id="homeBannersRow">
   <div class="banner-card ban1-default">
   <div class="banner-text">
-    <h3>🕐 Horario de atención</h3>
-    <p>Lunes a Domingo<br><strong>9:00 AM – 8:00 PM</strong></p>
-    <button class="btnout" onclick="document.querySelector('.wa-btn')?.click()" style="border:1.5px solid rgba(255,255,255,.4);color:#fff;padding:8px 18px;border-radius:7px;font-size:13px;font-weight:600;background:transparent;display:inline-flex;align-items:center;gap:8px">Contáctanos <i class="fas fa-arrow-right"></i></button>
+    <h3>Atención directa</h3>
+    <p>Lunes a Domingo<br><strong>9:00 – 20:00 hrs</strong><br><small style="opacity:.75">Respuesta por WhatsApp en minutos</small></p>
+    <button class="btnout" onclick="document.querySelector('.wa-btn')?.click()" style="border:1.5px solid rgba(255,255,255,.4);color:#fff;padding:8px 18px;border-radius:7px;font-size:13px;font-weight:600;background:transparent;display:inline-flex;align-items:center;gap:8px">Escribir ahora <i class="fab fa-whatsapp"></i></button>
   </div>
-  <div class="banner-emoji-side">🏪</div>
+  <div class="banner-num-side" aria-hidden="true">7/7</div>
 </div>
 <div class="banner-card ban3-default">
   <div class="banner-text">
-    <h3>🔥 Producto Destacado</h3>
-    <p>Los mejores precios en tecnología, hogar y más</p>
-    <button class="btnout" onclick="document.getElementById('mobSearch')?.click()" style="border:1.5px solid rgba(255,255,255,.4);color:#fff;padding:8px 18px;border-radius:7px;font-size:13px;font-weight:600;background:transparent;display:inline-flex;align-items:center;gap:8px">Ver productos <i class="fas fa-search"></i></button>
+    <h3>Despacho al día siguiente</h3>
+    <p>Pedidos antes de las 14:00 salen el mismo día.<br>Chilexpress y Starken a todo Chile.</p>
+    <button class="btnout" onclick="document.getElementById('homeProdsSection').scrollIntoView({behavior:'smooth'})" style="border:1.5px solid rgba(255,255,255,.4);color:#fff;padding:8px 18px;border-radius:7px;font-size:13px;font-weight:600;background:transparent;display:inline-flex;align-items:center;gap:8px">Ver catálogo <i class="fas fa-arrow-right"></i></button>
   </div>
-  <div class="banner-emoji-side">⚡</div>
+  <div class="banner-num-side" aria-hidden="true">24h</div>
 </div>
 <div class="banner-card ban2-default">
   <div class="banner-text">
-    <h3>💳 Paga con Mercado Pago</h3>
-    <p>Rápido, seguro y con hasta 12 cuotas sin interés en productos seleccionados</p>
+    <h3>12 cuotas sin interés</h3>
+    <p>Visa, Mastercard y Amex aceptadas vía Mercado Pago.<br>Sin costo adicional, mismo precio.</p>
     <button class="btnout" onclick="showOffersFilter()" style="border:1.5px solid rgba(255,255,255,.4);color:#fff;padding:8px 18px;border-radius:7px;font-size:13px;font-weight:600;background:transparent;display:inline-flex;align-items:center;gap:8px;cursor:pointer">Ver ofertas <i class="fas fa-arrow-right"></i></button>
   </div>
-  <div class="banner-emoji-side">🛍️</div>
+  <div class="banner-num-side" aria-hidden="true">0%</div>
 </div>
 </div>
 </div></section>
@@ -2536,8 +2559,8 @@ html{scroll-behavior:smooth;}
       <div style="display:inline-flex;align-items:center;gap:8px;background:var(--accent-soft);border:1px solid rgba(227,23,109,.25);border-radius:50px;padding:6px 16px;font-size:12px;font-weight:700;color:var(--accent);letter-spacing:.05em;text-transform:uppercase;margin-bottom:20px;">
         <i class="fas fa-tag"></i> 10% en tu primera compra
       </div>
-      <h2>Únete a más de 1.000 <span style="color:var(--pink)">clientes felices</span></h2>
-      <p>Suscríbete y recibe tu cupón de 10% descuento al instante. Sin spam — solo ofertas reales.</p>
+      <h2>Ofertas <span style="color:var(--pink)">antes que nadie</span></h2>
+      <p>Suscríbete y avisamos primero cuando bajan los precios. Un correo por semana, cancelable en un clic.</p>
       <div class="nl-form" id="nlForm"><label for="nlEmail" class="sr-only">Tu correo electrónico</label><input type="email" id="nlEmail" placeholder="tu@correo.cl" autocomplete="email" required><button onclick="subNl()" type="button"><i class="fas fa-gift"></i> Quiero mi 10%</button></div>
       <p style="font-size:11px;color:var(--muted);margin-top:12px;">🔒 Sin spam · Cancela cuando quieras · Solo ofertas exclusivas</p>
     </div></div></div>
@@ -2734,8 +2757,8 @@ html{scroll-behavior:smooth;}
   <section class="why-us-ed">
     <div class="container">
       <div class="why-head-row">
-        <div class="why-eyebrow">Nuestra promesa</div>
-        <h2 class="why-h2">¿Por qué <em>elegirnos</em>?</h2>
+        <div class="why-eyebrow">Cómo trabajamos</div>
+        <h2 class="why-h2">Sin <em>letra chica.</em></h2>
       </div>
       <div class="why-grid">
 
@@ -2743,9 +2766,9 @@ html{scroll-behavior:smooth;}
           <div class="why-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           </div>
-          <span class="why-num" data-count="1000" data-prefix="+" data-suffix="">0</span>
-          <div class="why-label">Clientes satisfechos</div>
-          <div class="why-desc">Miles de chilenos nos eligen cada mes para sus compras de electrónica y hogar.</div>
+          <span class="why-num" data-count="600" data-prefix="+" data-suffix="">0</span>
+          <div class="why-label">Productos en catálogo</div>
+          <div class="why-desc">Electrónica, audio, hogar, cocina y más. Stock renovado semana a semana.</div>
         </div>
 
         <div class="why-card sr sr-d2">
@@ -2761,18 +2784,18 @@ html{scroll-behavior:smooth;}
           <div class="why-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
           </div>
-          <span class="why-num" data-count="100" data-prefix="" data-suffix="%">0</span>
-          <div class="why-label">Productos originales</div>
-          <div class="why-desc">Todos los artículos llegan sellados, con boleta y garantía directa del fabricante.</div>
+          <span class="why-num" data-count="30" data-prefix="" data-suffix=" días">0</span>
+          <div class="why-label">Garantía de cambio</div>
+          <div class="why-desc">Producto con falla o arrepentimiento: lo gestionamos y devolvemos el dinero. Sin burocracia.</div>
         </div>
 
         <div class="why-card sr sr-d4">
           <div class="why-icon">
             <svg viewBox="0 0 24 24" fill="#fff" stroke="#fff" stroke-width=".3"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
           </div>
-          <span class="why-num" data-count="4.9" data-prefix="" data-suffix="★" data-decimals="1">0</span>
-          <div class="why-label">Rating promedio</div>
-          <div class="why-desc">Calificación promedio basada en cientos de reseñas verificadas de clientes reales.</div>
+          <span class="why-num" data-count="12" data-prefix="" data-suffix=" cuotas">0</span>
+          <div class="why-label">Sin interés con tarjetas</div>
+          <div class="why-desc">Visa, Mastercard y Amex aceptadas vía Mercado Pago. El mismo precio, fraccionado.</div>
         </div>
 
       </div>
@@ -2937,7 +2960,8 @@ html{scroll-behavior:smooth;}
 <!-- Cart Panel -->
 <div class="cart-overlay" id="cartOv" onclick="togCart()" style="-webkit-tap-highlight-color:transparent">
   <div class="cart-panel" id="cartPan" onclick="event.stopPropagation()">
-    <div class="cart-head"><h3>🛒 Mi Carro</h3><div style="display:flex;align-items:center;gap:10px"><button id="clearCartBtn" onclick="if(cart.length){cart=[];saveC();updCartBadge();renderCart();showToast('Carrito vaciado');}" style="display:none;background:none;border:1.5px solid var(--border);color:var(--muted);font-size:11.5px;font-weight:600;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:inherit"><i class="fas fa-trash" style="margin-right:4px"></i>Vaciar</button><button style="background:none;color:var(--muted);font-size:20px;padding:0" onclick="togCart()"><i class="fas fa-times"></i></button></div></div>
+    <div class="cart-head"><h3>Carro</h3><div style="display:flex;align-items:center;gap:10px"><button id="clearCartBtn" onclick="if(cart.length){cart=[];saveC();updCartBadge();renderCart();showToast('Carrito vaciado');}" style="display:none;background:none;border:1.5px solid var(--border);color:var(--muted);font-size:11.5px;font-weight:600;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:inherit"><i class="fas fa-trash" style="margin-right:4px"></i>Vaciar</button><button style="background:none;color:var(--muted);font-size:20px;padding:0" onclick="togCart()"><i class="fas fa-times"></i></button></div></div>
+    <div class="cart-ship-prog" id="cartShipProg"></div>
     <div class="cart-body" id="cartBody"></div>
     <div id="cartFoot" style="display:none"><div class="cart-foot">
       <div class="cart-total-row"><span>Total a pagar</span><strong id="cartTotal">$0</strong></div>
@@ -4447,6 +4471,22 @@ function renderCart() {
       </div>
     </div>`).join('');
   document.getElementById('cartTotal').textContent = fp(cart.reduce((s,i)=>s+i.price*i.qty,0));
+  _updShipBar();
+}
+function _updShipBar(){
+  var el=document.getElementById('cartShipProg');
+  if(!el)return;
+  if(!cart.length){el.innerHTML='';return;}
+  var sub=cart.reduce(function(s,i){return s+i.price*i.qty;},0);
+  var rawFship=gc('fship')||'$19.990';
+  var freeFrom=parseInt(rawFship.replace(/\D/g,''))||19990;
+  if(sub>=freeFrom){
+    el.innerHTML='<p class="csp-done"><i class="fas fa-check-circle"></i> ¡Envío gratis incluido en tu pedido!</p>';
+  } else {
+    var remain=freeFrom-sub;
+    var pct=Math.min(100,Math.round(sub/freeFrom*100));
+    el.innerHTML='<p class="csp-msg">Agrega <strong>'+fp(remain)+'</strong> más para <strong>envío gratis</strong></p><div class="csp-track"><div class="csp-fill" style="width:'+pct+'%"></div></div>';
+  }
 }
 function togCart() { document.getElementById('cartOv').classList.toggle('open'); document.getElementById('cartPan').classList.toggle('open'); }
 /* ═══════════ CHECKOUT ═══════════ */
@@ -4912,6 +4952,15 @@ function fetchWithTimeout(url, opts, ms){
 }
 function liveSearch(v) { if(currentView==='home'){renderHomeProducts(v);} }
 function sortProducts(v) { sortMode=v; if(currentView==='home')renderHomeProducts(document.getElementById('searchInp').value); else if(currentView==='category')renderCatProducts(currentCat); }
+function renderHomeBestsellers(){
+  var sec=document.getElementById('homeBestSellersSection');
+  var grid=document.getElementById('homeBestSellersGrid');
+  if(!sec||!grid)return;
+  var hot=products.filter(function(p){return p.hot&&p.vis!==false;}).slice(0,5);
+  if(!hot.length){sec.style.display='none';return;}
+  sec.style.display='block';
+  grid.innerHTML=hot.map(function(p){return productCardHTML(p);}).join('');
+}
 function showOffersFilter(){
   var hot=products.filter(function(p){return p.sale||(p.orig&&p.price&&p.orig>p.price);});
   if(!hot.length){document.getElementById('homeProdsSection').scrollIntoView({behavior:'smooth'});return;}
@@ -6540,8 +6589,9 @@ function _skelCards(n) {
     try { fn(); } catch(e) { console.warn('[Maxicompra] ' + name + ':', e.message); }
   }
   safe(applyCfg,          'applyCfg');
-  safe(renderHeroSlider,  'renderHeroSlider');
-  safe(renderHomeCats,    'renderHomeCats');
+  safe(renderHeroSlider,      'renderHeroSlider');
+  safe(renderHomeBestsellers, 'renderHomeBestsellers');
+  safe(renderHomeCats,        'renderHomeCats');
   // Update hero price tag with real minimum price from products
   safe(function(){
     if(products && products.length){

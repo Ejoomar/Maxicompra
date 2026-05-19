@@ -1364,7 +1364,7 @@ body.admin-open{overflow:hidden;}
 .mob-search-item-price{font-size:13px;font-weight:700;color:var(--pink);margin-top:2px;}
 .mob-search-empty{text-align:center;padding:36px 16px;color:var(--muted);font-size:14px;}
 /* search-bar button styles handled in header CSS block */
-.search-suggest{display:none;position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:0 12px 40px rgba(0,0,0,0.10);z-index:500;overflow:hidden;max-height:360px;overflow-y:auto;width:100%;min-width:0;}
+.search-suggest{display:none;position:fixed;top:0;left:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:0 12px 40px rgba(0,0,0,0.13);z-index:9999;overflow:hidden;max-height:360px;overflow-y:auto;}
 .ss-item-name{font-size:13px;font-weight:500;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
 .ss-item{display:flex;align-items:center;gap:12px;padding:10px 16px;cursor:pointer;transition:background .1s;border-bottom:1px solid var(--line);overflow:hidden;}
 .ss-item:last-child{border-bottom:none;}
@@ -6453,6 +6453,14 @@ function _renderSuggest(q){
     var fuzzyTag=isFuzzy?'<span style="font-size:10px;color:var(--muted);margin-left:4px">~similar</span>':'';
     return '<div class="ss-item'+(isFuzzy?' ss-item-fuzzy':'')+'" onclick="_hideSuggest();openPDP(\''+esc(p.id)+'\')" style="'+(isFuzzy?'opacity:.82':'')+'">'+imgEl+'<div style="flex:1;min-width:0"><div class="ss-name">'+nameHL+fuzzyTag+'</div>'+brandHL+'</div><div class="ss-price">'+fp(p.price)+'</div></div>';
   }).join('')+(hasFuzzy?'<div style="padding:6px 14px;font-size:11px;color:var(--muted);border-top:1px solid var(--border)">Mostrando resultados aproximados</div>':'')+'<div class="ss-see-all" onclick="_commitSearch()">Ver los '+total+' resultados →</div>';
+  var wrap=document.getElementById('searchBarWrap');
+  if(wrap){
+    var r=wrap.getBoundingClientRect();
+    box.style.top=(r.bottom+6)+'px';
+    box.style.left=r.left+'px';
+    box.style.width=r.width+'px';
+    box.style.maxHeight=Math.min(360,window.innerHeight-r.bottom-16)+'px';
+  }
   box.style.display='block';
 }
 // Global search listeners (Esc, /, outside-click)

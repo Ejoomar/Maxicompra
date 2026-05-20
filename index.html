@@ -5344,7 +5344,12 @@ async function deleteProd(id){
   }).catch(function(){});
 }
 function dupProd(id){ const p=products.find(x=>x.id===id);if(!p)return; products.unshift({...p,id:uid(),name:p.name+' (copia)'}); saveP(); renderAll(); renderProdTable(); updStats(); showToast('Producto duplicado — aparece al inicio de la tabla ✓'); }
-function renderAll(){ renderHomeProducts(document.getElementById('searchInp').value||''); renderHomeCats(); renderNavBar(); renderFooterCats(); }
+function renderAll(){
+  renderHomeProducts(document.getElementById('searchInp').value||'');
+  renderHomeCats(); renderNavBar(); renderFooterCats();
+  var inp=document.getElementById('mobSearchInp');
+  if(inp) inp.placeholder='Buscar en '+products.filter(function(p){return p.visible!==false;}).length+' productos...';
+}
 
 /* ═════════════════════════════════════
    PRODUCT TABLE (ADMIN)
@@ -7217,7 +7222,7 @@ var API_BASE = 'https://maxicompra-api.elflaco0800.workers.dev';
   <div class="mob-search-box">
     <div class="mob-search-top">
       <i class="fas fa-search"></i>
-      <input type="search" id="mobSearchInp" placeholder="Buscar en 656 productos..." oninput="mobSearchQuery(this.value)" autocomplete="off" autocorrect="off" spellcheck="false">
+      <input type="search" id="mobSearchInp" placeholder="Buscar productos..." oninput="mobSearchQuery(this.value)" autocomplete="off" autocorrect="off" spellcheck="false">
       <button class="mob-search-close" onclick="closeMobSearch()"><i class="fas fa-times"></i></button>
     </div>
     <div class="mob-search-results" id="mobSearchResults">

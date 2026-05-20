@@ -2116,6 +2116,23 @@ html{scroll-behavior:smooth;}
   </div>
 </div>
 
+<!-- ════════════════════════ CONFIRM MODAL ════════════════════════ -->
+<div class="modal-overlay" id="confirmModal" style="align-items:center;" onclick="if(event.target===this)_confirmModalCancel()">
+  <div class="modal-box" style="max-width:400px;margin:auto;">
+    <div class="modal-head">
+      <h3 id="confirmModalTitle" style="color:var(--text);font-size:16px;font-weight:700;">¿Confirmar acción?</h3>
+      <button style="background:none;color:var(--muted);font-size:20px;padding:0;border:none;cursor:pointer;line-height:1;" onclick="_confirmModalCancel()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <p id="confirmModalMsg" style="font-size:14px;color:var(--muted);line-height:1.6;margin:0;"></p>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-outline" style="padding:10px 20px;font-size:13px;cursor:pointer;" onclick="_confirmModalCancel()">Cancelar</button>
+      <button id="confirmModalBtn" style="padding:10px 20px;font-size:13px;cursor:pointer;" onclick="_confirmModalOk()">Confirmar</button>
+    </div>
+  </div>
+</div>
+
 <!-- ════════════════════════ AUTO-IMG MODAL ════════════════════════ -->
 <div class="modal-overlay" id="autoImgModal" style="display:none;z-index:800;" onclick="if(event.target===this&&!_aiRunning)closeAutoImgModal()">
   <div class="modal-box" style="max-width:560px;padding:0;overflow:hidden;">
@@ -5315,8 +5332,8 @@ function saveProd(){
     }).catch(function(){});
   })(prod);
 }
-function deleteProd(id){
-  if(!confirm('¿Eliminar este producto?'))return;
+async function deleteProd(id){
+  if(!await _confirmModal('¿Eliminar este producto? Esta acción no se puede deshacer.','Eliminar producto','Eliminar',true))return;
   products=products.filter(p=>p.id!==id);
   saveP(); renderAll(); renderProdTable(); updStats(); showToast('Producto eliminado del catálogo');
   // Sync delete to Worker KV (fire-and-forget)
@@ -5507,9 +5524,9 @@ function clearSelection(){
   if(allCb){allCb.checked=false;allCb.indeterminate=false;}
   _updateBulkBar();
 }
-function bulkDelete(){
+async function bulkDelete(){
   var n=selectedProdIds.size;if(!n)return;
-  if(!confirm('¿Eliminar '+n+' producto'+(n!==1?'s':'')+'? Esta acción no se puede deshacer.'))return;
+  if(!await _confirmModal('¿Eliminar '+n+' producto'+(n!==1?'s':'')+' seleccionado'+(n!==1?'s':'')+' del catálogo? Esta acción no se puede deshacer.','Eliminar productos','Eliminar',true))return;
   var token='';try{token=sessionStorage.getItem('mx_admin_token')||'';}catch(e){}
   Array.from(selectedProdIds).forEach(function(id){
     products=products.filter(function(p){return p.id!==id;});
@@ -5641,11 +5658,11 @@ function exportAll(){const blob=new Blob([JSON.stringify({products,config,banner
 function importAll(e){
   const f=e.target.files[0];if(!f)return;
   const r=new FileReader();
-  r.onload=ev=>{
+  r.onload=async ev=>{
     try{
       const d=JSON.parse(ev.target.result);
       if(d.products&&Array.isArray(d.products)){
-        if(!confirm(`¿Importar ${d.products.length} productos?`))return;
+        if(!await _confirmModal(`¿Importar ${d.products.length} productos? Esto actualizará el catálogo con los datos del archivo.`,'Importar backup','Importar',false))return;
         // Ensure all imported products have slugs
         products=d.products.map(function(p){
           if(!p.slug) p.slug=_toSlug(p.name||'')+'-'+(p.id||'').slice(-4);
@@ -5671,7 +5688,10 @@ function importAll(e){
   };
   r.readAsText(f);e.target.value='';
 }
-function clearProds(){if(!confirm('¿Eliminar TODOS los productos del catálogo? Esta acción no se puede deshacer.'))return;products=[];saveP();renderAll();renderProdTable();updStats();showToast('Catálogo vaciado — recuerda hacer una copia de respaldo la próxima vez');}
+async function clearProds(){
+  if(!await _confirmModal('¿Eliminar TODOS los productos del catálogo? Esta acción no se puede deshacer.','Vaciar catálogo','Eliminar todo',true))return;
+  products=[];saveP();renderAll();renderProdTable();updStats();showToast('Catálogo vaciado — recuerda hacer una copia de respaldo la próxima vez');
+}
 /* ══════════════════════════════════════════════
    AUTO-IMG: busca imágenes en ML via Worker proxy
 ══════════════════════════════════════════════ */
@@ -5961,10 +5981,10 @@ async function loadProdsFromKV() {
   }
 }
 
-function syncAllProductsToKV(){
+async function syncAllProductsToKV(){
   var token=''; try{token=sessionStorage.getItem('mx_admin_token')||'';}catch(e){}
   if(!token){showToast('Debes iniciar sesión como admin primero','error');return;}
-  if(!confirm('¿Sincronizar '+products.length+' productos con el servidor?'))return;
+  if(!await _confirmModal('¿Sincronizar '+products.length+' productos con el servidor KV? Esto sobreescribirá los datos actuales en el servidor.','Sincronizar con servidor','Sincronizar',false))return;
   // Ensure all products have slugs before syncing
   var list=products.map(function(p){
     if(!p.slug) p.slug=_toSlug(p.name||'')+'-'+(p.id||'').slice(-4);
@@ -6315,6 +6335,37 @@ function declineCookies(){
 ═════════════════════════════════════ */
 let tTO;
 function showToast(msg,type='success'){const t=document.getElementById('toast');document.getElementById('tMsg').textContent=msg;t.className='toast show'+(type==='error'?' error':type==='wish'?' wish':type==='info'?' info':'');clearTimeout(tTO);tTO=setTimeout(()=>t.classList.remove('show'),2800);}
+
+// ─── Confirm Modal — reemplaza confirm() nativo (bloqueante) ─────────────────
+// Uso: if(!await _confirmModal('mensaje','Título','Btn label', dangerBool)) return;
+var _confirmModalResolve=null;
+function _confirmModal(msg,title,btnLabel,danger){
+  return new Promise(function(resolve){
+    _confirmModalResolve=resolve;
+    var el=document.getElementById('confirmModal');
+    var titleEl=document.getElementById('confirmModalTitle');
+    var msgEl=document.getElementById('confirmModalMsg');
+    var btn=document.getElementById('confirmModalBtn');
+    if(titleEl) titleEl.textContent=title||'¿Confirmar acción?';
+    if(msgEl) msgEl.textContent=msg||'';
+    if(btn){
+      btn.textContent=btnLabel||'Confirmar';
+      btn.className=danger?'btn-danger':'btn-grad';
+      btn.style.cssText='padding:10px 20px;font-size:13px;cursor:pointer;';
+    }
+    if(el) el.classList.add('open');
+  });
+}
+function _confirmModalOk(){
+  var el=document.getElementById('confirmModal');
+  if(el) el.classList.remove('open');
+  if(_confirmModalResolve){_confirmModalResolve(true);_confirmModalResolve=null;}
+}
+function _confirmModalCancel(){
+  var el=document.getElementById('confirmModal');
+  if(el) el.classList.remove('open');
+  if(_confirmModalResolve){_confirmModalResolve(false);_confirmModalResolve=null;}
+}
 
 /* ═════════════════════════════════════
    INIT

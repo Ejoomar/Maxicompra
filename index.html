@@ -676,6 +676,11 @@ a.prod,a.cat-card-ed,a.product-card{text-decoration:none;color:inherit;}
 /* Related */
 .related-section{margin-top:48px;padding-top:32px;border-top:1px solid var(--border);}
 .related-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.related-grid .product-card{border-radius:var(--radius-lg);box-shadow:none;border-color:var(--line);}
+.related-grid .pc-img-wrap{background:var(--bg-2);height:170px;border-radius:var(--radius-lg) var(--radius-lg) 0 0;}
+.related-grid .product-card:hover{border-color:var(--ink-2);box-shadow:0 8px 24px rgba(0,0,0,.07);}
+.related-grid .pc-info{padding:14px 16px 16px;}
+.related-section h3{font-family:'Instrument Serif',Georgia,serif;font-size:28px;font-weight:400;font-style:italic;letter-spacing:-.02em;color:var(--ink);margin-bottom:24px;}
 
 /* ═══════════════════════════ BANNER SECTION ═══════════════════════════ */
 .banners-section{padding:56px 0;border-bottom:1px solid var(--line);}
@@ -2752,7 +2757,7 @@ html{scroll-behavior:smooth;}
         <div id="reviewsListWrap"></div>
       </div>
       <!-- Related -->
-      <div class="related-section"><h3 style="font-family:'Instrument Serif',Georgia,serif;font-size:20px;font-weight:800;color:var(--text);margin-bottom:20px">También te puede gustar</h3><div class="related-grid" id="relatedGrid"></div></div>
+      <div class="related-section"><h3>También te puede gustar</h3><div class="related-grid" id="relatedGrid"></div></div>
     </div>
   </div>
 

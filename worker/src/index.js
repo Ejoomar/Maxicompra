@@ -373,12 +373,22 @@ async function handleCreateOrder(request, env) {
 }
 
 // GET /api/order/:id
+// Sin auth  → devuelve solo campos no-sensibles (status, id, createdAt) — usado por pollers de pago post-MP
+// Con JWT válido → devuelve datos completos — usado por el panel admin (openOrdDetail)
 async function handleGetOrder(orderId, request, env) {
   if (!orderId || orderId.length > 50) return err('ID inválido', 400, request);
   const order = await env.ORDERS.get(orderId, 'json');
   if (!order) return err('Orden no encontrada', 404, request);
-  const { customer, items, total, status, discount, coupon, createdAt, payment } = order;
-  return json({ ok: true, order: { id: orderId, customer, items, total, status, discount, coupon, createdAt, payment } }, 200, request);
+
+  const auth = await requireAuth(request, env);
+  if (auth) {
+    // Solicitud autenticada: retornar orden completa
+    const { customer, items, total, status, discount, coupon, createdAt, payment } = order;
+    return json({ ok: true, order: { id: orderId, customer, items, total, status, discount, coupon, createdAt, payment } }, 200, request);
+  }
+
+  // Solicitud pública: solo campos no-sensibles para verificar estado de pago
+  return json({ ok: true, order: { id: orderId, status: order.status, createdAt: order.createdAt } }, 200, request);
 }
 
 // GET /api/coupon/:code

@@ -6028,6 +6028,43 @@ async function loadProdsFromKV() {
   }
 }
 
+// Comprime un dataUrl base64 existente (imágenes viejas sin comprimir pueden ser >5MB)
+function _compressBase64(dataUrl, maxPx, quality, cb){
+  var img=new Image();
+  img.onload=function(){
+    var w=img.width,h=img.height;
+    if(w>maxPx||h>maxPx){ if(w>h){h=Math.round(h*maxPx/w);w=maxPx;}else{w=Math.round(w*maxPx/h);h=maxPx;} }
+    var c=document.createElement('canvas'); c.width=w; c.height=h;
+    c.getContext('2d').drawImage(img,0,0,w,h);
+    cb(c.toDataURL('image/jpeg',quality));
+  };
+  img.onerror=function(){ cb(dataUrl); }; // fallback sin comprimir
+  img.src=dataUrl;
+}
+
+// Sincroniza KV silenciosamente (sin confirm modal) — para uso interno post-migración
+async function _syncToKVSilent(){
+  var token=''; try{token=sessionStorage.getItem('mx_admin_token')||'';}catch(e){}
+  if(!token) return;
+  var list=products.map(function(p){
+    if(!p.slug) p.slug=_toSlug(p.name||'')+'-'+(p.id||'').slice(-4);
+    return p;
+  });
+  saveP();
+  try{
+    var r=await fetch(API_BASE+'/api/admin/products/bulk',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+      body:JSON.stringify({products:list})
+    });
+    var d=await r.json();
+    if(d.ok) showToast('Servidor actualizado con las nuevas imágenes ✓','success');
+    else showToast('Imágenes migradas localmente. Sincroniza manualmente para actualizar el servidor.','warn');
+  }catch(e){
+    showToast('Imágenes migradas localmente. Sincroniza manualmente para actualizar el servidor.','warn');
+  }
+}
+
 // Migra imágenes base64 del localStorage al Worker KV y actualiza los productos con URLs reales
 async function _migrateLocalImages(){
   var token=''; try{token=sessionStorage.getItem('mx_admin_token')||'';}catch(e){}
@@ -6038,7 +6075,7 @@ async function _migrateLocalImages(){
   products.forEach(function(p){
     if(!Array.isArray(p.imgs)) return;
     var localImgs=p.imgs.filter(function(u){return typeof u==='string'&&u.startsWith('data:');});
-    if(localImgs.length) toMigrate.push({p:p, count:localImgs.length});
+    if(localImgs.length) toMigrate.push({p:p,count:localImgs.length});
   });
 
   if(!toMigrate.length){
@@ -6052,20 +6089,27 @@ async function _migrateLocalImages(){
   );
   if(!ok) return;
 
-  // Actualizar descripción con progreso
   var descEl=document.getElementById('migrateImgsDesc');
-  var done=0, failed=0;
+  var done=0, failed=0, failedProds=[];
 
   for(var i=0;i<toMigrate.length;i++){
     var prod=toMigrate[i].p;
     var newImgs=[];
+    var prodFailed=false;
     for(var j=0;j<prod.imgs.length;j++){
       var imgUrl=prod.imgs[j];
-      if(!imgUrl.startsWith('data:')){newImgs.push(imgUrl);continue;}
+      // Si ya es URL http, no tocar
+      if(typeof imgUrl==='string'&&(imgUrl.startsWith('http://')||imgUrl.startsWith('https://'))){
+        newImgs.push(imgUrl); continue;
+      }
+      if(typeof imgUrl!=='string'||!imgUrl.startsWith('data:')){continue;}
+      if(descEl) descEl.textContent='Subiendo imagen '+(done+failed+1)+' de '+totalImgs+' (comprimiendo…)';
+      // Comprimir primero — imágenes viejas pueden ser 5-10MB sin comprimir
+      var compressed=await new Promise(function(res){_compressBase64(imgUrl,1200,0.82,res);});
       if(descEl) descEl.textContent='Subiendo imagen '+(done+failed+1)+' de '+totalImgs+'…';
       try{
-        var base64=imgUrl.split(',')[1];
-        var mimeType=imgUrl.split(';')[0].split(':')[1]||'image/jpeg';
+        var base64=compressed.split(',')[1];
+        var mimeType='image/jpeg';
         var r=await fetch(API_BASE+'/api/admin/image',{
           method:'POST',
           headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
@@ -6073,10 +6117,11 @@ async function _migrateLocalImages(){
         });
         var d=await r.json();
         if(d.ok&&d.url){newImgs.push(d.url);done++;}
-        else{newImgs.push(imgUrl);failed++;} // mantener base64 si falla
-      }catch(e){newImgs.push(imgUrl);failed++;}
+        else{newImgs.push(imgUrl);failed++;prodFailed=true;}
+      }catch(e){newImgs.push(imgUrl);failed++;prodFailed=true;}
     }
-    // Actualizar el producto con las URLs nuevas
+    if(prodFailed) failedProds.push(prod.name||prod.id);
+    // Actualizar producto con las URLs nuevas
     var idx=products.findIndex(function(x){return x.id===prod.id;});
     if(idx!==-1) products[idx]=Object.assign({},products[idx],{imgs:newImgs});
   }
@@ -6085,11 +6130,11 @@ async function _migrateLocalImages(){
   if(descEl) descEl.textContent='Detecta imágenes guardadas solo en este dispositivo y las sube al servidor para que sean visibles en todos lados';
 
   if(failed===0){
-    showToast('✅ '+done+' imagen'+(done!==1?'es':'')+' migrada'+(done!==1?'s':'')+' al servidor correctamente','success');
-    // Sincronizar automáticamente para que KV quede con las URLs nuevas
-    setTimeout(syncAllProductsToKV, 800);
+    showToast('✅ '+done+' imagen'+(done!==1?'es':'')+' migrada'+(done!==1?'s':'')+' correctamente','success');
+    // Sincronizar KV silenciosamente (sin segundo modal de confirmación)
+    await _syncToKVSilent();
   } else {
-    showToast(done+' imágenes migradas, '+failed+' fallaron. Intenta de nuevo.','warn');
+    showToast(done+' migradas, '+failed+' fallaron en: '+failedProds.slice(0,3).join(', ')+(failedProds.length>3?'…':''),'warn');
   }
 }
 

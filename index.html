@@ -579,7 +579,7 @@ a.prod,a.cat-card-ed,a.product-card{text-decoration:none;color:inherit;}
 .pdpb-new{background:rgba(0,198,255,.14);border:1px solid rgba(0,198,255,.3);color:var(--cyan);}
 .pdpb-feat{background:rgba(255,215,0,.14);border:1px solid rgba(255,215,0,.3);color:var(--gold);}
 .pdp-sku{font-size:12px;color:var(--muted);margin-bottom:8px;}
-.pdp-title{font-family:'Instrument Serif',serif;font-size:42px;line-height:1.05;letter-spacing:-0.015em;color:var(--ink);margin-bottom:16px;}
+.pdp-title{font-family:'Instrument Serif',serif;font-size:clamp(24px,5vw,42px);line-height:1.05;letter-spacing:-0.015em;color:var(--ink);margin-bottom:16px;}
 .pdp-meta-row{display:flex;align-items:center;gap:6px;font-size:13.5px;color:var(--muted);margin-bottom:12px;}
 .pdp-meta-row strong{color:var(--cyan);}
 .pdp-stars-row{display:flex;align-items:center;gap:10px;padding:14px 0;border-bottom:1px solid var(--border);margin-bottom:18px;}
@@ -4157,6 +4157,15 @@ function renderHeroSlider() {
   _startSliderTimer();
   container.addEventListener('mouseenter', _stopSliderTimer);
   container.addEventListener('mouseleave', _startSliderTimer);
+  // Touch swipe en mobile
+  var _sx = 0, _sy = 0;
+  container.addEventListener('touchstart', function(e){ _sx = e.touches[0].clientX; _sy = e.touches[0].clientY; }, {passive:true});
+  container.addEventListener('touchend', function(e){
+    var dx = e.changedTouches[0].clientX - _sx;
+    var dy = e.changedTouches[0].clientY - _sy;
+    if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return;
+    if (dx < 0) nextSlide(); else prevSlide();
+  }, {passive:true});
 }
 
 function _startSliderTimer() {

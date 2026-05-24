@@ -2070,8 +2070,9 @@ html{scroll-behavior:smooth;}
           <div class="adm-card">
             <h4><i class="fas fa-database"></i>Datos & Backup</h4>
             <div class="set-row"><div class="set-info"><h5>Sincronizar con servidor</h5><p>Sube todos los productos al servidor (URLs SEO)</p></div><button class="btn-outline" style="padding:8px 14px;font-size:13px" onclick="syncAllProductsToKV()"><i class="fas fa-cloud-upload-alt"></i> Sincronizar</button></div>
+            <div class="set-row" id="migrateImgsRow"><div class="set-info"><h5>Migrar imágenes locales al servidor</h5><p id="migrateImgsDesc">Detecta imágenes guardadas solo en este dispositivo y las sube al servidor para que sean visibles en todos lados</p></div><button class="btn-grad" style="padding:8px 14px;font-size:13px" onclick="_migrateLocalImages()"><i class="fas fa-cloud-upload-alt"></i> Migrar imágenes</button></div>
             <div class="set-row"><div class="set-info"><h5>Importar imágenes ML</h5><p>Carga el archivo mx_matches.json y asigna imágenes a los productos por ID</p></div><label class="btn-grad" style="padding:8px 14px;font-size:13px;cursor:pointer"><i class="fas fa-images"></i> Importar imágenes<input type="file" accept=".json" style="display:none" onchange="importMLImages(event)"></label></div>
-            <div class="set-row"><div class="set-info"><h5>Cargar productos desde servidor</h5><p>Sincroniza localStorage con los 656 productos del KV</p></div><button class="btn-outline" style="padding:8px 14px;font-size:13px" onclick="loadProdsFromKV()"><i class="fas fa-cloud-download-alt"></i> Cargar</button></div>
+            <div class="set-row"><div class="set-info"><h5>Cargar productos desde servidor</h5><p>Sincroniza localStorage con los productos del servidor KV</p></div><button class="btn-outline" style="padding:8px 14px;font-size:13px" onclick="loadProdsFromKV()"><i class="fas fa-cloud-download-alt"></i> Cargar</button></div>
             <div class="set-row"><div class="set-info"><h5>Exportar todo</h5><p>Productos, configuración y banners en JSON</p></div><button class="btn-outline" style="padding:8px 14px;font-size:13px" onclick="exportAll()"><i class="fas fa-download"></i> Exportar</button></div>
             <div class="set-row"><div class="set-info"><h5>Importar datos</h5><p>Restaura desde un archivo JSON</p></div><label class="btn-outline" style="padding:8px 14px;font-size:13px;cursor:pointer"><i class="fas fa-upload"></i> Importar<input type="file" accept=".json" style="display:none" onchange="importAll(event)"></label></div>
             <div class="set-row"><div class="set-info"><h5>Borrar todos los productos</h5><p>Acción irreversible</p></div><button class="btn-danger" style="padding:8px 14px;font-size:13px" onclick="clearProds()"><i class="fas fa-trash"></i> Borrar</button></div>
@@ -6016,6 +6017,71 @@ async function loadProdsFromKV() {
     showToast(list.length + ' productos cargados desde el servidor ✓', 'ok');
   } catch(err) {
     showToast('Error al cargar: ' + err.message, 'error');
+  }
+}
+
+// Migra imágenes base64 del localStorage al Worker KV y actualiza los productos con URLs reales
+async function _migrateLocalImages(){
+  var token=''; try{token=sessionStorage.getItem('mx_admin_token')||'';}catch(e){}
+  if(!token){showToast('Debes iniciar sesión como admin primero','error');return;}
+
+  // Detectar todos los productos con imágenes base64 (data:...)
+  var toMigrate=[];
+  products.forEach(function(p){
+    if(!Array.isArray(p.imgs)) return;
+    var localImgs=p.imgs.filter(function(u){return typeof u==='string'&&u.startsWith('data:');});
+    if(localImgs.length) toMigrate.push({p:p, count:localImgs.length});
+  });
+
+  if(!toMigrate.length){
+    showToast('No hay imágenes locales pendientes de migrar ✓','success'); return;
+  }
+
+  var totalImgs=toMigrate.reduce(function(s,x){return s+x.count;},0);
+  var ok=await _confirmModal(
+    'Se encontraron '+totalImgs+' imagen'+(totalImgs!==1?'es':'')+' en '+toMigrate.length+' producto'+(toMigrate.length!==1?'s':'')+' guardadas solo en este dispositivo. ¿Subirlas al servidor ahora?',
+    'Migrar imágenes','Migrar',false
+  );
+  if(!ok) return;
+
+  // Actualizar descripción con progreso
+  var descEl=document.getElementById('migrateImgsDesc');
+  var done=0, failed=0;
+
+  for(var i=0;i<toMigrate.length;i++){
+    var prod=toMigrate[i].p;
+    var newImgs=[];
+    for(var j=0;j<prod.imgs.length;j++){
+      var imgUrl=prod.imgs[j];
+      if(!imgUrl.startsWith('data:')){newImgs.push(imgUrl);continue;}
+      if(descEl) descEl.textContent='Subiendo imagen '+(done+failed+1)+' de '+totalImgs+'…';
+      try{
+        var base64=imgUrl.split(',')[1];
+        var mimeType=imgUrl.split(';')[0].split(':')[1]||'image/jpeg';
+        var r=await fetch(API_BASE+'/api/admin/image',{
+          method:'POST',
+          headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+          body:JSON.stringify({base64:base64,mimeType:mimeType})
+        });
+        var d=await r.json();
+        if(d.ok&&d.url){newImgs.push(d.url);done++;}
+        else{newImgs.push(imgUrl);failed++;} // mantener base64 si falla
+      }catch(e){newImgs.push(imgUrl);failed++;}
+    }
+    // Actualizar el producto con las URLs nuevas
+    var idx=products.findIndex(function(x){return x.id===prod.id;});
+    if(idx!==-1) products[idx]=Object.assign({},products[idx],{imgs:newImgs});
+  }
+
+  saveP();
+  if(descEl) descEl.textContent='Detecta imágenes guardadas solo en este dispositivo y las sube al servidor para que sean visibles en todos lados';
+
+  if(failed===0){
+    showToast('✅ '+done+' imagen'+(done!==1?'es':'')+' migrada'+(done!==1?'s':'')+' al servidor correctamente','success');
+    // Sincronizar automáticamente para que KV quede con las URLs nuevas
+    setTimeout(syncAllProductsToKV, 800);
+  } else {
+    showToast(done+' imágenes migradas, '+failed+' fallaron. Intenta de nuevo.','warn');
   }
 }
 

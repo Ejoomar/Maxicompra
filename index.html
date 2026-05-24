@@ -261,7 +261,7 @@ img{display:block;max-width:100%;}
 /* ═══════════════════════════ HEADER ═══════════════════════════ */
 .site-header{background:var(--bg);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:300;}
 .header-main{max-width:1360px;margin:auto;padding:0 32px;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:48px;height:84px;}
-.search-bar{position:relative;max-width:520px;flex:1;}
+.search-bar{display:flex;position:relative;max-width:520px;flex:1;}
 .search-bar input{width:100%;height:44px;padding:0 16px 0 44px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);font-size:13.5px;color:var(--ink);outline:none;transition:border-color .15s;font-family:inherit;}
 .search-bar input:focus{border-color:var(--ink);}
 .search-bar input::placeholder{color:var(--mute-2);}
@@ -2380,7 +2380,7 @@ html{scroll-behavior:smooth;}
         </div>
       </div>
       
-      <div class="search-bar" style="display:flex;position:relative;flex:1;max-width:600px;" id="searchBarWrap"><i class="fas fa-search sb-icon" style="position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px;pointer-events:none;z-index:1"></i><input type="search" id="searchInp" placeholder="Buscar productos, marcas…" oninput="_handleDesktopSearch(this.value)" onblur="setTimeout(()=>_hideSuggest(),300)" autocomplete="off" style="border-radius:50px;padding:10px 90px 10px 44px;width:100%;"><button onclick="_commitSearch()" aria-label="Buscar productos" style="position:absolute;right:5px;top:50%;transform:translateY(-50%);padding:6px 18px;border-radius:50px;font-size:12px;font-weight:700;">Buscar</button><div class="search-suggest" id="searchSuggest"></div></div><div class="header-actions">
+      <div class="search-bar" style="position:relative;flex:1;max-width:600px;" id="searchBarWrap"><i class="fas fa-search sb-icon" style="position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px;pointer-events:none;z-index:1"></i><input type="search" id="searchInp" placeholder="Buscar productos, marcas…" oninput="_handleDesktopSearch(this.value)" onblur="setTimeout(()=>_hideSuggest(),300)" autocomplete="off" style="border-radius:50px;padding:10px 90px 10px 44px;width:100%;"><button onclick="_commitSearch()" aria-label="Buscar productos" style="position:absolute;right:5px;top:50%;transform:translateY(-50%);padding:6px 18px;border-radius:50px;font-size:12px;font-weight:700;">Buscar</button><div class="search-suggest" id="searchSuggest"></div></div><div class="header-actions">
         <button class="h-btn" onclick="openWish()" aria-label="Lista de deseos"><i class="fas fa-heart"></i><span id="wishCount">0</span></button>
         <button class="h-btn cart" onclick="togCart()" aria-label="Abrir carrito de compras"><i class="fas fa-shopping-cart"></i>Carro<div class="cart-badge-dot" id="cartBdg">0</div></button>
       </div>

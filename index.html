@@ -5262,7 +5262,15 @@ function addProductImgs(input){
   });
   input.value='';
 }
-function dropImgs(e){ e.preventDefault(); document.getElementById('imgUpArea').classList.remove('drag'); [...e.dataTransfer.files].filter(f=>f.type.startsWith('image/')).forEach(f=>{if(formImgs.length>=6)return;const r=new FileReader();r.onload=ev=>{formImgs.push(ev.target.result);renderFormImgs();};r.readAsDataURL(f);}); }
+function dropImgs(e){
+  e.preventDefault();
+  document.getElementById('imgUpArea').classList.remove('drag');
+  var files=[...e.dataTransfer.files].filter(f=>f.type.startsWith('image/'));
+  if(!files.length) return;
+  // Reusar el mismo flujo de addProductImgs (comprime + sube al Worker)
+  var fakeInput={files:files,value:''};
+  addProductImgs(fakeInput);
+}
 function removeImg(i){ formImgs.splice(i,1); renderFormImgs(); }
 var _dragImgIdx = null;
 function renderFormImgs(){

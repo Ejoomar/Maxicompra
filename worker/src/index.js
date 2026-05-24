@@ -1038,6 +1038,49 @@ async function handleBulkUpsertProducts(request, env) {
   return json({ ok: true, count: products.length }, 200, request);
 }
 
+// POST /api/admin/image — sube imagen de producto al KV, devuelve URL pública
+// La imagen se comprime en el frontend antes de llegar aquí
+async function handleUploadImage(request, env) {
+  const auth = await requireAuth(request, env);
+  if (!auth) return err('No autorizado', 401, request);
+
+  let body;
+  try { body = await request.json(); } catch { return err('JSON inválido', 400, request); }
+
+  const { base64, mimeType } = body;
+  if (!base64 || typeof base64 !== 'string') return err('base64 requerido', 400, request);
+  if (base64.length > 2_800_000) return err('Imagen demasiado grande (máx ~2 MB)', 400, request);
+
+  const ALLOWED = ['image/jpeg', 'image/png', 'image/webp'];
+  const mime = ALLOWED.includes(mimeType) ? mimeType : 'image/jpeg';
+
+  const imgId = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+  await env.CONFIG.put(`img:${imgId}`, JSON.stringify({ base64, mimeType: mime }), {
+    expirationTtl: 60 * 60 * 24 * 365 * 3 // 3 años
+  });
+
+  const origin = new URL(request.url).origin;
+  return json({ ok: true, url: `${origin}/img/${imgId}` }, 200, request);
+}
+
+// GET /img/:id — sirve imagen almacenada en KV con headers de caché
+async function handleServeImage(imgId, request, env) {
+  if (!imgId || imgId.length > 60 || !/^[a-z0-9-]+$/.test(imgId))
+    return new Response('Not found', { status: 404 });
+
+  const data = await env.CONFIG.get(`img:${imgId}`, 'json');
+  if (!data || !data.base64) return new Response('Not found', { status: 404 });
+
+  const bytes = Uint8Array.from(atob(data.base64), c => c.charCodeAt(0));
+  return new Response(bytes, {
+    headers: {
+      'Content-Type': data.mimeType || 'image/jpeg',
+      'Cache-Control': 'public, max-age=31536000, immutable',
+      'Access-Control-Allow-Origin': '*',
+    }
+  });
+}
+
 async function handleGetProductBySlug(slug, request, env) {
   if (!slug || slug.length > 100) return err('Slug inválido', 400, request);
   const products = await env.CONFIG.get('products:all', 'json') || [];
@@ -1171,6 +1214,10 @@ export default {
       return new Response(null, { status: 204, headers: corsHeaders(request) });
     }
 
+    // Imágenes de producto almacenadas en KV (públicas, cacheables)
+    if (path.match(/^\/img\/[a-z0-9-]+$/) && method === 'GET')
+      return handleServeImage(path.slice(5), request, env);
+
     // Public routes
     if (path === '/sitemap.xml'             && method === 'GET')    return handleSitemap(request, env);
     if (path === '/api/health'              && method === 'GET')    return handleHealth(request, env);
@@ -1206,6 +1253,7 @@ export default {
       return handleUpdateOrderStatus(request, path.split('/')[4], env);
     if (path.match(/^\/api\/admin\/order\/[^/]+$/) && method === 'GET')
       return handleGetOrderAdmin(path.split('/')[4], request, env);
+    if (path === '/api/admin/image'          && method === 'POST')   return handleUploadImage(request, env);
     if (path === '/api/admin/products'      && method === 'GET')    return handleAdminListProducts(request, env);
     if (path === '/api/admin/product'        && method === 'POST')   return handleUpsertProduct(request, env);
     if (path === '/api/admin/products/bulk' && method === 'POST')   return handleBulkUpsertProducts(request, env);

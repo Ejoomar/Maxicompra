@@ -5225,18 +5225,51 @@ function clearProdForm(){
   var ta=document.getElementById('prod-desc'); if(ta)updateDescChar(ta);
 }
 function addProductImgs(input){
-  [...input.files].forEach(f=>{
+  var token=''; try{token=sessionStorage.getItem('mx_admin_token')||'';}catch(e){}
+  [...input.files].forEach(function(f){
     if(formImgs.length>=6){showToast('Máximo 6 imágenes','error');return;}
     if(f.size>5*1024*1024){showToast('Máx 5MB por imagen','error');return;}
-    const r=new FileReader(); r.onload=e=>{formImgs.push(e.target.result);renderFormImgs();}; r.readAsDataURL(f);
-  }); input.value='';
+    // Reservar posición con placeholder de carga
+    var idx=formImgs.length;
+    formImgs.push('__uploading__');
+    renderFormImgs();
+    // Comprimir antes de subir (~1200px, 82% calidad)
+    _compressImg(f, 1200, 0.82, function(dataUrl){
+      if(!dataUrl){
+        formImgs.splice(idx,1); renderFormImgs();
+        showToast('Error al procesar la imagen','error'); return;
+      }
+      if(!token){
+        // Sin sesión admin: guardar local como fallback (no persistirá en otros dispositivos)
+        formImgs[idx]=dataUrl; renderFormImgs();
+        showToast('Inicia sesión como admin para guardar imágenes en el servidor','warn'); return;
+      }
+      var base64=dataUrl.split(',')[1];
+      var mimeType=dataUrl.split(';')[0].split(':')[1]||'image/jpeg';
+      fetch(API_BASE+'/api/admin/image',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+        body:JSON.stringify({base64:base64,mimeType:mimeType})
+      })
+      .then(function(r){return r.json();})
+      .then(function(d){
+        if(d.ok&&d.url){ formImgs[idx]=d.url; renderFormImgs(); }
+        else{ formImgs.splice(idx,1); renderFormImgs(); showToast(d.error||'Error al subir imagen','error'); }
+      })
+      .catch(function(){ formImgs.splice(idx,1); renderFormImgs(); showToast('Sin conexión — no se pudo subir la imagen','error'); });
+    });
+  });
+  input.value='';
 }
 function dropImgs(e){ e.preventDefault(); document.getElementById('imgUpArea').classList.remove('drag'); [...e.dataTransfer.files].filter(f=>f.type.startsWith('image/')).forEach(f=>{if(formImgs.length>=6)return;const r=new FileReader();r.onload=ev=>{formImgs.push(ev.target.result);renderFormImgs();};r.readAsDataURL(f);}); }
 function removeImg(i){ formImgs.splice(i,1); renderFormImgs(); }
 var _dragImgIdx = null;
 function renderFormImgs(){
   var row = document.getElementById('imgPreviewRow');
-  row.innerHTML = formImgs.map((img,i)=>`<div class="img-thumb-edit" draggable="true" data-idx="${i}" ondragstart="_dragImgIdx=parseInt(this.dataset.idx)" ondragover="event.preventDefault();this.style.opacity='.5'" ondragleave="this.style.opacity=''" ondrop="_dropReorder(parseInt(this.dataset.idx));this.style.opacity=''"><img src="${img}" alt="img-${i}"><button class="img-del-btn" onclick="removeImg(${i})"><i class="fas fa-times"></i></button>${i===0?'<div class="img-main-badge">PRINCIPAL</div>':''}</div>`).join('');
+  row.innerHTML = formImgs.map((img,i)=>{
+    if(img==='__uploading__') return `<div class="img-thumb-edit" style="display:flex;align-items:center;justify-content:center;background:var(--bg-2);"><i class="fas fa-spinner fa-spin" style="color:var(--muted);font-size:20px;"></i></div>`;
+    return `<div class="img-thumb-edit" draggable="true" data-idx="${i}" ondragstart="_dragImgIdx=parseInt(this.dataset.idx)" ondragover="event.preventDefault();this.style.opacity='.5'" ondragleave="this.style.opacity=''" ondrop="_dropReorder(parseInt(this.dataset.idx));this.style.opacity=''"><img src="${img}" alt="img-${i}"><button class="img-del-btn" onclick="removeImg(${i})"><i class="fas fa-times"></i></button>${i===0?'<div class="img-main-badge">PRINCIPAL</div>':''}</div>`;
+  }).join('');
 }
 function _dropReorder(toIdx){
   if(_dragImgIdx===null||_dragImgIdx===toIdx) return;

@@ -4257,6 +4257,24 @@ function buildPDPGallery(p) {
   if (imgs.length) { mainImg.src = imgs[0]; mainImg.alt = p.name; mainImg.style.display=''; noImg.style.display='none'; }
   else { mainImg.src=''; mainImg.alt=''; mainImg.style.display='none'; noImg.style.display='flex'; }
   mainImg.onclick = () => { if(mainImg.src) openZoom(mainImg.src); };
+  // Swipe táctil horizontal en mobile para navegar entre imágenes
+  const wrap = document.getElementById('pdpMainImgWrap');
+  wrap._pdpImgIndex = 0;
+  wrap.ontouchstart = null; wrap.ontouchend = null;
+  if (imgs.length > 1) {
+    let _tx0 = 0, _ty0 = 0;
+    wrap.ontouchstart = function(e){ _tx0 = e.touches[0].clientX; _ty0 = e.touches[0].clientY; };
+    wrap.ontouchend = function(e){
+      var dx = e.changedTouches[0].clientX - _tx0;
+      var dy = e.changedTouches[0].clientY - _ty0;
+      if(Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return; // muy corto o más vertical que horizontal
+      var cur = parseInt(wrap._pdpImgIndex) || 0;
+      if(dx < 0) cur = (cur + 1) % imgs.length;          // desliza izquierda → siguiente
+      else       cur = (cur - 1 + imgs.length) % imgs.length; // desliza derecha → anterior
+      wrap._pdpImgIndex = cur;
+      switchPdpImg(cur);
+    };
+  }
   // Thumbs
   let html = imgs.map((img,i) =>
     `<div class="thumb-item ${i===0?'active':''}" onclick="switchPdpImg(${i})"><img src="${img}" alt="${esc(p.name)} — imagen ${i+1}" loading="lazy" decoding="async" width="80" height="80"></div>`
@@ -4274,6 +4292,9 @@ function switchPdpImg(i) {
   document.getElementById('pdpVideoContent').innerHTML = '';
   mainImg.style.display = ''; mainImg.src = p.imgs[i];
   document.querySelectorAll('.thumb-item').forEach((t,ti) => t.classList.toggle('active', ti===i));
+  // Sync swipe index so swipe siempre continúa desde la imagen actual
+  var wrap = document.getElementById('pdpMainImgWrap');
+  if(wrap) wrap._pdpImgIndex = i;
 }
 
 function showPdpVideo(url) {

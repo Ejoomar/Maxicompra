@@ -41,8 +41,15 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://maxicompra-api.elflaco0800.workers.dev">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
-<link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-Avb2QiuDEEvB4bZJYdft2mNjVShBftLdPG8FJ0V7irTLQ8Uo0qcPxh4Plq7G5tGm0rU+1SPhVotteLpBERwTkw==" crossorigin="anonymous" referrerpolicy="no-referrer" onload="this.onload=null;this.rel='stylesheet'"/>
-<noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-Avb2QiuDEEvB4bZJYdft2mNjVShBftLdPG8FJ0V7irTLQ8Uo0qcPxh4Plq7G5tGm0rU+1SPhVotteLpBERwTkw==" crossorigin="anonymous" referrerpolicy="no-referrer"/></noscript>
+<!-- Font Awesome subset: only solid + brands (~50 KB vs ~80 KB for all.min) -->
+<link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/fontawesome.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" onload="this.onload=null;this.rel='stylesheet'"/>
+<link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/solid.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" onload="this.onload=null;this.rel='stylesheet'"/>
+<link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/brands.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" onload="this.onload=null;this.rel='stylesheet'"/>
+<noscript>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/fontawesome.min.css" crossorigin="anonymous" referrerpolicy="no-referrer"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/solid.min.css" crossorigin="anonymous" referrerpolicy="no-referrer"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/brands.min.css" crossorigin="anonymous" referrerpolicy="no-referrer"/>
+</noscript>
 <style>
 /* ═══════════════════════════════════════════════════
    MAXICOMPRA — VARIABLES & RESET
@@ -2391,16 +2398,16 @@ html{scroll-behavior:smooth;}
         </div>
       </div>
       
-      <div class="search-bar" style="position:relative;flex:1;max-width:600px;" id="searchBarWrap"><i class="fas fa-search sb-icon" style="position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px;pointer-events:none;z-index:1"></i><input type="search" id="searchInp" placeholder="Buscar productos, marcas…" oninput="_handleDesktopSearch(this.value)" onblur="setTimeout(()=>_hideSuggest(),300)" autocomplete="off" style="border-radius:50px;padding:10px 90px 10px 44px;width:100%;"><button onclick="_commitSearch()" aria-label="Buscar productos" style="position:absolute;right:5px;top:50%;transform:translateY(-50%);padding:6px 18px;border-radius:50px;font-size:12px;font-weight:700;">Buscar</button><div class="search-suggest" id="searchSuggest"></div></div><div class="header-actions">
+      <div class="search-bar" role="search" aria-label="Buscar en Maxicompra" style="position:relative;flex:1;max-width:600px;" id="searchBarWrap"><i class="fas fa-search sb-icon" style="position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px;pointer-events:none;z-index:1" aria-hidden="true"></i><input type="search" id="searchInp" placeholder="Buscar productos, marcas…" aria-label="Buscar productos" aria-autocomplete="list" aria-controls="searchSuggest" aria-expanded="false" oninput="_handleDesktopSearch(this.value)" onblur="setTimeout(()=>_hideSuggest(),300)" autocomplete="off" style="border-radius:50px;padding:10px 90px 10px 44px;width:100%;"><button onclick="_commitSearch()" aria-label="Buscar productos" style="position:absolute;right:5px;top:50%;transform:translateY(-50%);padding:6px 18px;border-radius:50px;font-size:12px;font-weight:700;">Buscar</button><div class="search-suggest" id="searchSuggest" role="listbox" aria-label="Sugerencias de búsqueda"></div></div><div class="header-actions">
         <button class="h-btn" onclick="openWish()" aria-label="Lista de deseos"><i class="fas fa-heart"></i><span id="wishCount">0</span></button>
         <button class="h-btn cart" onclick="togCart()" aria-label="Abrir carrito de compras"><i class="fas fa-shopping-cart"></i>Carro<div class="cart-badge-dot" id="cartBdg">0</div></button>
       </div>
     </div>
     <!-- Mobile Search Bar -->
     <div class="mob-search-row" id="mobSearchRow">
-      <div class="mob-search-inner">
-        <i class="fas fa-search"></i>
-        <input type="search" id="mobSearchBarInp" placeholder="Buscar productos, marcas…" autocomplete="off" oninput="_handleDesktopSearch(this.value)" onblur="setTimeout(()=>_hideSuggest(),300)">
+      <div class="mob-search-inner" role="search" aria-label="Buscar en Maxicompra">
+        <i class="fas fa-search" aria-hidden="true"></i>
+        <input type="search" id="mobSearchBarInp" placeholder="Buscar productos, marcas…" aria-label="Buscar productos" autocomplete="off" oninput="_handleDesktopSearch(this.value)" onblur="setTimeout(()=>_hideSuggest(),300)">
         <button onclick="_commitSearch()" aria-label="Buscar productos">Buscar</button>
       </div>
     </div>
@@ -2674,6 +2681,7 @@ html{scroll-behavior:smooth;}
             </select>
           </div>
           <div class="products-grid" id="catProductsGrid"></div>
+          <div id="catPagination" style="display:none;margin-top:32px"></div>
           <div id="catEmptyState" style="display:none;text-align:center;padding:80px 20px;" role="status" aria-live="polite">
             <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="var(--mute)" stroke-width="1" style="margin:0 auto 24px;display:block;opacity:.35"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-4 0v2M8 7V5a2 2 0 0 0-4 0v2M12 12v4M10 14h4"/></svg>
             <p style="font-family:'Instrument Serif',serif;font-size:28px;color:var(--ink);margin-bottom:10px;letter-spacing:-.02em;">Sin productos en esta categoría</p>
@@ -2760,10 +2768,11 @@ html{scroll-behavior:smooth;}
           <div style="font-size:12px;color:var(--muted);margin-bottom:12px" id="pdpMaxNote"></div>
           <!-- Share -->
           <div class="pdp-share"><span>Compartir:</span>
-            <div class="share-ico" onclick="shareP('facebook')"><i class="fab fa-facebook-f"></i></div>
-            <div class="share-ico" onclick="shareP('twitter')"><i class="fab fa-x-twitter"></i></div>
-            <div class="share-ico" onclick="shareP('whatsapp')"><i class="fab fa-whatsapp"></i></div>
-            <div class="share-ico" onclick="copyLink()"><i class="fas fa-link"></i></div>
+            <div class="share-ico" onclick="shareP('facebook')" aria-label="Compartir en Facebook" role="button" tabindex="0"><i class="fab fa-facebook-f" aria-hidden="true"></i></div>
+            <div class="share-ico" onclick="shareP('twitter')" aria-label="Compartir en X (Twitter)" role="button" tabindex="0"><i class="fab fa-x-twitter" aria-hidden="true"></i></div>
+            <div class="share-ico" onclick="shareP('whatsapp')" aria-label="Compartir en WhatsApp" role="button" tabindex="0"><i class="fab fa-whatsapp" aria-hidden="true"></i></div>
+            <div class="share-ico" onclick="copyLink()" aria-label="Copiar enlace" role="button" tabindex="0"><i class="fas fa-link" aria-hidden="true"></i></div>
+            <div class="share-ico" id="pdpNativeShare" style="display:none" onclick="shareP('native')" aria-label="Compartir" role="button" tabindex="0"><i class="fas fa-share-nodes" aria-hidden="true"></i></div>
           </div>
           <!-- Trust badges -->
           <div class="pdp-trust-row">
@@ -3011,7 +3020,7 @@ html{scroll-behavior:smooth;}
 </div>
 <!-- Cart Panel -->
 <div class="cart-overlay" id="cartOv" onclick="togCart()" style="-webkit-tap-highlight-color:transparent">
-  <div class="cart-panel" id="cartPan" onclick="event.stopPropagation()">
+  <div class="cart-panel" id="cartPan" role="dialog" aria-modal="true" aria-label="Carrito de compras" onclick="event.stopPropagation()">
     <div class="cart-head"><h3>Carro</h3><div style="display:flex;align-items:center;gap:10px"><button id="clearCartBtn" onclick="if(cart.length){cart=[];saveC();updCartBadge();renderCart();showToast('Carrito vaciado');}" style="display:none;background:none;border:1.5px solid var(--border);color:var(--muted);font-size:11.5px;font-weight:600;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:inherit"><i class="fas fa-trash" style="margin-right:4px"></i>Vaciar</button><button style="background:none;color:var(--muted);font-size:20px;padding:0" onclick="togCart()"><i class="fas fa-times"></i></button></div></div>
     <div class="cart-ship-prog" id="cartShipProg"></div>
     <div class="cart-body" id="cartBody"></div>
@@ -3032,12 +3041,12 @@ html{scroll-behavior:smooth;}
 </div>
 
 <!-- ════════════════════════ CHECKOUT MODAL ════════════════════════ -->
-<div class="ck-overlay" id="ckOverlay" onclick="if(event.target===this)closeCheckout()">
+<div class="ck-overlay" id="ckOverlay" role="dialog" aria-modal="true" aria-labelledby="ckModalTitle" onclick="if(event.target===this)closeCheckout()">
   <div class="ck-box" id="ckBox" style="position:relative">
     <button class="ck-close-x" aria-label="Cerrar checkout" onclick="closeCheckout()"><i class="fas fa-times"></i></button>
     <!-- Formulario -->
     <div class="ck-form" id="ckForm">
-      <h2><i class="fas fa-lock" style="color:var(--pink)"></i> Finalizar Compra</h2>
+      <h2 id="ckModalTitle"><i class="fas fa-lock" style="color:var(--pink)" aria-hidden="true"></i> Finalizar Compra</h2>
       <p>Completa tus datos para procesar el pedido de forma segura.</p>
 
       <div class="ck-step-title"><i class="fas fa-user"></i> Datos personales</div>
@@ -3766,6 +3775,10 @@ let _homeProdList = [];
 let _homeProdPage  = 0;
 const HOME_PAGE_SIZE = 24;
 
+let _catFilteredList = [];
+let _catProdPage = 0;
+const CAT_PAGE_SIZE = 24;
+
 function renderHomeProducts(search) {
   _homeProdList = getProductList('', search);
   _homeProdPage = 0;
@@ -3864,13 +3877,50 @@ function _applyFilters(list) {
 }
 
 function _paintCatGrid(filtered) {
+  _catFilteredList = filtered;
+  _catProdPage = 0;
   var grid = document.getElementById('catProductsGrid');
   var empty = document.getElementById('catEmptyState');
   var count = document.getElementById('catFilterCount');
-  if (!filtered.length) { grid.innerHTML=''; empty.style.display='block'; if(count) count.textContent='0 productos'; return; }
+  if (!filtered.length) { grid.innerHTML=''; empty.style.display='block'; if(count) count.textContent='0 productos'; _renderCatPagination(); return; }
   empty.style.display='none';
-  grid.innerHTML = filtered.map(function(p){ return productCardHTML(p); }).join('');
+  var first = filtered.slice(0, CAT_PAGE_SIZE);
+  grid.innerHTML = first.map(function(p){ return productCardHTML(p); }).join('');
   if(count) count.textContent = filtered.length + ' producto' + (filtered.length !== 1 ? 's' : '');
+  _renderCatPagination();
+}
+function _renderCatPagination() {
+  var pag = document.getElementById('catPagination');
+  if (!pag) return;
+  var totalPages = Math.ceil(_catFilteredList.length / CAT_PAGE_SIZE);
+  if (totalPages <= 1) { pag.style.display='none'; pag.innerHTML=''; return; }
+  pag.style.display = 'flex';
+  pag.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:8px;margin-top:32px;flex-wrap:wrap;';
+  var cur = _catProdPage;
+  var btns = '';
+  btns += `<button onclick="catGoToPage(${cur-1})" style="padding:8px 14px;border-radius:8px;background:var(--card);border:1px solid var(--border);color:var(--text);cursor:pointer;font-size:13px;font-family:inherit;transition:all .2s;" ${cur===0?'disabled style="opacity:.4;cursor:default;"':''}>‹ Anterior</button>`;
+  var start = Math.max(0, cur-2), end = Math.min(totalPages-1, cur+2);
+  if(start>0) btns += `<button onclick="catGoToPage(0)" style="padding:8px 12px;border-radius:8px;background:var(--card);border:1px solid var(--border);color:var(--text);cursor:pointer;font-size:13px;font-family:inherit;">1</button>${start>1?'<span style="color:var(--muted);padding:0 4px">…</span>':''}`;
+  for(var i=start;i<=end;i++){
+    var active = i===cur;
+    btns += `<button onclick="catGoToPage(${i})" style="padding:8px 12px;border-radius:8px;font-size:13px;font-family:inherit;cursor:${active?'default':'pointer'};background:${active?'var(--pink)':'var(--card)'};color:${active?'#fff':'var(--text)'};border:1px solid ${active?'var(--pink)':'var(--border)'};font-weight:${active?'700':'400'};">${i+1}</button>`;
+  }
+  if(end<totalPages-1) btns += `${end<totalPages-2?'<span style="color:var(--muted);padding:0 4px">…</span>':''}<button onclick="catGoToPage(${totalPages-1})" style="padding:8px 12px;border-radius:8px;background:var(--card);border:1px solid var(--border);color:var(--text);cursor:pointer;font-size:13px;font-family:inherit;">${totalPages}</button>`;
+  btns += `<button onclick="catGoToPage(${cur+1})" style="padding:8px 14px;border-radius:8px;background:var(--card);border:1px solid var(--border);color:var(--text);cursor:pointer;font-size:13px;font-family:inherit;transition:all .2s;" ${cur===totalPages-1?'disabled style="opacity:.4;cursor:default;"':''}>Siguiente ›</button>`;
+  btns += `<span style="font-size:12px;color:var(--muted);margin-left:8px;">Página ${cur+1} de ${totalPages}</span>`;
+  pag.innerHTML = btns;
+}
+function catGoToPage(pageIdx) {
+  var totalPages = Math.ceil(_catFilteredList.length / CAT_PAGE_SIZE);
+  if (pageIdx < 0 || pageIdx >= totalPages) return;
+  _catProdPage = pageIdx;
+  var grid = document.getElementById('catProductsGrid');
+  var start = pageIdx * CAT_PAGE_SIZE;
+  var batch = _catFilteredList.slice(start, start + CAT_PAGE_SIZE);
+  grid.innerHTML = batch.map(function(p){ return productCardHTML(p); }).join('');
+  _renderCatPagination();
+  var catSection = document.getElementById('view-category');
+  window.scrollTo({ top: catSection ? catSection.offsetTop - 80 : 0, behavior: 'smooth' });
 }
 
 function onFilterChange() {
@@ -4520,10 +4570,41 @@ function togWishPDP() {
 function shareP(net) {
   const title = currentProd ? currentProd.name : '';
   const url = window.location.href;
-  const urls = { facebook:`https://facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, twitter:`https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`, whatsapp:`https://wa.me/?text=${encodeURIComponent(title+' - '+url)}` };
-  if (urls[net]) window.open(urls[net],'_blank','width=600,height=400');
+  if (net === 'native') {
+    if (navigator.share) {
+      navigator.share({ title: title, url: url }).catch(function(){});
+    } else {
+      copyLink();
+    }
+    return;
+  }
+  const urls = {
+    facebook: `https://facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
+    twitter:  `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`,
+    whatsapp: `https://wa.me/?text=${encodeURIComponent(title+' - '+url)}`
+  };
+  if (urls[net]) window.open(urls[net], '_blank', 'width=600,height=400,noopener');
 }
-function copyLink() { navigator.clipboard.writeText(window.location.href).then(()=>showToast('Enlace copiado — compártelo donde quieras ✓')); }
+function copyLink() {
+  var url = window.location.href;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url)
+      .then(function(){ showToast('Enlace copiado — compártelo donde quieras ✓'); })
+      .catch(function(){ _copyLinkFallback(url); });
+  } else {
+    _copyLinkFallback(url);
+  }
+}
+function _copyLinkFallback(text) {
+  var ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0;pointer-events:none;';
+  document.body.appendChild(ta);
+  ta.focus(); ta.select();
+  try { document.execCommand('copy'); showToast('Enlace copiado — compártelo donde quieras ✓'); }
+  catch(e) { showToast('No se pudo copiar el enlace', 'error'); }
+  document.body.removeChild(ta);
+}
 function openZoom(src) { document.getElementById('zoomImg').src=src; document.getElementById('zoomOv').classList.add('open'); }
 function closeZoom() { document.getElementById('zoomOv').classList.remove('open'); }
 function updPdpCartBdg() { /* badge removido — carro visible en header */ }
@@ -4597,7 +4678,46 @@ function _updShipBar(){
     el.innerHTML='<p class="csp-msg">Agrega <strong>'+fp(remain)+'</strong> más para <strong>envío gratis</strong></p><div class="csp-track"><div class="csp-fill" style="width:'+pct+'%"></div></div>';
   }
 }
-function togCart() { document.getElementById('cartOv').classList.toggle('open'); document.getElementById('cartPan').classList.toggle('open'); }
+/* ── Focus-trap utility ── */
+var _ftCleanups = {};
+function _trapFocus(containerId) {
+  var el = document.getElementById(containerId);
+  if (!el) return;
+  var sel = 'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
+  function handler(e) {
+    if (e.key !== 'Tab') return;
+    var focusable = Array.from(el.querySelectorAll(sel)).filter(function(n){ return !n.closest('[style*="display:none"]'); });
+    if (!focusable.length) { e.preventDefault(); return; }
+    var first = focusable[0], last = focusable[focusable.length-1];
+    if (e.shiftKey) { if (document.activeElement === first) { last.focus(); e.preventDefault(); } }
+    else { if (document.activeElement === last) { first.focus(); e.preventDefault(); } }
+  }
+  el.addEventListener('keydown', handler);
+  _ftCleanups[containerId] = function(){ el.removeEventListener('keydown', handler); };
+  // set initial focus to first focusable
+  var firstEl = el.querySelector(sel);
+  if (firstEl) setTimeout(function(){ firstEl.focus(); }, 50);
+}
+function _releaseFocus(containerId) {
+  if (_ftCleanups[containerId]) { _ftCleanups[containerId](); delete _ftCleanups[containerId]; }
+}
+document.addEventListener('keydown', function(e){
+  if (e.key !== 'Escape') return;
+  var ck = document.getElementById('ckOverlay');
+  if (ck && ck.classList.contains('open')) { closeCheckout(); return; }
+  var cartOv = document.getElementById('cartOv');
+  if (cartOv && cartOv.classList.contains('open')) { togCart(); return; }
+  var zoom = document.getElementById('zoomOv');
+  if (zoom && zoom.classList.contains('open')) { closeZoom(); return; }
+  var faq = document.getElementById('faqOverlay');
+  if (faq && faq.classList.contains('open') && typeof closeFAQ==='function') { closeFAQ(); return; }
+});
+function togCart() {
+  var isOpening = !document.getElementById('cartPan').classList.contains('open');
+  document.getElementById('cartOv').classList.toggle('open');
+  document.getElementById('cartPan').classList.toggle('open');
+  if (isOpening) _trapFocus('cartPan'); else _releaseFocus('cartPan');
+}
 /* ═══════════ CHECKOUT ═══════════ */
 function checkout(){
   if(!cart.length){showToast('El carro está vacío','error');return;}
@@ -4626,12 +4746,14 @@ function checkout(){
   document.getElementById('ckSummary').style.display = '';
   document.getElementById('ckSuccess').style.display = 'none';
   document.getElementById('ckOverlay').classList.add('open');
+  _trapFocus('ckBox');
   // Asegurar label del botón según pago por defecto (MP)
   var ckBtn = document.getElementById('ckConfirmBtn');
   if(ckBtn) ckBtn.innerHTML = '<i class="fas fa-wallet"></i> Pagar con Mercado Pago';
 }
 function closeCheckout(){
   document.getElementById('ckOverlay').classList.remove('open');
+  _releaseFocus('ckBox');
   if(window._mpTimerInterval){clearInterval(window._mpTimerInterval);window._mpTimerInterval=null;}
 }
 function selPay(el,val){
@@ -7018,6 +7140,11 @@ function _skelCards(n) {
   safe(function(){ renderHomeProducts(''); }, 'renderHomeProducts');
   safe(renderRecent,      'renderRecent');
   safe(renderNavBar,      'renderNavBar');
+  // Mostrar botón nativo de share solo en plataformas que lo soporten (mobile principalmente)
+  safe(function(){
+    var nativeBtn = document.getElementById('pdpNativeShare');
+    if (nativeBtn && navigator.share) nativeBtn.style.display = 'flex';
+  }, 'nativeShareBtn');
   safe(renderFooterCats,  'renderFooterCats');
   safe(updCartBadge,      'updCartBadge');
   safe(renderCart,        'renderCart');

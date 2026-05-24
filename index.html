@@ -1227,6 +1227,17 @@ body.admin-open{overflow:hidden;}
 .ck-total-row.big{font-size:18px;font-weight:700;font-family:'Inter',system-ui,sans-serif;color:var(--text);margin-top:8px;letter-spacing:-.3px;}
 .ck-total-row.big span:last-child{color:var(--pink);}
 .ck-confirm-btn{width:100%;padding:14px;border-radius:9px;font-size:15px;font-weight:700;margin-top:14px;display:flex;align-items:center;justify-content:center;gap:8px;}
+/* Cupón */
+.ck-coupon-row{display:flex;gap:8px;margin:12px 0 4px;}
+.ck-coupon-inp{flex:1;background:var(--surface);border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;color:var(--text);font-family:inherit;outline:none;text-transform:uppercase;transition:border-color .2s;}
+.ck-coupon-inp:focus{border-color:var(--pink);}
+.ck-coupon-btn{padding:9px 14px;border-radius:8px;font-size:12px;font-weight:700;white-space:nowrap;background:var(--card);border:1.5px solid var(--border);color:var(--text);cursor:pointer;font-family:inherit;transition:all .2s;}
+.ck-coupon-btn:hover{border-color:var(--pink);color:var(--pink);}
+.ck-coupon-msg{font-size:12px;margin-bottom:6px;min-height:16px;display:flex;align-items:center;gap:5px;}
+.ck-coupon-msg.ok{color:var(--good);}
+.ck-coupon-msg.err{color:var(--red);}
+.ck-discount-row{display:none;color:var(--good);}
+.ck-discount-row.show{display:flex;}
 .ck-success{display:none;text-align:center;padding:32px 24px 28px;grid-column:1/-1;}
 .ck-close-x{position:absolute;top:16px;right:20px;background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;z-index:2;line-height:1;}
 .ck-close-x:hover{color:var(--text);}
@@ -2772,7 +2783,7 @@ html{scroll-behavior:smooth;}
       <div class="tab-pane on" id="tp-desc"><div class="pdp-desc-text" id="pdpDescText"></div><ul class="pdp-features-list" id="pdpFeatsList"></ul></div>
       <div class="tab-pane" id="tp-specs"><div style="background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden"><table class="specs-tbl" id="pdpSpecsTbl"></table></div></div>
       <div class="tab-pane" id="tp-reviews">
-        <div class="reviews-wrap"><div class="big-rat"><div class="r-num" id="revAvg">4.8</div><span class="r-stars" id="revStars">★★★★★</span><p id="revCount">0 opiniones</p></div><div class="rat-bars" id="ratBarsWrap"></div></div>
+        <div class="reviews-wrap" style="display:none"><div class="big-rat"><div class="r-num" id="revAvg">0</div><span class="r-stars" id="revStars"></span><p id="revCount">0 opiniones</p></div><div class="rat-bars" id="ratBarsWrap"></div></div>
         <div id="reviewsListWrap"></div>
       </div>
       <!-- Related -->
@@ -3034,8 +3045,9 @@ html{scroll-behavior:smooth;}
         <div class="form-group"><label class="form-label" for="ck-fname">Nombre <em>*</em></label><input class="form-input" id="ck-fname" type="text" placeholder="Juan Pérez" autocomplete="name"></div>
         <div class="form-group"><label class="form-label" for="ck-email">Email <em>*</em></label><input class="form-input" id="ck-email" type="email" placeholder="juan@correo.com" autocomplete="email"></div>
       </div>
-      <div class="ck-row g1">
+      <div class="ck-row">
         <div class="form-group"><label class="form-label" for="ck-phone">Teléfono <em>*</em></label><input class="form-input" id="ck-phone" type="tel" pattern="(\+?56\s?)?[29]\d{8}|(\+?56\s?)?9\d{8}" placeholder="+56 9 1234 5678" maxlength="20" autocomplete="tel"></div>
+        <div class="form-group"><label class="form-label" for="ck-rut">RUT <span style="color:var(--muted);font-weight:400;font-size:11px">(opcional)</span></label><input class="form-input" id="ck-rut" type="text" placeholder="12.345.678-9" maxlength="12" autocomplete="off" oninput="fmtRUT(this)" onblur="validateRUT(this)"></div>
       </div>
 
       <div class="ck-step-title"><i class="fas fa-truck"></i> Dirección de entrega</div>
@@ -3118,7 +3130,13 @@ html{scroll-behavior:smooth;}
       <h3><i class="fas fa-receipt" style="color:var(--pink)"></i> Tu pedido</h3>
       <div class="ck-items" id="ckItems"></div>
       <hr class="ck-divider">
+      <div class="ck-coupon-row">
+        <input class="ck-coupon-inp" id="ckCouponInp" type="text" placeholder="Código de descuento" maxlength="20" onkeydown="if(event.key==='Enter')applyCoupon()">
+        <button class="ck-coupon-btn" id="ckCouponBtn" onclick="applyCoupon()">Aplicar</button>
+      </div>
+      <div class="ck-coupon-msg" id="ckCouponMsg"></div>
       <div class="ck-total-row"><span>Subtotal</span><span id="ck-sub">$0</span></div>
+      <div class="ck-total-row ck-discount-row" id="ckDiscountRow" style="display:none"><span id="ckDiscountLabel">Descuento</span><span id="ck-discount" style="color:var(--good)">-$0</span></div>
       <div class="ck-total-row"><span>Envío</span><span id="ck-ship" style="color:var(--accent)">GRATIS</span></div>
       <div class="ck-total-row big"><span>Total</span><span id="ck-total">$0</span></div>
       <button class="btn-grad ck-confirm-btn" id="ckConfirmBtn" onclick="confirmOrder()"><i class="fas fa-lock"></i> Confirmar pedido</button>
@@ -3429,6 +3447,7 @@ function goHome() {
   document.getElementById('searchInp').value = '';
   renderNavBar();
   renderHomeProducts('');
+  if(typeof renderRecent==='function') renderRecent();
   showView('home');
   if(typeof hideStickyPdp==='function') hideStickyPdp();
   var _n = gc('name') || 'Maxicompra';
@@ -4213,10 +4232,17 @@ function populatePDP(p) {
   document.getElementById('pdpTitle').textContent   = p.name;
   document.getElementById('pdpBrand').textContent   = p.brand || '';
   document.getElementById('pdpSeller').textContent  = p.seller || gc('name');
-  const rat = Math.min(5, Math.max(0, p.rat || 4.5));
-  document.getElementById('pdpStars').textContent  = '★'.repeat(Math.round(rat)) + '☆'.repeat(5-Math.round(rat));
-  document.getElementById('pdpRat').textContent    = rat.toFixed(1);
-  document.getElementById('pdpRevCnt').textContent = `(${(p.rev||0).toLocaleString('es-CL')} opiniones)`;
+  const _rev = p.rev || 0;
+  const starsRow = document.querySelector('.pdp-stars-row');
+  if (_rev > 0) {
+    const rat = Math.min(5, Math.max(0, p.rat || 4.5));
+    document.getElementById('pdpStars').textContent  = '★'.repeat(Math.round(rat)) + '☆'.repeat(5-Math.round(rat));
+    document.getElementById('pdpRat').textContent    = rat.toFixed(1);
+    document.getElementById('pdpRevCnt').textContent = `(${_rev.toLocaleString('es-CL')} opiniones)`;
+    if (starsRow) starsRow.style.display = '';
+  } else {
+    if (starsRow) starsRow.style.display = 'none';
+  }
   // Pricing
   document.getElementById('pdpPriceBig').textContent = fp(p.price);
   if (p.orig) { document.getElementById('pdpPriceStrike').textContent=fp(p.orig); document.getElementById('pdpPriceStrike').style.display=''; }
@@ -4366,12 +4392,18 @@ function buildReviews(p) {
     rat = Math.min(5, sum / stored.length);
     cnt = stored.length;
   } else {
-    rat = Math.min(5, Math.max(0, p.rat || 4.5));
+    rat = Math.min(5, Math.max(0, p.rat || 0));
     cnt = p.rev || 0;
   }
-  document.getElementById('revAvg').textContent = rat.toFixed(1);
-  document.getElementById('revStars').textContent = '★'.repeat(Math.round(rat)) + '☆'.repeat(5 - Math.round(rat));
-  document.getElementById('revCount').textContent = cnt.toLocaleString('es-CL') + ' opiniones';
+  var reviewsWrap = document.querySelector('#tp-reviews .reviews-wrap');
+  if (!hasStored && cnt === 0) {
+    if (reviewsWrap) reviewsWrap.style.display = 'none';
+  } else {
+    if (reviewsWrap) reviewsWrap.style.display = '';
+    document.getElementById('revAvg').textContent = rat.toFixed(1);
+    document.getElementById('revStars').textContent = '★'.repeat(Math.round(rat)) + '☆'.repeat(5 - Math.round(rat));
+    document.getElementById('revCount').textContent = cnt.toLocaleString('es-CL') + ' opiniones';
+  }
   // Distribution bars
   var dist;
   if (hasStored) {
@@ -4584,6 +4616,11 @@ function checkout(){
       <div class="ck-item-price">${fp(i.price*i.qty)}</div>
     </div>`;
   }).join('');
+  // Reset cupón
+  _coupon=null;
+  var _ci=document.getElementById('ckCouponInp'),_cm=document.getElementById('ckCouponMsg');
+  if(_ci){_ci.value='';_ci.disabled=false;}
+  if(_cm){_cm.className='ck-coupon-msg';_cm.textContent='';}
   // Reset form y mostrar
   document.getElementById('ckForm').style.display = '';
   document.getElementById('ckSummary').style.display = '';
@@ -4634,6 +4671,17 @@ function updateCkSummary(){
   var shipFree = freeFrom < 999999999 && sub >= freeFrom;
   var baseShip = SHIPPING_RATES[region]||3990;
   var shipNum = shipFree ? 0 : baseShip;
+  // Coupon discount
+  var discount = 0;
+  var discEl=document.getElementById('ckDiscountRow'), discValEl=document.getElementById('ck-discount');
+  if(_coupon && _coupon.pct > 0){
+    discount = Math.round(sub * _coupon.pct / 100);
+    if(discEl) discEl.style.display='flex';
+    if(discValEl) discValEl.textContent='-'+fp(discount);
+  } else {
+    if(discEl) discEl.style.display='none';
+  }
+  var afterDiscount = Math.max(0, sub - discount);
   var subEl=document.getElementById('ck-sub'), shipEl=document.getElementById('ck-ship'), totEl=document.getElementById('ck-total');
   if(subEl) subEl.textContent=fp(sub);
   if(shipEl){
@@ -4641,7 +4689,48 @@ function updateCkSummary(){
     else if(!region){shipEl.textContent='Selecciona región';shipEl.style.color='var(--muted)';}
     else{shipEl.textContent=fp(shipNum);shipEl.style.color='var(--text)';}
   }
-  if(totEl) totEl.textContent=fp(shipFree?sub:(region?sub+shipNum:sub));
+  if(totEl) totEl.textContent=fp(shipFree?afterDiscount:(region?afterDiscount+shipNum:afterDiscount));
+}
+/* ── Cupón de descuento ── */
+var _coupon = null;
+function applyCoupon(){
+  var inp = document.getElementById('ckCouponInp');
+  var msgEl = document.getElementById('ckCouponMsg');
+  var btn = document.getElementById('ckCouponBtn');
+  if(!inp || !msgEl) return;
+  var code = inp.value.trim().toUpperCase();
+  if(!code){ msgEl.className='ck-coupon-msg err'; msgEl.textContent='Ingresa un código.'; return; }
+  if(!API_BASE){ msgEl.className='ck-coupon-msg err'; msgEl.textContent='Cupones no disponibles sin conexión.'; return; }
+  if(btn){ btn.disabled=true; btn.textContent='...'; }
+  fetchWithTimeout(API_BASE+'/api/coupon/'+encodeURIComponent(code),{},6000)
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(btn){ btn.disabled=false; btn.textContent='Aplicar'; }
+      if(!d.ok || !d.valid){
+        _coupon=null;
+        msgEl.className='ck-coupon-msg err';
+        msgEl.innerHTML='<i class="fas fa-times-circle"></i> Cupón inválido o expirado.';
+        updateCkSummary(); return;
+      }
+      _coupon={code:code, pct:d.pct};
+      msgEl.className='ck-coupon-msg ok';
+      msgEl.innerHTML='<i class="fas fa-tag"></i> ¡'+d.pct+'% de descuento aplicado! <a href="#" style="color:var(--muted);font-size:11px;margin-left:6px;" onclick="removeCoupon();return false;">Quitar</a>';
+      if(inp) inp.disabled=true;
+      updateCkSummary();
+    })
+    .catch(function(){
+      if(btn){ btn.disabled=false; btn.textContent='Aplicar'; }
+      msgEl.className='ck-coupon-msg err';
+      msgEl.innerHTML='<i class="fas fa-exclamation-circle"></i> Error al validar. Intenta de nuevo.';
+    });
+}
+function removeCoupon(){
+  _coupon=null;
+  var inp=document.getElementById('ckCouponInp');
+  var msgEl=document.getElementById('ckCouponMsg');
+  if(inp){inp.value='';inp.disabled=false;}
+  if(msgEl){msgEl.className='ck-coupon-msg';msgEl.textContent='';}
+  updateCkSummary();
 }
 function updateCkSummaryWithMP(applyMP){ updateCkSummary(); } // backward compat
 function _launchOrderWA(orderNum, waURL, isTransfer, hasComp){
@@ -4693,10 +4782,47 @@ function _launchOrderWA(orderNum, waURL, isTransfer, hasComp){
   cart = []; saveC(); updCartBadge(); renderCart();
 }
 
+/* ── RUT chileno ── */
+function _cleanRUT(r){ return r.replace(/[\.\-\s]/g,'').toUpperCase(); }
+function _calcDV(num){
+  var s=0,f=2,rev=String(num).split('').reverse();
+  for(var i=0;i<rev.length;i++){s+=parseInt(rev[i])*(f<8?f++:(f=2));} // 2-7 cycle
+  var dv=11-(s%11);
+  return dv===11?'0':dv===10?'K':String(dv);
+}
+function _rutValido(r){
+  var c=_cleanRUT(r);
+  if(c.length<2) return false;
+  var dv=c.slice(-1), num=c.slice(0,-1);
+  if(!/^\d+$/.test(num)) return false;
+  if(parseInt(num)<1000000) return false;
+  return _calcDV(num)===dv;
+}
+function fmtRUT(inp){
+  var raw=inp.value.replace(/[\.\-\s]/g,'').replace(/[^0-9kK]/g,'').toUpperCase();
+  if(raw.length<2){inp.value=raw;return;}
+  var dv=raw.slice(-1), num=raw.slice(0,-1);
+  // add dots every 3 digits from right
+  var dotted=num.replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+  inp.value=dotted+'-'+dv;
+  inp.style.color='';
+}
+function validateRUT(inp){
+  var v=inp.value.trim();
+  if(!v) return; // optional
+  if(!_rutValido(v)){
+    inp.style.color='var(--red)';
+    inp.title='RUT inválido';
+  } else {
+    inp.style.color='var(--good)';
+    inp.title='';
+  }
+}
 function confirmOrder(){
   const name   = document.getElementById('ck-fname').value.trim();
   const email  = document.getElementById('ck-email').value.trim();
   const phone  = document.getElementById('ck-phone').value.trim();
+  const rut    = (document.getElementById('ck-rut')||{}).value ? document.getElementById('ck-rut').value.trim() : '';
   const addr   = document.getElementById('ck-addr').value.trim();
   const city   = document.getElementById('ck-city').value.trim();
   const region = document.getElementById('ck-region').value;
@@ -4707,6 +4833,7 @@ function confirmOrder(){
   if(!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/)){ showToast('Email inválido — revisa el formato','error'); return; }
   const phoneClean = phone.replace(/[\s\-\(\)\.]/g,'');
   if(!phoneClean.match(/^(\+?56)?[29]\d{8}$/)){ showToast('Teléfono inválido — ej: +56912345678 o 912345678','error'); return; }
+  if(rut && !_rutValido(rut)){ showToast('RUT inválido — revisa el formato (ej: 12.345.678-9)','error'); return; }
   if(addr.length < 5 || addr.length > 200){ showToast('Dirección debe tener entre 5 y 200 caracteres','error'); return; }
 
   const payEl  = document.querySelector('.ck-pay-opt.sel input');
@@ -4728,9 +4855,9 @@ function confirmOrder(){
     if(btn){btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Procesando...';}
     const orderPayload = {
       items: cart.map(function(i){ return {id:i.id, name:i.name, qty:i.qty, price:i.price, img:i.img||''}; }),
-      customer: {name, email, phone, address: addr+', '+city+', '+region},
+      customer: {name, email, phone, rut: rut||undefined, address: addr+', '+city+', '+region},
       payment: payVal,
-      coupon: null,
+      coupon: _coupon ? _coupon.code : null,
       total: totalNum
     };
     fetchWithTimeout(API_BASE+'/api/order', {
@@ -4742,7 +4869,7 @@ function confirmOrder(){
     .then(function(d){
       if(!d.ok){
         if(btn){btn.disabled=false; btn.innerHTML='<i class="fas fa-lock"></i> Confirmar pedido';}
-        _confirmOrderFallback(name,email,phone,addr,city,region,payName,shipTxt,totalTxt,storePhone,payVal==='transfer');
+        _confirmOrderFallback(name,email,phone,addr,city,region,payName,shipTxt,totalTxt,storePhone,payVal==='transfer',rut);
         return;
       }
       // Si el pago es Mercado Pago y el API está activo → Checkout Pro
@@ -4765,11 +4892,11 @@ function confirmOrder(){
     })
     .catch(function(){
       if(btn){btn.disabled=false; btn.innerHTML='<i class="fas fa-lock"></i> Confirmar pedido';}
-      _confirmOrderFallback(name,email,phone,addr,city,region,payName,shipTxt,totalTxt,storePhone,payVal==='transfer');
+      _confirmOrderFallback(name,email,phone,addr,city,region,payName,shipTxt,totalTxt,storePhone,payVal==='transfer',rut);
     });
     return;
   }
-  _confirmOrderFallback(name,email,phone,addr,city,region,payName,shipTxt,totalTxt,storePhone,payVal==='transfer');
+  _confirmOrderFallback(name,email,phone,addr,city,region,payName,shipTxt,totalTxt,storePhone,payVal==='transfer',rut);
 }
 
 function _launchMPCheckout(orderId, email, totalNum, waUrl, name, phone, addr, city, region, payName, shipTxt, totalTxt, storePhone){
@@ -4847,7 +4974,7 @@ function _uploadComprobante(orderId){
   reader.readAsDataURL(file);
 }
 
-function _confirmOrderFallback(name,email,phone,addr,city,region,payName,shipTxt,totalTxt,storePhone,isTransfer){
+function _confirmOrderFallback(name,email,phone,addr,city,region,payName,shipTxt,totalTxt,storePhone,isTransfer,rut){
   const orderNum = 'MX-' + Date.now().toString().slice(-6);
   const itemLines = cart.map(function(i){
     return '  • '+i.qty+'x '+i.name.substring(0,40)+(i.name.length>40?'...':'') + ' — ' + fp(i.price * i.qty);
@@ -4859,11 +4986,13 @@ function _confirmOrderFallback(name,email,phone,addr,city,region,payName,shipTxt
     '👤 *Cliente:* '+name,
     '📧 Email: '+email,
     '📱 Tel: '+phone,
+    (rut ? '🪪 RUT: '+rut : null),
     '',
     '📦 *Productos:*',
     itemLines,
     '',
     '💰 Subtotal: '+(document.getElementById('ck-sub')?document.getElementById('ck-sub').textContent:totalTxt),
+    (_coupon ? '🏷️ Cupón '+_coupon.code+' (-'+_coupon.pct+'%): -'+(document.getElementById('ck-discount')?document.getElementById('ck-discount').textContent:'') : null),
     '🚚 Envío: '+shipTxt,
     '✅ *TOTAL: '+totalTxt+'*',
     '',
@@ -4871,7 +5000,7 @@ function _confirmOrderFallback(name,email,phone,addr,city,region,payName,shipTxt
     '📍 *Dirección:* '+addr+', '+city+', '+region,
     '━━━━━━━━━━━━━━━━━━━━',
     '⚡ Pedido enviado desde Maxicompra.cl'
-  ].join('\n');
+  ].filter(function(l){return l!==null;}).join('\n');
   const waURL = 'https://wa.me/'+storePhone+'?text='+encodeURIComponent(msg);
   _launchOrderWA(orderNum, waURL, !!isTransfer, false);
 }
@@ -6887,6 +7016,7 @@ function _skelCards(n) {
     }
   }, 'heroEdUpdate');
   safe(function(){ renderHomeProducts(''); }, 'renderHomeProducts');
+  safe(renderRecent,      'renderRecent');
   safe(renderNavBar,      'renderNavBar');
   safe(renderFooterCats,  'renderFooterCats');
   safe(updCartBadge,      'updCartBadge');

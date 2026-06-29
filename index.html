@@ -402,6 +402,11 @@ img{display:block;max-width:100%;}
 
 /* ═══════════════════════════ PRODUCT CARDS ═══════════════════════════ */
 .products-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;}
+.cat-subcat-hdr{grid-column:1/-1;display:flex;align-items:center;gap:10px;padding:18px 0 10px;margin-top:8px;border-bottom:1.5px solid var(--line);font-family:'Instrument Serif',Georgia,serif;font-size:21px;color:var(--ink);letter-spacing:-.01em;}
+.cat-subcat-hdr:first-child{margin-top:0;}
+.cat-subcat-hdr .csh-emoji{font-size:19px;line-height:1;}
+.cat-subcat-hdr .csh-count{font-family:'Inter',system-ui,sans-serif;font-size:12px;font-weight:600;color:var(--mute);background:var(--bg-2);border-radius:99px;padding:2px 10px;margin-left:2px;}
+@media(max-width:600px){.cat-subcat-hdr{font-size:18px;padding:14px 0 8px;}}
 .prod{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden;cursor:pointer;transition:all .18s;display:flex;flex-direction:column;position:relative;}
 .prod:hover{border-color:var(--ink-2);transform:translateY(-3px);}
 .prod:hover .prod-img-el{transform:scale(1.04);}
@@ -3379,6 +3384,46 @@ const DEFAULT_CATS = [
 // Siempre usar DEFAULT_CATS para que coincidan con los productos
 cats = DEFAULT_CATS; saveCats();
 
+/* ── SUBCATEGORÍAS (agrupación visual dentro de cada categoría) ── */
+const SUBCAT_ORDER = ['pilas','power-bank','cargadores-cables','parlantes','audifonos','depiladoras',
+  'cuidado-personal','alargadores','almacenamiento','mouse-teclado','redes','radios','iluminacion',
+  'telefonia','camaras-video','accesorios-auto','electrodomesticos','cocina','balanzas','salud',
+  'herramientas','juguetes','otros'];
+const SUBCAT_META = {
+  'pilas':            {label:'Pilas y Baterías',                 emoji:'🔌'},
+  'power-bank':        {label:'Power Bank y Baterías Externas',   emoji:'🔋'},
+  'cargadores-cables': {label:'Cargadores y Cables',               emoji:'🔌'},
+  'parlantes':         {label:'Parlantes y Karaoke',               emoji:'🔊'},
+  'audifonos':         {label:'Audífonos y Auriculares',           emoji:'🎧'},
+  'depiladoras':       {label:'Máquinas de Afeitar y Depilar',     emoji:'✂️'},
+  'cuidado-personal':  {label:'Cuidado Personal',                  emoji:'💇'},
+  'alargadores':       {label:'Alargadores y Enchufes',            emoji:'🔌'},
+  'almacenamiento':    {label:'Almacenamiento y Memorias',         emoji:'💾'},
+  'mouse-teclado':     {label:'Mouse y Teclados',                  emoji:'🖱️'},
+  'redes':             {label:'Redes y Conectividad',              emoji:'🌐'},
+  'radios':            {label:'Radios',                            emoji:'📻'},
+  'iluminacion':       {label:'Linternas y Focos',                 emoji:'🔦'},
+  'telefonia':         {label:'Teléfonos y Celulares',             emoji:'📱'},
+  'camaras-video':     {label:'Cámaras, TV y Video',               emoji:'📷'},
+  'accesorios-auto':   {label:'Accesorios para Auto',              emoji:'🚗'},
+  'electrodomesticos': {label:'Electrodomésticos del Hogar',       emoji:'🏠'},
+  'cocina':            {label:'Utensilios de Cocina',              emoji:'🍳'},
+  'balanzas':          {label:'Balanzas y Pesas',                  emoji:'⚖️'},
+  'salud':             {label:'Salud y Bienestar',                 emoji:'⚕️'},
+  'herramientas':      {label:'Herramientas y Ferretería',         emoji:'🔧'},
+  'juguetes':          {label:'Juguetes y Disfraces',              emoji:'🧸'},
+  'otros':             {label:'Otros',                             emoji:'📦'},
+};
+function _groupBySubcat(list) {
+  var idx = {};
+  SUBCAT_ORDER.forEach(function(id,i){ idx[id]=i; });
+  return list.slice().sort(function(a,b){
+    var ia = idx[a.subcat] !== undefined ? idx[a.subcat] : SUBCAT_ORDER.length;
+    var ib = idx[b.subcat] !== undefined ? idx[b.subcat] : SUBCAT_ORDER.length;
+    return ia - ib;
+  });
+}
+
 /* ── DEFAULT BANNERS ── */
 const DEFAULT_BANNERS = [
   {
@@ -3767,6 +3812,8 @@ function getProductList(catId='', search='') {
     case 'pd': list.sort((a,b) => b.price - a.price); break;
     case 'az': list.sort((a,b) => a.name.localeCompare(b.name)); break;
     case 'rat': list.sort((a,b) => (b.rat||0) - (a.rat||0)); break;
+    default:
+      if (catId) list = _groupBySubcat(list);
   }
   return list;
 }
@@ -3885,9 +3932,28 @@ function _paintCatGrid(filtered) {
   if (!filtered.length) { grid.innerHTML=''; empty.style.display='block'; if(count) count.textContent='0 productos'; _renderCatPagination(); return; }
   empty.style.display='none';
   var first = filtered.slice(0, CAT_PAGE_SIZE);
-  grid.innerHTML = first.map(function(p){ return productCardHTML(p); }).join('');
+  grid.innerHTML = _renderCatGridSlice(first);
   if(count) count.textContent = filtered.length + ' producto' + (filtered.length !== 1 ? 's' : '');
   _renderCatPagination();
+}
+function _renderCatGridSlice(list) {
+  var distinctSubcats = new Set(_catFilteredList.map(function(p){ return p.subcat; }));
+  var shouldGroup = sortMode === 'def' && distinctSubcats.size > 1;
+  if (!shouldGroup) {
+    return list.map(function(p){ return productCardHTML(p); }).join('');
+  }
+  var html = '';
+  var lastSubcat = null;
+  list.forEach(function(p){
+    if (p.subcat !== lastSubcat) {
+      var meta = SUBCAT_META[p.subcat] || SUBCAT_META.otros;
+      var n = _catFilteredList.filter(function(x){ return x.subcat === p.subcat; }).length;
+      html += '<div class="cat-subcat-hdr"><span class="csh-emoji">'+meta.emoji+'</span>'+esc(meta.label)+'<span class="csh-count">'+n+'</span></div>';
+      lastSubcat = p.subcat;
+    }
+    html += productCardHTML(p);
+  });
+  return html;
 }
 function _renderCatPagination() {
   var pag = document.getElementById('catPagination');
@@ -3917,7 +3983,7 @@ function catGoToPage(pageIdx) {
   var grid = document.getElementById('catProductsGrid');
   var start = pageIdx * CAT_PAGE_SIZE;
   var batch = _catFilteredList.slice(start, start + CAT_PAGE_SIZE);
-  grid.innerHTML = batch.map(function(p){ return productCardHTML(p); }).join('');
+  grid.innerHTML = _renderCatGridSlice(batch);
   _renderCatPagination();
   var catSection = document.getElementById('view-category');
   window.scrollTo({ top: catSection ? catSection.offsetTop - 80 : 0, behavior: 'smooth' });

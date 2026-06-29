@@ -3128,10 +3128,6 @@ html{scroll-behavior:smooth;}
             </div>
           </div>
         </div>
-        <div class="ck-pay-opt" onclick="selPay(this,'cash')">
-          <input type="radio" name="ck-pay" id="pay-cash">
-          <label for="pay-cash"><i class="fas fa-money-bill-wave" style="color:var(--green)"></i> Efectivo (pago en tienda)</label>
-        </div>
         <!-- Webpay: próximamente -->
         <div class="ck-pay-opt" style="opacity:.45;cursor:not-allowed;pointer-events:none">
           <input type="radio" name="ck-pay" id="pay-webpay" disabled>
@@ -4837,8 +4833,7 @@ function selPay(el,val){
   var labels = {
     webpay:   '<i class="fas fa-credit-card"></i> Pagar con Webpay',
     mp:       '<i class="fas fa-wallet"></i> Pagar con Mercado Pago',
-    transfer: '<i class="fas fa-paper-plane"></i> Confirmar y enviar datos',
-    cash:     '<i class="fas fa-store"></i> Confirmar pedido (pago en tienda)'
+    transfer: '<i class="fas fa-paper-plane"></i> Confirmar y enviar datos'
   };
   btn.innerHTML = labels[val] || '<i class="fas fa-lock"></i> Confirmar pedido';
 }
@@ -5026,7 +5021,7 @@ function confirmOrder(){
 
   const payEl  = document.querySelector('.ck-pay-opt.sel input');
   const payVal = payEl ? payEl.id.replace('pay-','') : 'webpay';
-  const payNames = {webpay:'Webpay Plus (Débito/Crédito)', mp:'Mercado Pago', transfer:'Transferencia bancaria', cash:'Efectivo (pago en tienda)'};
+  const payNames = {webpay:'Webpay Plus (Débito/Crédito)', mp:'Mercado Pago', transfer:'Transferencia bancaria'};
   const payName = payNames[payVal] || payVal;
 
   const totalEl  = document.getElementById('ck-total');

@@ -18,3 +18,8 @@ COMANDOS/
 worker/.wrangler/
 index.min.tmp.html
 mx_matches.json
+
+.dev.vars*
+!.dev.vars.example
+.env*
+!.env.example

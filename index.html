@@ -7007,6 +7007,8 @@ function _hideSuggest(){var b=document.getElementById('searchSuggest');if(b)b.st
 function _renderSuggest(q){
   var box=document.getElementById('searchSuggest');
   if(!box)return;
+  // Vive dentro de .search-bar (display:none en mobile) → sacarlo al body para que se vea en ambos
+  if(box.parentElement!==document.body) document.body.appendChild(box);
   if(!q||q.trim().length<2){_hideSuggest();return;}
   var visible=products.filter(function(p){return p.visible!==false;});
   var res=_fuzzySearch(q,visible);
@@ -7032,14 +7034,21 @@ function _renderSuggest(q){
     var fuzzyTag=isFuzzy?'<span style="font-size:10px;color:var(--muted);margin-left:4px">~similar</span>':'';
     return '<div class="ss-item'+(isFuzzy?' ss-item-fuzzy':'')+'" onclick="_hideSuggest();openPDP(\''+esc(p.id)+'\')" style="'+(isFuzzy?'opacity:.82':'')+'">'+imgEl+'<div style="flex:1;min-width:0"><div class="ss-name">'+nameHL+fuzzyTag+'</div>'+brandHL+'</div><div class="ss-price">'+fp(p.price)+'</div></div>';
   }).join('')+(hasFuzzy?'<div style="padding:6px 14px;font-size:11px;color:var(--muted);border-top:1px solid var(--border)">Mostrando resultados aproximados</div>':'')+'<div class="ss-see-all" onclick="_commitSearch()">Ver los '+total+' resultados →</div>';
+  // En mobile #searchBarWrap está oculto (rect 0×0) → usar la fila de búsqueda mobile
   var wrap=document.getElementById('searchBarWrap');
-  if(wrap){
-    var wrapR=wrap.getBoundingClientRect();
+  var wrapR=wrap?wrap.getBoundingClientRect():null;
+  if(!wrapR||wrapR.width<40){
+    wrap=document.getElementById('mobSearchRow');
+    wrapR=wrap?wrap.getBoundingClientRect():null;
+  }
+  if(wrap&&wrapR&&wrapR.width>=40){
+    var onMob=wrap.id==='mobSearchRow';
     var hdr=document.querySelector('.site-header');
-    var topY=hdr?hdr.getBoundingClientRect().bottom+4:wrapR.bottom+6;
+    var topY=onMob?wrapR.bottom+2:(hdr?hdr.getBoundingClientRect().bottom+4:wrapR.bottom+6);
+    var pad=onMob?12:0;
     box.style.top=topY+'px';
-    box.style.left=wrapR.left+'px';
-    box.style.width=wrapR.width+'px';
+    box.style.left=(wrapR.left+pad)+'px';
+    box.style.width=(wrapR.width-pad*2)+'px';
     box.style.maxHeight=Math.min(360,window.innerHeight-topY-16)+'px';
   }
   box.style.display='block';
@@ -7051,7 +7060,7 @@ function _renderSuggest(q){
     if(e.key==='/'&&!['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)){e.preventDefault();var si=document.getElementById('searchInp');if(si){si.focus();si.select();}}
   });
   document.addEventListener('mousedown',function(e){
-    if(!e.target.closest('#searchBarWrap'))_hideSuggest();
+    if(!e.target.closest('#searchBarWrap,#mobSearchRow,#searchSuggest'))_hideSuggest();
   });
 })();
 function mobSearchQuery(q){

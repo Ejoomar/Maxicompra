@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches-ignore: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Sintaxis JS (tienda, admin, worker, service worker)
+        run: |
+          node --check assets/js/app.js
+          node --check assets/js/admin.js
+          node --check worker/src/index.js
+          node --check sw.js
+      - name: Hashes de assets actualizados
+        run: python3 tools/stamp.py --check
+      - name: Tests del checkout
+        run: node --test tools/tests/order-total.test.mjs

@@ -18,3 +18,8 @@ COMANDOS/
 worker/.wrangler/
 index.min.tmp.html
 mx_matches.json
+
+# Datos y respaldos locales (no van al repo)
+tools/data/
+.playwright-mcp/
+node_modules/

@@ -1,10 +1,12 @@
 /* Maxicompra Service Worker — Cache-first para assets estáticos */
 'use strict';
 
-var CACHE = 'maxicompra-20250524';
+var CACHE = 'maxicompra-6d2afa22ca4e5955';
 var SHELL = [
   './',
   './index.html',
+  './assets/css/main.css?v=6d2afa22',
+  './assets/js/app.js?v=ca4e5955',
   'https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/fontawesome.min.css',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/solid.min.css',

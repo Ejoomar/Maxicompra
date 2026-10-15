@@ -292,6 +292,15 @@ async function handleHealth(request, env) {
 }
 
 // POST /api/order
+// total = items + envío (máx. $7.990 por región, margen hasta $8.500) − descuento de cupón.
+// Un límite porcentual rechazaba carritos baratos (ej. $2.000 + $2.990 de envío).
+const MAX_SHIPPING = 8500;
+export function isPlausibleOrderTotal(items, total) {
+  const itemsSum = items.reduce((acc, i) => acc + Number(i.price) * Number(i.qty || i.quantity || 1), 0);
+  const t = Number(total);
+  return t <= itemsSum + MAX_SHIPPING && t >= itemsSum * 0.40;
+}
+
 async function handleCreateOrder(request, env) {
   const ip = getClientIP(request);
   if (!(await checkRateLimit(env, `order:${ip}`, 10, 60)))
@@ -321,11 +330,7 @@ async function handleCreateOrder(request, env) {
   }
 
   // Validate total is in a reasonable range relative to items sum
-  // total = items + envío (máx. $7.990 por región, margen hasta $8.500) − descuento de cupón.
-  // Un límite porcentual rechazaba carritos baratos (ej. $2.000 + $2.990 de envío).
-  const MAX_SHIPPING = 8500;
-  const itemsSum = items.reduce((acc, i) => acc + Number(i.price) * Number(i.qty || i.quantity || 1), 0);
-  if (Number(total) > itemsSum + MAX_SHIPPING || Number(total) < itemsSum * 0.40)
+  if (!isPlausibleOrderTotal(items, total))
     return err('Total no coincide con los productos del carrito', 400, request);
 
   let discount = 0;
